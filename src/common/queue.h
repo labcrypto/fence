@@ -28,9 +28,21 @@ namespace gate {
     Queue() {}
     virtual ~Queue() {}
   public:
-    void Put(std::string label, M *m);
-    void Get(std::string label, std::vector<M*> &out);
-    void GetPairs(std::vector<Pair<M*>*> &out);
+    void Put(std::string label, M *m) {
+      std::lock_guard<std::mutex> guard(lock_);
+      if (map_.find(label) != map_.end()) {
+        std::vector<M*> *v = new std::vector<M*>();
+        v->push_back(m);
+        map_.insert(std::pair<std::string, std::vector<M*>*>(label, v));
+      }
+      map_.find(label)->second->push_back(m);
+    }
+    void Get(std::string label, std::vector<M*> &out) {
+      std::lock_guard<std::mutex> guard(lock_);
+    }
+    void GetPairs(std::vector<Pair<M*>*> &out) {
+      std::lock_guard<std::mutex> guard(lock_);
+    }
   private:
     std::map<std::string, std::vector<M*>*> map_;
     std::mutex lock_;

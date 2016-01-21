@@ -15,6 +15,7 @@ namespace gate {
   GateServiceImpl::OnInit() {
     Runtime::messageCounter_ = 0;
     Runtime::queue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
   GateServiceImpl::OnShutdown() {
