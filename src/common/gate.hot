@@ -1,0 +1,19 @@
+module ir.ntnaeem.gate {
+  struct Request {
+    uint32 id ord(1);
+    string label ord(3);
+    data content ord(4);
+  };
+  struct Response {
+    uint32 id ord(1);
+    uint32 requestId ord(2);
+    string requestLabel ord(3);
+    string label ord(4);
+    data content ord(5);
+  };
+  stateless service Gate {
+    uint32 sendRequest(Request request);
+    uint32 getRequestStatus(uint32 id);
+    list<Response> getResponses(string label);
+  };
+};
