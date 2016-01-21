@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <mutex>
 
 
 namespace ir {
@@ -27,17 +28,12 @@ namespace gate {
     Queue() {}
     virtual ~Queue() {}
   public:
-    void Put(std::string label, M *m) {
-      if (map_.find(label) == std::nopos) {
-        std::vector<M*> v = new std::vector<M*>();
-        map_.put(std::pair<std::string, std::vector<M*>*>(label, v));
-      }
-      map_.find(label).second->push_back(envelope);
-    }
+    void Put(std::string label, M *m);
     void Get(std::string label, std::vector<M*> &out);
     void GetPairs(std::vector<Pair<M*>*> &out);
   private:
     std::map<std::string, std::vector<M*>*> map_;
+    std::mutex lock_;
   };
 }
 }
