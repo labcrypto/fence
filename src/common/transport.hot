@@ -1,0 +1,18 @@
+module ir.ntnaeem.gate.transport {
+  struct TransportStatus {
+    uint32 statusCode ord(1);
+  };
+  struct TransportMessage {
+    uint32 id ord(1);
+    uint32 slaveId ord(2);
+    uint32 relId ord(3);
+    string relLabel ord(4);
+    string label ord(5);
+    data content ord(6);
+  };
+  stateless service Transport {
+    uint32 send(TransportMessage message);
+    TransportMessage receive();
+    TransportStatus getStatus(uint32 id);
+  };
+};

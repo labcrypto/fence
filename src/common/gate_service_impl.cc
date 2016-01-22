@@ -13,8 +13,9 @@ namespace ntnaeem {
 namespace gate {
   void
   GateServiceImpl::OnInit() {
-    Runtime::messageCounter_ = 0;
-    Runtime::queue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    Runtime::messageCounter_ = 1000;
+    Runtime::mainQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    Runtime::sentQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
@@ -26,17 +27,17 @@ namespace gate {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
-    std::lock_guard<std::mutex> guard(Runtime::gateServiceLock_);
+    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
     message.SetId(Runtime::messageCounter_++);
     out.SetValue(Runtime::messageCounter_ - 1);
-    Runtime::queue_->Put((const char*)message.GetLabel().Serialize(NULL), &message);
+    Runtime::mainQueue_->Put(message.GetLabel().ToStdString(), &message);
   }
   void
-  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt32 &id, ::naeem::hottentot::runtime::types::UInt32 &out) {
+  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt32 &id, ::ir::ntnaeem::gate::Status &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
-    std::lock_guard<std::mutex> guard(Runtime::gateServiceLock_);
+    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
     // TODO
   }
   void
@@ -44,7 +45,7 @@ namespace gate {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessages() is called." << std::endl;
     }
-    std::lock_guard<std::mutex> guard(Runtime::gateServiceLock_);
+    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
     // TODO
   }
 } // END OF NAMESPACE gate

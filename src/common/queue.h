@@ -22,7 +22,7 @@ namespace gate {
       virtual ~Pair() {}
     public:
       std::string label_;
-      std::vector<V*> envelopes_;
+      std::vector<V*> messages;
     };
   public:
     Queue() {}
@@ -40,8 +40,15 @@ namespace gate {
     void Get(std::string label, std::vector<M*> &out) {
       std::lock_guard<std::mutex> guard(lock_);
     }
-    void GetPairs(std::vector<Pair<M*>*> &out) {
+    void GetMessages(std::vector<M*> &out) {
       std::lock_guard<std::mutex> guard(lock_);
+      for (typename std::map<std::string, std::vector<M*>*>::iterator it = map_.begin();
+           it != map_.end();
+           it++) {
+        for (uint32_t i = 0; i < it->second->size(); i++) {
+          out.push_back(it->second[i].at(i));
+        }
+      }
     }
   private:
     std::map<std::string, std::vector<M*>*> map_;

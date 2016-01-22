@@ -1,19 +1,17 @@
 module ir.ntnaeem.gate {
+  struct Status {
+    uint32 statusCode ord(1);
+  };
   struct Message {
     uint32 id ord(1);
-    uint32 requestId ord(2);
-    string requestLabel ord(3);
+    uint32 relId ord(2);
+    string relLabel ord(3);
     string label ord(4);
     data content ord(5);
   };
-  stateless service Transport {
-    list<uint32> send(list<Message> parcels);
-    list<Message> receive();
-    uint32 getMessageStatus(uint32 id);
-  };
   stateless service Gate {
     uint32 EnqueueMessage(Message message);
-    uint32 getMessageStatus(uint32 id);
+    Status getMessageStatus(uint32 id);
     list<Message> getMessages(string label);
   };
 };

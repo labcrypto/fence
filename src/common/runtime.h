@@ -13,8 +13,9 @@ namespace gate {
   class Runtime {
   public:
     static uint32_t messageCounter_;
-    static std::mutex gateServiceLock_;
-    static Queue< ::ir::ntnaeem::gate::Message> *queue_;
+    static std::mutex mainLock_;
+    static Queue< ::ir::ntnaeem::gate::Message> *mainQueue_;
+    static Queue< ::ir::ntnaeem::gate::Message> *sentQueue_;
   };
 }
 }
