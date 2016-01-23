@@ -15,6 +15,23 @@ int
 main(int argc, char **argv) {
   try {
     ::naeem::hottentot::runtime::Logger::Init();
+    ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
+    if (!::naeem::hottentot::runtime::Configuration::Exists("sid", "slave-id")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is mandatory." << std::endl;
+      return 1;
+    }
+    if (!::naeem::hottentot::runtime::Configuration::Exists("m", "master")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is mandatory." << std::endl;
+      return 1;
+    }
+    if (!::naeem::hottentot::runtime::Configuration::HasValue("sid", "slave-id")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is not specified." << std::endl;
+      return 1;
+    }
+    if (!::naeem::hottentot::runtime::Configuration::HasValue("m", "master")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is not specified." << std::endl;
+      return 1;
+    }
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
@@ -29,7 +46,7 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, service);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
   } catch (...) {
-    std::cout << "Error." << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetError() << "Error." << std::endl;
     return 1;
   }
   return 0;

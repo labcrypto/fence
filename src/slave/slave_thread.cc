@@ -26,6 +26,8 @@ namespace slave {
   }
   void
   SlaveThread::ThreadBody() {
+    ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::hottentot::runtime::Configuration::AsUInt32("sid", "slave-id");
+    std::string masterHost = ::naeem::hottentot::runtime::Configuration::AsString("m", "master");
     while (true) {
       {
         std::this_thread::sleep_for(std::chrono::seconds(60));
@@ -38,28 +40,31 @@ namespace slave {
         // TODO: Enable WAN ethernet
         // Create a proxy to Master Gate
         ::ir::ntnaeem::gate::transport::TransportService *transportProxy = 
-          ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create("master-gate", 8766);
+          ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(masterHost, 8766);
         // Send queued messages to Master Gate
         std::vector< ::ir::ntnaeem::gate::Message*> messages;
-        Runtime::mainQueue_->GetMessages(messages);
+        Runtime::outboxQueue_->GetMessages(messages);
         if (::naeem::hottentot::runtime::Configuration::Verbose()) {
           ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << messages.size() << std::endl;
         }
         for (uint32_t i = 0; i < messages.size(); i++) {
-          ::ir::ntnaeem::gate::transport::TransportMessage transportMessage;
-          transportMessage.SetId(0);
-          transportMessage.SetSlaveId(messages[i]->GetId());
-          transportMessage.SetRelId(0);
-          transportMessage.SetLabel(messages[i]->GetLabel());
-          transportMessage.SetRelLabel("");
-          transportMessage.SetContent(messages[i]->GetContent());
+          ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage =
+            new ::ir::ntnaeem::gate::transport::TransportMessage;
+          transportMessage->SetId(0);
+          transportMessage->SetSlaveId(1000);
+          transportMessage->SetSlaveMessageId(messages[i]->GetId());
+          transportMessage->SetRelId(0);
+          transportMessage->SetLabel(messages[i]->GetLabel());
+          transportMessage->SetRelLabel("");
+          transportMessage->SetContent(messages[i]->GetContent());
           ::naeem::hottentot::runtime::types::UInt32 masterId;
           try {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Sending mesage ..." << std::endl;
             }
-            transportProxy->Send(transportMessage, masterId);
-            Runtime::sentQueue_->Put(messages[i]->GetLabel().ToStdString(), messages[i]);
+            transportProxy->Send(*transportMessage, masterId);
+            transportMessage->SetId(masterId);
+            Runtime::sentQueue_->Put(transportMessage->GetLabel().ToStdString(), transportMessage);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
             }
@@ -67,7 +72,15 @@ namespace slave {
             ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
           }
         }
-        // TODO: Receive queued messages from Master Gate
+        // Receive queued messages from Master Gate
+        ::ir::ntnaeem::gate::transport::TransportMessage recTransportMessage;
+
+        ::naeem::hottentot::runtime::types::Boolean result;
+        transportProxy->AnyMessagesLeft(slaveId, result);
+        while (result.GetValue()) {
+          // TODO: Read messages
+          transportProxy->AnyMessagesLeft(slaveId, result);
+        }
         // Disconnect from Master Gate
         ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
         // TODO: Disable WAN ethernet

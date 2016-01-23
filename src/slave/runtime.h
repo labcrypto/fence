@@ -4,6 +4,7 @@
 #include <mutex>
 
 #include "../common/gate/message.h"
+#include "../common/transport/transport_message.h"
 #include "queue.h"
 
 
@@ -15,8 +16,9 @@ namespace gate {
     static uint32_t messageCounter_;
     static std::mutex counterLock_;
     static std::mutex mainLock_;
-    static Queue< ::ir::ntnaeem::gate::Message> *mainQueue_;
-    static Queue< ::ir::ntnaeem::gate::Message> *sentQueue_;
+    static Queue< ::ir::ntnaeem::gate::Message> *inboxQueue_;
+    static Queue< ::ir::ntnaeem::gate::Message> *outboxQueue_;
+    static Queue< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
   };
 }
 }

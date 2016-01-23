@@ -8,6 +8,7 @@
 #include "runtime.h"
 
 #include "../common/gate/message.h"
+#include "../common/transport/transport_message.h"
 
 
 namespace ir {
@@ -17,13 +18,14 @@ namespace gate {
   PutInMainQueue(::ir::ntnaeem::gate::Message &message) {
     // TODO: Serialize and persist the message for FT purposes
     std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-    Runtime::mainQueue_->Put(message.GetLabel().ToStdString(), &message);
+    Runtime::outboxQueue_->Put(message.GetLabel().ToStdString(), &message);
   }
   void
   GateServiceImpl::OnInit() {
     Runtime::messageCounter_ = 1000;
-    Runtime::mainQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
-    Runtime::sentQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    Runtime::inboxQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    Runtime::outboxQueue_ = new Queue< ::ir::ntnaeem::gate::Message>;
+    Runtime::sentQueue_ = new Queue< ::ir::ntnaeem::gate::transport::TransportMessage>;
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
