@@ -6,16 +6,16 @@
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
 #include "../common/gate/message.h"
-#include "../common/gate_service_impl.h"
 
-
-// #include "slave_thread.h"
+#include "gate_service_impl.h"
+#include "master_thread.h"
 
 
 int
 main(int argc, char **argv) {
   try {
     ::naeem::hottentot::runtime::Logger::Init();
+    ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
@@ -24,9 +24,9 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
-    ::ir::ntnaeem::gate::GateServiceImpl *service =
-        new ::ir::ntnaeem::gate::GateServiceImpl;
-    // ::ir::ntnaeem::gate::slave::SlaveThread::Start();
+    ::ir::ntnaeem::gate::master::GateServiceImpl *service =
+        new ::ir::ntnaeem::gate::master::GateServiceImpl;
+    ::ir::ntnaeem::gate::master::MasterThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, service);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
   } catch (...) {

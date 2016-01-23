@@ -25,4 +25,4 @@ all:
 	    .lib/main.o \
 	    -lhotd \
 	    -lpthread \
-	    -o slave.out
+	    -o naeem-gate-slave-node.out

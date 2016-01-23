@@ -11,15 +11,17 @@
 namespace ir {
 namespace ntnaeem {
 namespace gate {
+namespace slave {
   class Runtime {
   public:
     static uint32_t messageCounter_;
     static std::mutex counterLock_;
     static std::mutex mainLock_;
-    static Queue< ::ir::ntnaeem::gate::Message> *inboxQueue_;
-    static Queue< ::ir::ntnaeem::gate::Message> *outboxQueue_;
-    static Queue< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
+    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::Message> *inboxQueue_;
+    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::Message> *outboxQueue_;
+    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
   };
+}
 }
 }
 }

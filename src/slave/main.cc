@@ -17,19 +17,19 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     if (!::naeem::hottentot::runtime::Configuration::Exists("sid", "slave-id")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is mandatory." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is mandatory. (-sid | --slave-id)" << std::endl;
       return 1;
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("m", "master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is mandatory." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is mandatory. (-m | --master)" << std::endl;
       return 1;
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("sid", "slave-id")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is not specified. (-sid | --slave-id)" << std::endl;
       return 1;
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("m", "master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is not specified. (-m | --master)" << std::endl;
       return 1;
     }
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
@@ -41,8 +41,8 @@ main(int argc, char **argv) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
     ::ir::ntnaeem::gate::slave::SlaveThread::Start();
-    ::ir::ntnaeem::gate::GateServiceImpl *service =
-        new ::ir::ntnaeem::gate::GateServiceImpl;
+    ::ir::ntnaeem::gate::slave::GateServiceImpl *service =
+        new ::ir::ntnaeem::gate::slave::GateServiceImpl;
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, service);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
   } catch (...) {

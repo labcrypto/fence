@@ -10,7 +10,7 @@
 namespace ir {
 namespace ntnaeem {
 namespace gate {
-namespace slave {
+namespace master {
   template<class M> class Queue;
   class GateServiceImpl : public ::ir::ntnaeem::gate::service::AbstractGateService {
   public:
@@ -24,7 +24,7 @@ namespace slave {
     virtual void GetMessages(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::Message> &out);
   private:
   };
-} // END OF NAMESPACE slave
+} // END OF NAMESPACE master
 } // END OF NAMESPACE gate
 } // END OF NAMESPACE ntnaeem
 } // END OF NAMESPACE ir

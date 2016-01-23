@@ -1,23 +1,24 @@
 all:
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/runtime.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate_service_impl.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/message.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/status.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_message.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_status.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/service/gate_service_request_handler.cc
-#	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/proxy/transport_service_proxy.cc
-#	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/proxy/transport_service_proxy_builder.cc
-#	g++ -c -std=c++11 -I/usr/local/include/hot slave_thread.cc
-	g++ -c -std=c++11 -I/usr/local/include/hot main.cc
-	g++ runtime.o \
-	    gate_service_impl.o \
-	    message.o \
-	    status.o \
-	    transport_message.o \
-	    transport_status.o \
-	    gate_service_request_handler.o \
-	    main.o \
+	mkdir -p .lib
+	rm -rfv .lib/*
+	g++ -c -std=c++11 -I/usr/local/include/hot runtime.cc -o .lib/runtime.o
+	g++ -c -std=c++11 -I/usr/local/include/hot gate_service_impl.cc -o .lib/gate_service_impl.o
+	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/message.cc -o .lib/message.o
+	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/status.cc -o .lib/status.o
+	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_message.cc -o .lib/transport_message.o
+	g++ -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_status.cc -o .lib/transport_status.o
+	g++ -c -std=c++11 -I/usr/local/include/hot ../common/gate/service/gate_service_request_handler.cc -o .lib/gate_service_request_handler.o
+	g++ -c -std=c++11 -I/usr/local/include/hot master_thread.cc -o .lib/master_thread.o
+	g++ -c -std=c++11 -I/usr/local/include/hot main.cc -o .lib/main.o
+	g++ .lib/runtime.o \
+	    .lib/gate_service_impl.o \
+	    .lib/message.o \
+	    .lib/status.o \
+	    .lib/transport_message.o \
+	    .lib/transport_status.o \
+	    .lib/gate_service_request_handler.o \
+	    .lib/master_thread.o \
+	    .lib/main.o \
 	    -lhotd \
 	    -lpthread \
-	    -o master.out
+	    -o naeem-gate-master-node.out
