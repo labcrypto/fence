@@ -6,13 +6,13 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include "../common/runtime.h"
 #include "../common/gate/message.h"
 #include "../common/transport/transport_message.h"
 #include "../common/transport/transport_service.h"
 #include "../common/transport/proxy/transport_service_proxy_builder.h"
 
 #include "slave_thread.h"
+#include "runtime.h"
 
 
 namespace ir {

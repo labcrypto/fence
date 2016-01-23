@@ -1,3 +1,5 @@
+#include <thread>
+
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
@@ -5,12 +7,18 @@
 #include "gate_service_impl.h"
 #include "runtime.h"
 
-#include "gate/message.h"
+#include "../common/gate/message.h"
 
 
 namespace ir {
 namespace ntnaeem {
 namespace gate {
+  void
+  PutInMainQueue(::ir::ntnaeem::gate::Message &message) {
+    // TODO: Serialize and persist the message for FT purposes
+    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+    Runtime::mainQueue_->Put(message.GetLabel().ToStdString(), &message);
+  }
   void
   GateServiceImpl::OnInit() {
     Runtime::messageCounter_ = 1000;
@@ -27,10 +35,15 @@ namespace gate {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
-    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-    message.SetId(Runtime::messageCounter_++);
-    out.SetValue(Runtime::messageCounter_ - 1);
-    Runtime::mainQueue_->Put(message.GetLabel().ToStdString(), &message);
+    {
+      std::lock_guard<std::mutex> guard(Runtime::counterLock_);
+      message.SetId(Runtime::messageCounter_);
+      out.SetValue(Runtime::messageCounter_);
+      Runtime::messageCounter_++;
+    }
+    // TODO: Select a thread from thread-pool
+    std::thread t(PutInMainQueue, std::ref(message));
+    t.detach();
   }
   void
   GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt32 &id, ::ir::ntnaeem::gate::Status &out) {

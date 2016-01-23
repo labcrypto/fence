@@ -6,9 +6,8 @@
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
 #include "../common/gate/message.h"
-#include "../common/gate_service_impl.h"
 
-
+#include "gate_service_impl.h"
 #include "slave_thread.h"
 
 
@@ -24,9 +23,9 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
+    ::ir::ntnaeem::gate::slave::SlaveThread::Start();
     ::ir::ntnaeem::gate::GateServiceImpl *service =
         new ::ir::ntnaeem::gate::GateServiceImpl;
-    ::ir::ntnaeem::gate::slave::SlaveThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, service);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
   } catch (...) {

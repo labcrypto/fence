@@ -5,14 +5,16 @@ module ir.ntnaeem.gate.transport {
   struct TransportMessage {
     uint32 id ord(1);
     uint32 slaveId ord(2);
-    uint32 relId ord(3);
-    string relLabel ord(4);
-    string label ord(5);
-    data content ord(6);
+    uint32 slaveMessageId ord(3);
+    uint32 relId ord(4);
+    string relLabel ord(5);
+    string label ord(6);
+    data content ord(7);
   };
   stateless service Transport {
     uint32 send(TransportMessage message);
-    TransportMessage receive();
+    bool anyMessagesLeft(uint32 slaveId);
+    TransportMessage receive(uint32 slaveId);
     TransportStatus getStatus(uint32 id);
   };
 };
