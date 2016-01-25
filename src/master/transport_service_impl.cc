@@ -62,7 +62,7 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt64 &slaveId, 
+  TransportServiceImpl::RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt32 &slaveId, 
                                               ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::RetrieveSlaveMessages() is called." << std::endl;

@@ -16,6 +16,8 @@ namespace gate {
 namespace slave {
   class Runtime {
   public:
+    static void Init();
+  public:
     static uint64_t messageCounter_;
     static std::mutex counterLock_;
     static std::mutex mainLock_;
@@ -24,6 +26,7 @@ namespace slave {
     static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
     static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
+    static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *failedQueue_;
   };
 }
 }

@@ -12,8 +12,8 @@ namespace master {
   std::mutex Runtime::outboxQueueLock_;
   std::mutex Runtime::transportInboxQueueLock_;
   std::mutex Runtime::transportOutboxQueueLock_;
-  std::map<uint64_t, uint64_t> Runtime::slaveMessageMap_;
-  std::map<uint64_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;
+  std::map<uint32_t, uint64_t> Runtime::slaveMessageMap_;
+  std::map<uint32_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;
   LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportInboxQueue_ = NULL;

@@ -10,7 +10,7 @@ module ir.ntnaeem.gate.transport {
   };
   struct TransportMessage {
     uint64 masterMId ord(1);
-    uint64 slaveId ord(2);
+    uint32 slaveId ord(2);
     uint64 slaveMId ord(3);
     uint64 relMId ord(4);
     string relLabel ord(5);
@@ -19,7 +19,7 @@ module ir.ntnaeem.gate.transport {
   };
   stateless service Transport {
     list<AcceptReport> acceptSlaveMassages(list<TransportMessage> messages);
-    list<TransportMessage> retrieveSlaveMessages(uint64 slaveId);
+    list<TransportMessage> retrieveSlaveMessages(uint32 slaveId);
     void ack(list<uint64> masterMIds);
     TransportMessageStatus getStatus(uint64 masterMId);
   };

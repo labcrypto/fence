@@ -9,6 +9,7 @@
 
 #include "gate_service_impl.h"
 #include "slave_thread.h"
+#include "runtime.h"
 
 
 int
@@ -40,6 +41,7 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
+    ::ir::ntnaeem::gate::slave::Runtime::Init();
     ::ir::ntnaeem::gate::slave::SlaveThread::Start();
     ::ir::ntnaeem::gate::slave::GateServiceImpl *service =
         new ::ir::ntnaeem::gate::slave::GateServiceImpl;

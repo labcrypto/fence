@@ -1,5 +1,5 @@
-#ifndef _IR_NTNAEEM_GATE__GATE_SERVICE_IMPL_H_
-#define _IR_NTNAEEM_GATE__GATE_SERVICE_IMPL_H_
+#ifndef _IR_NTNAEEM_GATE__MASTER__GATE_SERVICE_IMPL_H_
+#define _IR_NTNAEEM_GATE__MASTER__GATE_SERVICE_IMPL_H_
 
 #include <stdint.h>
 #include <string>

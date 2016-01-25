@@ -27,8 +27,8 @@ namespace master {
     static std::mutex outboxQueueLock_;
     static std::mutex transportInboxQueueLock_;
     static std::mutex transportOutboxQueueLock_;
-    static std::map<uint64_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map
-    static std::map<uint64_t, std::map<uint64_t, uint64_t>*> masterIdToSlaveIdMap_; // TODO: Replace with a persistent map
+    static std::map<uint32_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map
+    static std::map<uint32_t, std::map<uint64_t, uint64_t>*> masterIdToSlaveIdMap_; // TODO: Replace with a persistent map
     static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
     static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *transportInboxQueue_;
