@@ -5,7 +5,9 @@
 
 #include "../common/gate/message.h"
 #include "../common/transport/transport_message.h"
-#include "queue.h"
+
+#include "label_queue_map.h"
+#include "bag.h"
 
 
 namespace ir {
@@ -14,12 +16,14 @@ namespace gate {
 namespace slave {
   class Runtime {
   public:
-    static uint32_t messageCounter_;
+    static uint64_t messageCounter_;
     static std::mutex counterLock_;
     static std::mutex mainLock_;
-    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::Message> *inboxQueue_;
-    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::Message> *outboxQueue_;
-    static ::ir::ntnaeem::gate::Queue< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
+    static std::mutex inboxQueueLock_;
+    static std::mutex outboxQueueLock_;
+    static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
+    static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
+    static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
   };
 }
 }

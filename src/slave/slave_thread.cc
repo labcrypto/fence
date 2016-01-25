@@ -57,37 +57,53 @@ namespace slave {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Server is up and running ..." << std::endl;
           }
-          // Send queued messages to Master Gate
-          std::vector< ::ir::ntnaeem::gate::Message*> messages;
-          Runtime::outboxQueue_->GetMessages(messages);
+          // Make a list of transport messages
+          std::vector< ::ir::ntnaeem::gate::Message*> messages =
+            Runtime::outboxQueue_->PopAll();
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << messages.size() << std::endl;
           }
+          ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
+          std::map<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*> map;
           for (uint32_t i = 0; i < messages.size(); i++) {
             ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage =
               new ::ir::ntnaeem::gate::transport::TransportMessage;
-            transportMessage->SetId(0);
-            transportMessage->SetSlaveId(1000);
-            transportMessage->SetSlaveMessageId(messages[i]->GetId());
-            transportMessage->SetRelId(0);
-            transportMessage->SetLabel(messages[i]->GetLabel());
+            transportMessage->SetMasterMId(0);
+            transportMessage->SetSlaveId(slaveId);
+            transportMessage->SetSlaveMId(messages[i]->GetId());
+            transportMessage->SetRelMId(0);
             transportMessage->SetRelLabel("");
+            transportMessage->SetLabel(messages[i]->GetLabel());
             transportMessage->SetContent(messages[i]->GetContent());
-            ::naeem::hottentot::runtime::types::UInt32 masterId;
-            try {
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << "Sending message ..." << std::endl;
-              }
-              transportProxy->Send(*transportMessage, masterId);
-              transportMessage->SetId(masterId);
-              Runtime::sentQueue_->Put(transportMessage->GetLabel().ToStdString(), transportMessage);
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
-              }
-            } catch (...) {
-              ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
+            ::naeem::hottentot::runtime::types::UInt64 masterId;
+            transportMessages.Add(transportMessage);
+            map.insert(pair<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*>(transportMessage->GetSlaveMId(), transportMessage));
+          }
+          // Send queued messages to Master Gate
+          try {
+            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              ::naeem::hottentot::runtime::Logger::GetOut() << "Sending messages ..." << std::endl;
+            }
+            ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> acceptReports;
+            transportProxy->AcceptSlaveMessages(transportMessages, acceptReports);
+            
+            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
+            }
+          } catch (...) {
+            ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
+          }
+          // Analyse accept reports
+          for (uint32_t i = 0; i < acceptReports.Size(); i++) {
+            ::ir::ntnaeem::gate::transport::AcceptReport *acceptReport = acceptReports[i];
+            if (acceptReport->GetStatusCode() == 0) {
+              map[acceptReport->GetSlaveMId()]->SetMasterMId()
+            } else {
+
             }
           }
+          transportMessage->SetId(masterId);
+          Runtime::sentQueue_->Put(transportMessage->GetLabel().ToStdString(), transportMessage);
           // Receive queued messages from Master Gate
           ::ir::ntnaeem::gate::transport::TransportMessage recTransportMessage;
           ::naeem::hottentot::runtime::types::Boolean result;
