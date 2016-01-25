@@ -32,7 +32,7 @@ namespace master {
   }
   void
   GateServiceImpl::EnqueueMessage(::ir::ntnaeem::gate::Message &message, 
-                                  ::naeem::hottentot::runtime::types::UInt32 &out) {
+                                  ::naeem::hottentot::runtime::types::UInt64 &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
@@ -47,8 +47,8 @@ namespace master {
     t.detach();
   }
   void
-  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt32 &id, 
-                                    ::ir::ntnaeem::gate::Status &out) {
+  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt64 &id, 
+                                    ::ir::ntnaeem::gate::MessageStatus &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }

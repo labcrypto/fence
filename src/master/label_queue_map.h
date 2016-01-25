@@ -37,14 +37,14 @@ namespace master {
     void 
     Put(std::string label, M *m) {
       std::lock_guard<std::mutex> guard(lock_);
-      if (queues_.find(label) != queues_.end()) {
+      if (queuesMap_.find(label) == queuesMap_.end()) {
         Queue<M> *q = new Queue<M>();
         q->Enq(m);
         queuesMap_[label] = q;
         // counts_[label] = 1;
         queues_.push_back(q);
       } else {
-        queuesMap_[label]->push_back(m);
+        queuesMap_[label]->Enq(m);
         // counts_[label]++;
       }
     }

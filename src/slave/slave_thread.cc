@@ -32,17 +32,17 @@ namespace slave {
     while (true) {
       {
         std::this_thread::sleep_for(std::chrono::seconds(60));
+        // Aquiring main lock by creating guard object
+        std::lock_guard<std::mutex> guard(Runtime::mainLock_);
         if (::naeem::hottentot::runtime::Configuration::Verbose()) {
           ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
         }
-        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-          ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
-        }
-        // Aquiring main lock by creating guard object
-        std::lock_guard<std::mutex> guard(Runtime::mainLock_);
         // TODO: Disable LAN ethernet
         // TODO: Enable WAN ethernet
         // Create a proxy to Master Gate
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
+        }
         if (::naeem::hottentot::runtime::Configuration::Verbose()) {
           ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
         }

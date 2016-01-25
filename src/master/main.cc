@@ -8,6 +8,7 @@
 #include "../common/gate/message.h"
 
 #include "gate_service_impl.h"
+#include "transport_service_impl.h"
 #include "master_thread.h"
 #include "runtime.h"
 
@@ -26,10 +27,13 @@ main(int argc, char **argv) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
     ::ir::ntnaeem::gate::master::Runtime::Init();
-    ::ir::ntnaeem::gate::master::GateServiceImpl *service =
+    ::ir::ntnaeem::gate::master::GateServiceImpl *gateService =
         new ::ir::ntnaeem::gate::master::GateServiceImpl;
+        ::ir::ntnaeem::gate::master::TransportServiceImpl *transportService =
+        new ::ir::ntnaeem::gate::master::TransportServiceImpl;
     ::ir::ntnaeem::gate::master::MasterThread::Start();
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, service);
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8765, gateService);
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8766, transportService);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
   } catch (...) {
     std::cout << "Error." << std::endl;

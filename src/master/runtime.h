@@ -20,13 +20,15 @@ namespace master {
   public:
     static void Init();
   public:
-    static uint32_t messageCounter_;
+    static uint64_t messageCounter_;
     static std::mutex counterLock_;
     static std::mutex mainLock_;
     static std::mutex inboxQueueLock_;
     static std::mutex outboxQueueLock_;
     static std::mutex transportInboxQueueLock_;
     static std::mutex transportOutboxQueueLock_;
+    static std::map<uint64_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map
+    static std::map<uint64_t, std::map<uint64_t, uint64_t>*> masterIdToSlaveIdMap_; // TODO: Replace with a persistent map
     static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
     static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *transportInboxQueue_;

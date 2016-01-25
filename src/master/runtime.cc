@@ -5,13 +5,15 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace master {
-  uint32_t Runtime::messageCounter_ = 0;
+  uint64_t Runtime::messageCounter_ = 0;
   std::mutex Runtime::counterLock_;
   std::mutex Runtime::mainLock_;
   std::mutex Runtime::inboxQueueLock_;
   std::mutex Runtime::outboxQueueLock_;
   std::mutex Runtime::transportInboxQueueLock_;
   std::mutex Runtime::transportOutboxQueueLock_;
+  std::map<uint64_t, uint64_t> Runtime::slaveMessageMap_;
+  std::map<uint64_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;
   LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportInboxQueue_ = NULL;

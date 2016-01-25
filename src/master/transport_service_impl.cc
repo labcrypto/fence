@@ -16,7 +16,7 @@ namespace gate {
 namespace master {
   void
   TransportServiceImpl::OnInit() {
-    // TODO: Called when service is initializing.
+    ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }
   void
   TransportServiceImpl::OnShutdown() {
@@ -62,7 +62,7 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt32 &slaveId, 
+  TransportServiceImpl::RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt64 &slaveId, 
                                               ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::RetrieveSlaveMessages() is called." << std::endl;
@@ -79,14 +79,14 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::Ack(::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt32> &masterMIds) {
+  TransportServiceImpl::Ack(::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::Ack() is called." << std::endl;
     }
     // TODO
   }
   void
-  TransportServiceImpl::GetStatus(::naeem::hottentot::runtime::types::UInt32 &masterMId, 
+  TransportServiceImpl::GetStatus(::naeem::hottentot::runtime::types::UInt64 &masterMId, 
                                   ::ir::ntnaeem::gate::transport::TransportMessageStatus &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::GetStatus() is called." << std::endl;

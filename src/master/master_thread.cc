@@ -27,92 +27,88 @@ namespace master {
   }
   void
   MasterThread::ThreadBody() {
-    // ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::hottentot::runtime::Configuration::AsUInt32("sid", "slave-id");
-    // std::string masterHost = ::naeem::hottentot::runtime::Configuration::AsString("m", "master");
-    // while (true) {
-    //   {
-    //     std::this_thread::sleep_for(std::chrono::seconds(60));
-    //     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //       ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
-    //     }
-    //     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //       ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
-    //     }
-    //     // Aquiring main lock by creating guard object
-    //     std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-    //     // TODO: Disable LAN ethernet
-    //     // TODO: Enable WAN ethernet
-    //     // Create a proxy to Master Gate
-    //     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //       ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
-    //     }
-    //     ::ir::ntnaeem::gate::transport::TransportService *transportProxy = 
-    //       ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(masterHost, 8766);
-    //     // TODO: If server is not alive, postbone the operation and release the lock.
-    //     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //       ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
-    //     }
-    //     bool isServerAlive = dynamic_cast<::ir::ntnaeem::gate::transport::proxy::TransportServiceProxy*>(transportProxy)->IsServerAlive();
-    //     if (isServerAlive) {
-    //       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //         ::naeem::hottentot::runtime::Logger::GetOut() << "Server is up and running ..." << std::endl;
-    //       }
-    //       // Send queued messages to Master Gate
-    //       std::vector< ::ir::ntnaeem::gate::Message*> messages;
-    //       Runtime::outboxQueue_->GetMessages(messages);
-    //       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //         ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << messages.size() << std::endl;
-    //       }
-    //       for (uint32_t i = 0; i < messages.size(); i++) {
-    //         ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage =
-    //           new ::ir::ntnaeem::gate::transport::TransportMessage;
-    //         transportMessage->SetId(0);
-    //         transportMessage->SetSlaveId(1000);
-    //         transportMessage->SetSlaveMessageId(messages[i]->GetId());
-    //         transportMessage->SetRelId(0);
-    //         transportMessage->SetLabel(messages[i]->GetLabel());
-    //         transportMessage->SetRelLabel("");
-    //         transportMessage->SetContent(messages[i]->GetContent());
-    //         ::naeem::hottentot::runtime::types::UInt32 masterId;
-    //         try {
-    //           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //             ::naeem::hottentot::runtime::Logger::GetOut() << "Sending message ..." << std::endl;
-    //           }
-    //           transportProxy->Send(*transportMessage, masterId);
-    //           transportMessage->SetId(masterId);
-    //           Runtime::sentQueue_->Put(transportMessage->GetLabel().ToStdString(), transportMessage);
-    //           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //             ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
-    //           }
-    //         } catch (...) {
-    //           ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
-    //         }
-    //       }
-    //       // Receive queued messages from Master Gate
-    //       ::ir::ntnaeem::gate::transport::TransportMessage recTransportMessage;
-    //       ::naeem::hottentot::runtime::types::Boolean result;
-    //       transportProxy->AnyMessagesLeft(slaveId, result);
-    //       while (result.GetValue()) {
-    //         transportProxy->Receive(slaveId, recTransportMessage);
-    //         // TODO: Store messages in inbox queue
-    //         transportProxy->AnyMessagesLeft(slaveId, result);
-    //       }
-    //       // Disconnect from Master Gate
-    //       ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
-    //       // TODO: Disable WAN ethernet
-    //       // TODO: Enable LAN ethernet
-    //       // Releasing main lock by leaving the scope
-    //       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //         ::naeem::hottentot::runtime::Logger::GetOut() << "Send is complete." << std::endl;
-    //       }
-    //     } else {
-    //       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-    //         ::naeem::hottentot::runtime::Logger::GetOut() << "Master is not available now. We postbone the send to next try." << std::endl;
-    //       }
-    //       ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
-    //     }
-    //   }
-    // }
+    while (true) {
+      {
+        std::this_thread::sleep_for(std::chrono::seconds(60));
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
+        }
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for main lock ..." << std::endl;
+        }
+        // Aquiring main lock by creating guard object
+        std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is acquired." << std::endl;
+        }
+        // Copying from 'transport inbox queue' into 'inbox queue'
+        {
+          std::vector<ir::ntnaeem::gate::transport::TransportMessage*> inboxTransportMessages = 
+            Runtime::transportInboxQueue_->PopAll();
+          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+            ::naeem::hottentot::runtime::Logger::GetOut() << "Number of inbox transport messages: " << inboxTransportMessages.size() << std::endl;
+          }
+          for (uint32_t i = 0; i < inboxTransportMessages.size(); i++) {
+            ::ir::ntnaeem::gate::transport::TransportMessage *inboxTransportMessage = 
+              inboxTransportMessages[i];
+            ::ir::ntnaeem::gate::Message *inboxMessage = 
+              new ::ir::ntnaeem::gate::Message;
+            inboxMessage->SetId(inboxTransportMessage->GetMasterMId());
+            inboxMessage->SetRelId(0);
+            inboxMessage->SetRelLabel("");
+            inboxMessage->SetLabel(inboxTransportMessage->GetLabel());
+            inboxMessage->SetContent(inboxTransportMessage->GetContent());
+            Runtime::inboxQueue_->Put(inboxMessage->GetLabel().ToStdString(), inboxMessage);
+            Runtime::slaveMessageMap_.insert(
+              std::pair<uint64_t, uint64_t>(inboxTransportMessage->GetMasterMId().GetValue(), 
+                inboxTransportMessage->GetSlaveId().GetValue()));
+            if (Runtime::masterIdToSlaveIdMap_.find(inboxTransportMessage->GetSlaveId().GetValue()) == 
+                Runtime::masterIdToSlaveIdMap_.end()) {
+              Runtime::masterIdToSlaveIdMap_.insert(
+                std::pair<uint64_t, std::map<uint64_t, uint64_t>*>(
+                  inboxTransportMessage->GetSlaveId().GetValue(), 
+                    new std::map<uint64_t, uint64_t>()));
+            }
+            Runtime::masterIdToSlaveIdMap_[inboxTransportMessage->GetSlaveId().GetValue()]->insert(
+              std::pair<uint64_t, uint64_t>(inboxTransportMessage->GetMasterMId().GetValue(), 
+                inboxTransportMessage->GetSlaveMId().GetValue()));
+            delete inboxTransportMessage;
+          }
+        }
+        // Copying from 'outbox queue' to 'transport outbox queue'
+        {
+          std::vector<ir::ntnaeem::gate::Message*> outboxMessages = 
+            Runtime::outboxQueue_->PopAll();
+          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+            ::naeem::hottentot::runtime::Logger::GetOut() << "Number of outbox messages: " << outboxMessages.size() << std::endl;
+          }
+          for (uint32_t i = 0; i < outboxMessages.size(); i++) {
+            ::ir::ntnaeem::gate::Message *outboxMessage = 
+              outboxMessages[i];
+            if (Runtime::slaveMessageMap_.find(outboxMessage->GetRelId().GetValue()) == Runtime::slaveMessageMap_.end() ||
+                Runtime::masterIdToSlaveIdMap_.find(Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]) == Runtime::masterIdToSlaveIdMap_.end() ||
+                Runtime::masterIdToSlaveIdMap_[Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]]->find(outboxMessage->GetRelId().GetValue()) == Runtime::masterIdToSlaveIdMap_[Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]]->end()) {
+              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                ::naeem::hottentot::runtime::Logger::GetOut() << "Outbox message is dropped." << std::endl;
+              }
+              continue;
+            }
+            ::ir::ntnaeem::gate::transport::TransportMessage *outboxTransportMessage =
+              new ::ir::ntnaeem::gate::transport::TransportMessage;
+            outboxTransportMessage->SetMasterMId(outboxMessage->GetId());
+            outboxTransportMessage->SetSlaveId(Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]);
+            outboxTransportMessage->SetSlaveMId(Runtime::masterIdToSlaveIdMap_[outboxTransportMessage->GetSlaveId().GetValue()]->at(outboxMessage->GetRelId().GetValue()));
+            outboxTransportMessage->SetRelLabel(outboxMessage->GetRelLabel());
+            outboxTransportMessage->SetLabel(outboxMessage->GetLabel());
+            outboxTransportMessage->SetContent(outboxMessage->GetContent());
+            delete outboxMessage;
+          }
+        }
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is released." << std::endl;
+        }
+      }
+    }
   }
 }
 }
