@@ -21,7 +21,8 @@ namespace master {
     virtual void OnShutdown();
     virtual void EnqueueMessage(::ir::ntnaeem::gate::Message &message, ::naeem::hottentot::runtime::types::UInt32 &out);
     virtual void GetMessageStatus(::naeem::hottentot::runtime::types::UInt32 &id, ::ir::ntnaeem::gate::Status &out);
-    virtual void GetMessages(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::Message> &out);
+    virtual void HasMoreMessage(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::Boolean &out);
+    virtual void NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::Boolean &messageRetrieved, ::ir::ntnaeem::gate::Message &out);
   private:
   };
 } // END OF NAMESPACE master

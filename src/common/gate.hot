@@ -1,5 +1,5 @@
 module ir.ntnaeem.gate {
-  struct Status {
+  struct MessageStatus {
     uint32 statusCode ord(1);
   };
   struct Message {
@@ -11,7 +11,8 @@ module ir.ntnaeem.gate {
   };
   stateless service Gate {
     uint32 EnqueueMessage(Message message);
-    Status getMessageStatus(uint32 id);
-    list<Message> getMessages(string label);
+    MessageStatus getMessageStatus(uint32 id);
+    bool hasMoreMessage(string label);
+    Message nextMessage(string label, bool messageRetrieved);
   };
 };
