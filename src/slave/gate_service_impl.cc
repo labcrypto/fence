@@ -16,11 +16,12 @@ namespace ntnaeem {
 namespace gate {
 namespace slave {
   void
-  PutInOutboxQueue(::ir::ntnaeem::gate::Message &message) {
+  PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
     std::lock_guard<std::mutex> guard(Runtime::mainLock_);
     std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
-    Runtime::outboxQueue_->Put(&message);
+    Runtime::outboxQueue_->Put(message);
+    std::cout << "Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
   }
   void
   GateServiceImpl::OnInit() {
@@ -43,7 +44,14 @@ namespace slave {
       Runtime::messageCounter_++;
     }
     // TODO: Select a thread from thread-pool
-    std::thread t(PutInOutboxQueue, std::ref(message));
+    ::ir::ntnaeem::gate::Message *newMessage = 
+      new ::ir::ntnaeem::gate::Message;
+    newMessage->SetId(message.GetId());
+    newMessage->SetLabel(message.GetLabel());
+    newMessage->SetRelLabel(message.GetRelLabel());
+    newMessage->SetRelId(message.GetRelId());
+    newMessage->SetContent(message.GetContent());
+    std::thread t(PutInOutboxQueue, newMessage);
     t.detach();
   }
   void

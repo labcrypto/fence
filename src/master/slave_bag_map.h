@@ -19,7 +19,7 @@ namespace master {
     void
     Put(uint32_t slaveId, M *item) {
       std::lock_guard<std::mutex> guard(lock_);
-      if (maps_.find(slaveId) != maps_.end()) {
+      if (maps_.find(slaveId) == maps_.end()) {
         Bag<M> *bag = new Bag<M>();
         bag->Put(item);
         maps_[slaveId] = bag;
@@ -29,7 +29,13 @@ namespace master {
     }
     std::vector<M*>
     PopAll(uint32_t slaveId) {
+      std::cout << " SLAVE ID: " << slaveId << std::endl;
       std::lock_guard<std::mutex> guard(lock_);
+      if (maps_.find(slaveId) == maps_.end()) {
+        std::cout << " MAKING NEW BAG FOR SLAVE " << slaveId << std::endl;
+        Bag<M> *bag = new Bag<M>();
+        maps_[slaveId] = bag;
+      }
       return maps_[slaveId]->PopAll();
     }
   private:
