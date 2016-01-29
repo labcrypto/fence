@@ -22,6 +22,16 @@ namespace slave {
     sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     failedQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
   }
+  void
+  Runtime::PrintStatus() {
+    std::cout << "------------------------------" << std::endl;
+    std::cout << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
+    std::cout << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << std::endl;
+    std::cout << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
+    std::cout << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
+    std::cout << "Size(Runtime::failedQueue_): " << Runtime::failedQueue_->Size() << std::endl;
+    std::cout << "------------------------------" << std::endl;
+  }
 }
 }
 }

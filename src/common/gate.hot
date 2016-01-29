@@ -13,6 +13,6 @@ module ir.ntnaeem.gate {
     uint64 EnqueueMessage(Message message);
     MessageStatus getMessageStatus(uint64 id);
     bool hasMoreMessage(string label);
-    Message nextMessage(string label, bool messageRetrieved);
+    Message nextMessage(string label);
   };
 };

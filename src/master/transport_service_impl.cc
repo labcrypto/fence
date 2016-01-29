@@ -58,6 +58,7 @@ namespace master {
           acceptReport->SetErrorMessage("Insertion error.");
         }
         out.Add(acceptReport);
+        Runtime::PrintStatus();
       }
     }
   }
@@ -76,6 +77,7 @@ namespace master {
         out.Add(messages[i]);
         Runtime::transportSentQueue_->Put(messages[i]);
       }
+      // Runtime::PrintStatus();
     }
   }
   void

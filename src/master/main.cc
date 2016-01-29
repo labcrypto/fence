@@ -31,7 +31,7 @@ main(int argc, char **argv) {
       new ::ir::ntnaeem::gate::master::GateServiceImpl;
     ::ir::ntnaeem::gate::master::TransportServiceImpl *transportService =
       new ::ir::ntnaeem::gate::master::TransportServiceImpl;
-    // ::ir::ntnaeem::gate::master::MasterThread::Start();
+    ::ir::ntnaeem::gate::master::MasterThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8767, gateService);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8766, transportService);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();

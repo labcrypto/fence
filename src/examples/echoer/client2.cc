@@ -31,7 +31,7 @@ main(int argc, char **argv) {
     }
     //=============================================
     if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-      for (uint32_t i = 0; i < 1; i++) {
+      for (uint32_t i = 0; i < 10000; i++) {
         ::ir::ntnaeem::gate::examples::echoer::EchoRequest echoRequest;
         echoRequest.SetName("Kamran");
         uint32_t length = 0;
@@ -39,7 +39,7 @@ main(int argc, char **argv) {
         // ::naeem::hottentot::runtime::Utils::PrintArray("S", data, length);
         ::ir::ntnaeem::gate::Message message;
         message.SetId(0);
-        message.SetLabel("echo-request");
+        message.SetLabel("echo2-request");
         message.SetRelLabel("");
         message.SetRelId(0);
         message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, length));
@@ -47,7 +47,7 @@ main(int argc, char **argv) {
         proxy->EnqueueMessage(message, id);
         ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent." << std::endl;
         ::naeem::hottentot::runtime::Logger::GetOut() << "Assigned id: " << id.GetValue() << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
       }
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Server is not available." << std::endl;

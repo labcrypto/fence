@@ -25,13 +25,40 @@ main(int argc, char **argv) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
     ::ir::ntnaeem::gate::GateService *proxy = 
-      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create("127.0.0.1", 8765);
+      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create("127.0.0.1", 8767);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is created." << std::endl;
     }
     //=============================================
     if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-      for (uint32_t i = 0; i < 1; i++) {
+      ::naeem::hottentot::runtime::types::Utf8String label("echo2-request");
+      ::naeem::hottentot::runtime::types::Boolean hasMoreMessage;
+      proxy->HasMoreMessage(label, hasMoreMessage);
+      if (!hasMoreMessage.GetValue()) {
+        std::cout << "No messages." << std::endl;
+        return 0;
+      }
+      while (hasMoreMessage.GetValue()) {
+        ::ir::ntnaeem::gate::Message message;
+        proxy->NextMessage(label, message);
+        if (message.GetId().GetValue() > 0) {
+          std::cout << "Message is retrieved with id: " << message.GetId().GetValue() << ", label: " << message.GetLabel().Serialize(NULL) << std::endl;
+          ::ir::ntnaeem::gate::Message replyMessage;
+          replyMessage.SetLabel("echo-response");
+          replyMessage.SetRelLabel(message.GetLabel());
+          replyMessage.SetRelId(message.GetId());
+          ::naeem::hottentot::runtime::types::ByteArray replyContent((unsigned char *)"Hello Kamran!", 13);
+          replyMessage.SetContent(replyContent);
+          ::naeem::hottentot::runtime::types::UInt64 id;
+          proxy->EnqueueMessage(replyMessage, id);
+          std::cout << "Reply is enqueued with id: " << id.GetValue() << std::endl;
+        }
+        break;
+        proxy->HasMoreMessage(label, hasMoreMessage);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+      }
+      std::cout << "Done." << std::endl;
+      /*for (uint32_t i = 0; i < 100; i++) {
         ::ir::ntnaeem::gate::examples::echoer::EchoRequest echoRequest;
         echoRequest.SetName("Kamran");
         uint32_t length = 0;
@@ -47,8 +74,8 @@ main(int argc, char **argv) {
         proxy->EnqueueMessage(message, id);
         ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent." << std::endl;
         ::naeem::hottentot::runtime::Logger::GetOut() << "Assigned id: " << id.GetValue() << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+      }*/
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Server is not available." << std::endl;
     }

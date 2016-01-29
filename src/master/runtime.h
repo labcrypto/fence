@@ -19,6 +19,7 @@ namespace master {
   class Runtime {
   public:
     static void Init();
+    static void PrintStatus();
   public:
     static uint64_t messageCounter_;
     static std::mutex counterLock_;

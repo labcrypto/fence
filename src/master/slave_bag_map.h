@@ -12,6 +12,7 @@ namespace gate {
 namespace master {
   template <class M>
   class SlaveBagMap {
+    friend class Runtime;
   public:
     SlaveBagMap() {}
     virtual ~SlaveBagMap() {}
@@ -27,12 +28,16 @@ namespace master {
         maps_[slaveId]->Put(item);
       }
     }
+    uint32_t
+    Size() {
+      return maps_.size();
+    }
     std::vector<M*>
     PopAll(uint32_t slaveId) {
-      std::cout << " SLAVE ID: " << slaveId << std::endl;
+      // std::cout << " SLAVE ID: " << slaveId << std::endl;
       std::lock_guard<std::mutex> guard(lock_);
       if (maps_.find(slaveId) == maps_.end()) {
-        std::cout << " MAKING NEW BAG FOR SLAVE " << slaveId << std::endl;
+        // std::cout << " MAKING NEW BAG FOR SLAVE " << slaveId << std::endl;
         Bag<M> *bag = new Bag<M>();
         maps_[slaveId] = bag;
       }

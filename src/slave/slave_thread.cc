@@ -35,38 +35,39 @@ namespace slave {
           std::this_thread::sleep_for(std::chrono::seconds(15));
           // Aquiring main lock by creating guard object
           std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
             ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages waiting to be sent: " << Runtime::outboxQueue_->Size() << std::endl;
             ::naeem::hottentot::runtime::Logger::GetOut() << "Current value of message counter: " << Runtime::messageCounter_ << std::endl;
-          }
+            Runtime::PrintStatus();
+          // }
           // TODO: Disable LAN ethernet
           // TODO: Enable WAN ethernet
           // Create a proxy to Master Gate
-          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
-          }
-          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          // }
+          // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
-          }
+          // }
           ::ir::ntnaeem::gate::transport::TransportService *transportProxy = 
             ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(masterHost, 8766);
           // TODO: If server is not alive, postbone the operation and release the lock.
-          if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
-          }
+          // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          //   ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
+          // }
           bool isServerAlive = dynamic_cast<::ir::ntnaeem::gate::transport::proxy::TransportServiceProxy*>(transportProxy)->IsServerAlive();
           if (isServerAlive) {
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+            // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Server is up and running ..." << std::endl;
-            }
+            // }
             // Make a list of transport messages
             {
               std::vector< ::ir::ntnaeem::gate::Message*> messages =
                 Runtime::outboxQueue_->PopAll();
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << messages.size() << std::endl;
-              }
+              // }
               ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
               std::map<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*> map;
               for (uint32_t i = 0; i < messages.size(); i++) {
@@ -87,13 +88,13 @@ namespace slave {
               // Send queued messages to Master Gate
               ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> acceptReports;
               try {
-                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                   ::naeem::hottentot::runtime::Logger::GetOut() << "Sending messages ..." << std::endl;
-                }
+                // }
                 transportProxy->AcceptSlaveMassages(transportMessages, acceptReports);
-                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                   ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
-                }
+                // }
               } catch (...) {
                 ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
               }
@@ -110,18 +111,18 @@ namespace slave {
                   // }
                 } else {
                   Runtime::failedQueue_->Put(map[acceptReport->GetSlaveMId().GetValue()]);
-                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                  // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Message send is failed with id(" << 
                       acceptReport->GetSlaveMId().GetValue() << ")" << std::endl;
-                  }
+                  // }
                 }
               }
             }
             // Receive queued messages from Master Gate
             {
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
-              }
+              // }
               ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
               ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
               transportProxy->RetrieveSlaveMessages(slaveId, transportMessages);
@@ -138,26 +139,26 @@ namespace slave {
                 Runtime::inboxQueue_->Put(message->GetLabel().ToStdString(), message);
                 acks.Add(new ::naeem::hottentot::runtime::types::UInt64(transportMessage->GetMasterMId().GetValue()));
               }
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Sending acks ..." << std::endl;
-              }
+              // }
               transportProxy->Ack(acks);
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Messages are retrieved." << std::endl;
-              }
+              // }
             }
             // Disconnect from Master Gate
             ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
             // TODO: Disable WAN ethernet
             // TODO: Enable LAN ethernet
             // Releasing main lock by leaving the scope
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+            // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Send is complete." << std::endl;
-            }
+            // }
           } else {
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+            // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Master is not available now. We postbone the send to next try." << std::endl;
-            }
+            // }
             ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
           }
         } catch(std::exception &e) {

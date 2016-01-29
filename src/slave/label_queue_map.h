@@ -34,6 +34,10 @@ namespace slave {
         queuesMap_[label]->Enq(m);
       }
     }
+    uint32_t
+    Size() {
+      return queuesMap_.size();
+    }
     M* 
     Next(std::string label) {
       std::lock_guard<std::mutex> guard(lock_);

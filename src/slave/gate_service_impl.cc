@@ -18,7 +18,9 @@ namespace slave {
   void
   PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
+    std::cout << "W for mainLock" << std::endl;
     std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+    std::cout << "W for outboxQueueLock" << std::endl;
     std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
     Runtime::outboxQueue_->Put(message);
     std::cout << "Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
@@ -51,8 +53,10 @@ namespace slave {
     newMessage->SetRelLabel(message.GetRelLabel());
     newMessage->SetRelId(message.GetRelId());
     newMessage->SetContent(message.GetContent());
-    std::thread t(PutInOutboxQueue, newMessage);
-    t.detach();
+    // std::thread t(PutInOutboxQueue, newMessage);
+    // t.detach();
+    PutInOutboxQueue(newMessage);
+    Runtime::PrintStatus();
   }
   void
   GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt64 &id, 
@@ -76,7 +80,6 @@ namespace slave {
   }
   void
   GateServiceImpl::NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, 
-                               ::naeem::hottentot::runtime::types::Boolean &messageRetrieved,
                                ::ir::ntnaeem::gate::Message &out) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::NextMessage() is called." << std::endl;
@@ -86,9 +89,9 @@ namespace slave {
       std::lock_guard<std::mutex> guard2(Runtime::inboxQueueLock_);
       ::ir::ntnaeem::gate::Message *message = Runtime::inboxQueue_->Next(label.ToStdString());
       if (message == NULL ) {
-        messageRetrieved.SetValue(false);
+        out.SetId(0);
+        out.SetRelId(0);
       } else {
-        messageRetrieved.SetValue(true);
         out.SetId(message->GetId());
         out.SetRelId(message->GetRelId());
         out.SetRelLabel(message->GetRelLabel());

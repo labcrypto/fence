@@ -22,7 +22,7 @@ namespace slave {
     virtual void EnqueueMessage(::ir::ntnaeem::gate::Message &message, ::naeem::hottentot::runtime::types::UInt64 &out);
     virtual void GetMessageStatus(::naeem::hottentot::runtime::types::UInt64 &id, ::ir::ntnaeem::gate::MessageStatus &out);
     virtual void HasMoreMessage(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::Boolean &out);
-    virtual void NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, ::naeem::hottentot::runtime::types::Boolean &messageRetrieved, ::ir::ntnaeem::gate::Message &out);
+    virtual void NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, ::ir::ntnaeem::gate::Message &out);
   private:
   };
 } // END OF NAMESPACE slave
