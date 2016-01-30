@@ -14,6 +14,7 @@ namespace gate {
 namespace slave {
   template<class M>
   class LabelQueueMap {
+  friend class Runtime;
   public:
     LabelQueueMap() {}
     virtual ~LabelQueueMap() {
@@ -41,14 +42,21 @@ namespace slave {
     M* 
     Next(std::string label) {
       std::lock_guard<std::mutex> guard(lock_);
-      if (queuesMap_[label] == NULL) {
-        return NULL;
+      if (queuesMap_.find(label) == queuesMap_.end()) {
+        Queue<M> *q = new Queue<M>();
+        queuesMap_[label] = q;
+        queues_.push_back(q);
       }
       return queuesMap_[label]->Deq();
     }
     uint32_t 
     HasMore(std::string label) {
       std::lock_guard<std::mutex> guard(lock_);
+      if (queuesMap_.find(label) == queuesMap_.end()) {
+        Queue<M> *q = new Queue<M>();
+        queuesMap_[label] = q;
+        queues_.push_back(q);
+      }
       return queuesMap_[label]->HasMore();
     }
   private:

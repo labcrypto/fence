@@ -18,9 +18,7 @@ namespace master {
   void
   PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
-    std::cout << "W for mainLock" << std::endl;
     std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-    std::cout << "W for outboxQueueLock" << std::endl;
     std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
     Runtime::outboxQueue_->Put(message);
     std::cout << "Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
@@ -53,6 +51,7 @@ namespace master {
     newMessage->SetRelLabel(message.GetRelLabel());
     newMessage->SetRelId(message.GetRelId());
     newMessage->SetContent(message.GetContent());
+    ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
     // std::thread t(PutInOutboxQueue, newMessage);
     // t.detach();
     PutInOutboxQueue(newMessage);

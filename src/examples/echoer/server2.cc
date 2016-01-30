@@ -31,7 +31,7 @@ main(int argc, char **argv) {
     }
     //=============================================
     if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-      ::naeem::hottentot::runtime::types::Utf8String label("echo2-request");
+      ::naeem::hottentot::runtime::types::Utf8String label("echo-response");
       ::naeem::hottentot::runtime::types::Boolean hasMoreMessage;
       proxy->HasMoreMessage(label, hasMoreMessage);
       if (!hasMoreMessage.GetValue()) {
@@ -42,7 +42,12 @@ main(int argc, char **argv) {
         ::ir::ntnaeem::gate::Message message;
         proxy->NextMessage(label, message);
         if (message.GetId().GetValue() > 0) {
-          std::cout << "Message is retrieved with id: " << message.GetId().GetValue() << ", label: " << message.GetLabel().Serialize(NULL) << std::endl;
+          std::cout << "Message is retrieved with id: " << 
+            message.GetId().GetValue() << ", label: '" << 
+            message.GetLabel().Serialize(NULL) << "', relId: " << 
+            message.GetRelId().GetValue() << /*", content: '" << 
+            message.GetContent().Serialize(NULL) << "'" << */ std::endl;
+          ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
           // ::ir::ntnaeem::gate::Message replyMessage;
           // replyMessage.SetLabel("echo-response");
           // replyMessage.SetRelLabel(message.GetLabel());

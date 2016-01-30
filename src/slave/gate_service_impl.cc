@@ -53,6 +53,7 @@ namespace slave {
     newMessage->SetRelLabel(message.GetRelLabel());
     newMessage->SetRelId(message.GetRelId());
     newMessage->SetContent(message.GetContent());
+    ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
     // std::thread t(PutInOutboxQueue, newMessage);
     // t.detach();
     PutInOutboxQueue(newMessage);

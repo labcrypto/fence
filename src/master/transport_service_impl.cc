@@ -43,6 +43,7 @@ namespace master {
           transportMessage->SetRelLabel(messages.Get(i)->GetRelLabel());
           transportMessage->SetLabel(messages.Get(i)->GetLabel());
           transportMessage->SetContent(messages.Get(i)->GetContent());
+          ::naeem::hottentot::runtime::Utils::PrintArray("ACCEPTING CONTENT",messages.Get(i)->GetContent().GetValue(), messages.Get(i)->GetContent().GetLength());
           {
             std::lock_guard<std::mutex> guard(Runtime::counterLock_);
             transportMessage->SetMasterMId(Runtime::messageCounter_);
@@ -75,6 +76,7 @@ namespace master {
         Runtime::transportOutboxQueue_->PopAll(slaveId.GetValue());
       for (uint32_t i = 0; i < messages.size(); i++) {
         out.Add(messages[i]);
+        ::naeem::hottentot::runtime::Utils::PrintArray("RETRIEVING CONTENT",messages[i]->GetContent().GetValue(), messages[i]->GetContent().GetLength());
         Runtime::transportSentQueue_->Put(messages[i]);
       }
       // Runtime::PrintStatus();

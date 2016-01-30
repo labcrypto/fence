@@ -33,7 +33,8 @@ main(int argc, char **argv) {
     if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
       for (uint32_t i = 0; i < 1; i++) {
         ::ir::ntnaeem::gate::examples::echoer::EchoRequest echoRequest;
-        echoRequest.SetName("Kamran");
+        ::naeem::hottentot::runtime::types::Utf8String name("Kamran");
+        echoRequest.SetName(name);
         uint32_t length = 0;
         unsigned char *data = echoRequest.Serialize(&length);
         // ::naeem::hottentot::runtime::Utils::PrintArray("S", data, length);

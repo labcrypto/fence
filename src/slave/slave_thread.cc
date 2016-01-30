@@ -131,7 +131,11 @@ namespace slave {
               for (uint32_t i = 0; i < transportMessages.Size(); i++) {
                 ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = transportMessages.Get(i);
                 ::ir::ntnaeem::gate::Message *message = new ::ir::ntnaeem::gate::Message;
-                message->SetId(transportMessage->GetSlaveMId());
+                {
+                  std::lock_guard<std::mutex> guard(Runtime::counterLock_);
+                  message->SetId(Runtime::messageCounter_);
+                  Runtime::messageCounter_++;
+                }
                 message->SetRelId(transportMessage->GetRelMId());
                 message->SetLabel(transportMessage->GetLabel());
                 message->SetRelLabel(transportMessage->GetRelLabel());

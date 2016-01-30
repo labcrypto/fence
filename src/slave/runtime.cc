@@ -16,7 +16,7 @@ namespace slave {
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::failedQueue_ = NULL;
   void
   Runtime::Init() {
-    messageCounter_ = 1000;
+    messageCounter_ = 3000;
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
@@ -27,6 +27,11 @@ namespace slave {
     std::cout << "------------------------------" << std::endl;
     std::cout << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
     std::cout << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << std::endl;
+    for (std::map<std::string, Queue<::ir::ntnaeem::gate::Message>*>::iterator it = Runtime::inboxQueue_->queuesMap_.begin();
+         it != Runtime::inboxQueue_->queuesMap_.end();
+         it++) {
+      std::cout << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
+    }
     std::cout << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
     std::cout << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
     std::cout << "Size(Runtime::failedQueue_): " << Runtime::failedQueue_->Size() << std::endl;

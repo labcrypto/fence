@@ -21,7 +21,7 @@ namespace master {
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportSentQueue_ = NULL;
   void
   Runtime::Init() {
-    messageCounter_ = 1000;
+    messageCounter_ = 5000;
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     transportInboxQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;

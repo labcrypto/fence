@@ -74,7 +74,7 @@ namespace master {
               Runtime::masterIdToSlaveIdMap_[inboxTransportMessage->GetSlaveId().GetValue()]->insert(
                 std::pair<uint64_t, uint64_t>(inboxTransportMessage->GetMasterMId().GetValue(), 
                   inboxTransportMessage->GetSlaveMId().GetValue()));
-              delete inboxTransportMessage;
+              // delete inboxTransportMessage;
             }
           }
           // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -102,12 +102,14 @@ namespace master {
                 new ::ir::ntnaeem::gate::transport::TransportMessage;
               outboxTransportMessage->SetMasterMId(outboxMessage->GetId());
               outboxTransportMessage->SetSlaveId(Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]);
-              outboxTransportMessage->SetSlaveMId(Runtime::masterIdToSlaveIdMap_[outboxTransportMessage->GetSlaveId().GetValue()]->at(outboxMessage->GetRelId().GetValue()));
+              // outboxTransportMessage->SetSlaveMId(Runtime::masterIdToSlaveIdMap_[outboxTransportMessage->GetSlaveId().GetValue()]->at(outboxMessage->GetRelId().GetValue()));
+              outboxTransportMessage->SetSlaveMId(0);
+              outboxTransportMessage->SetRelMId(Runtime::masterIdToSlaveIdMap_[outboxTransportMessage->GetSlaveId().GetValue()]->at(outboxMessage->GetRelId().GetValue()));
               outboxTransportMessage->SetRelLabel(outboxMessage->GetRelLabel());
               outboxTransportMessage->SetLabel(outboxMessage->GetLabel());
               outboxTransportMessage->SetContent(outboxMessage->GetContent());
               Runtime::transportOutboxQueue_->Put(outboxTransportMessage->GetSlaveId().GetValue(), outboxTransportMessage);
-              delete outboxMessage;
+              // delete outboxMessage;
             }
             // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Messages moved from gate outbox to transport outbox." << std::endl;
