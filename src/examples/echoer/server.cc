@@ -25,7 +25,7 @@ main(int argc, char **argv) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
     ::ir::ntnaeem::gate::GateService *proxy = 
-      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create("127.0.0.1", 8767);
+      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(argv[1], 8767);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is created." << std::endl;
     }
