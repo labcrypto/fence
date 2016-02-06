@@ -10,7 +10,7 @@
 
 #include "../../common/gate/message_status.h"
 #include "../../common/gate/message.h"
-#include "../../common/gate/gate_service.h"
+#include "../../common/gate/proxy/gate_service.h"
 #include "../../common/gate/proxy/gate_service_proxy_builder.h"
 
 #include "hotgen/echo_request.h"
@@ -24,7 +24,7 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
-    ::ir::ntnaeem::gate::GateService *proxy = 
+    ::ir::ntnaeem::gate::proxy::GateService *proxy = 
       ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(argv[1], 8765);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is created." << std::endl;
@@ -89,7 +89,8 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
     }
-    // Delete allocated objects
+    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::naeem::hottentot::runtime::Logger::Shutdown(); 
   } catch (...) {
     ::naeem::hottentot::runtime::Logger::GetOut() << "Error." << std::endl;
     return 1;
