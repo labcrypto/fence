@@ -17,10 +17,16 @@ namespace slave {
   class Runtime {
   public:
     static void Init();
+    static void Shutdown();
     static void PrintStatus();
   public:
-    static uint64_t messageCounter_;
+    static std::mutex termSignalLock_;
+    static bool termSignal_;
+    static bool slaveThreadTerminated_;
+
     static std::mutex counterLock_;
+    static uint64_t messageCounter_;
+    
     static std::mutex mainLock_;
     static std::mutex inboxQueueLock_;
     static std::mutex outboxQueueLock_;

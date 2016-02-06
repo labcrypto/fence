@@ -14,7 +14,7 @@
 namespace ir {
 namespace ntnaeem {
 namespace gate {
-namespace master {
+namespace master { 
   void
   PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
@@ -22,6 +22,7 @@ namespace master {
     std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
     Runtime::outboxQueue_->Put(message);
     std::cout << "Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
+    // pthread_exit(NULL);
   }
   void
   GateServiceImpl::OnInit() {
@@ -32,8 +33,11 @@ namespace master {
     // TODO: Called when service is shutting down.
   }
   void
-  GateServiceImpl::EnqueueMessage(::ir::ntnaeem::gate::Message &message, 
-                                  ::naeem::hottentot::runtime::types::UInt64 &out) {
+  GateServiceImpl::EnqueueMessage(
+      ::ir::ntnaeem::gate::Message &message, 
+      ::naeem::hottentot::runtime::types::UInt64 &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
@@ -51,23 +55,29 @@ namespace master {
     newMessage->SetRelLabel(message.GetRelLabel());
     newMessage->SetRelId(message.GetRelId());
     newMessage->SetContent(message.GetContent());
-    ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
+    // ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
     // std::thread t(PutInOutboxQueue, newMessage);
     // t.detach();
     PutInOutboxQueue(newMessage);
     // Runtime::PrintStatus();
   }
   void
-  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt64 &id, 
-                                    ::ir::ntnaeem::gate::MessageStatus &out) {
+  GateServiceImpl::GetMessageStatus(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::ir::ntnaeem::gate::MessageStatus &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
     // TODO
   }
   void
-  GateServiceImpl::HasMoreMessage(::naeem::hottentot::runtime::types::Utf8String &label, 
-                                  ::naeem::hottentot::runtime::types::Boolean &out) {
+  GateServiceImpl::HasMoreMessage(
+      ::naeem::hottentot::runtime::types::Utf8String &label, 
+      ::naeem::hottentot::runtime::types::Boolean &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMoreMessage() is called." << std::endl;
     }
@@ -78,8 +88,11 @@ namespace master {
     }
   }
   void
-  GateServiceImpl::NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, 
-                               ::ir::ntnaeem::gate::Message &out) {
+  GateServiceImpl::NextMessage(
+      ::naeem::hottentot::runtime::types::Utf8String &label, 
+      ::ir::ntnaeem::gate::Message &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::NextMessage() is called." << std::endl;
     }

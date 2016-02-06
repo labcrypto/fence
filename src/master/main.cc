@@ -35,6 +35,14 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8767, gateService);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register("0.0.0.0", 8766, transportService);
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
+    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Service runtime is shutdown." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "About to disable logging system ..." << std::endl;
+    }
+    ::naeem::hottentot::runtime::Logger::Shutdown();
   } catch (...) {
     std::cout << "Error." << std::endl;
     return 1;

@@ -18,10 +18,25 @@ namespace master {
   public:
     virtual void OnInit();
     virtual void OnShutdown();
-    virtual void AcceptSlaveMassages(::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out);
-    virtual void RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt32 &slaveId, ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out);
-    virtual void Ack(::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds);
-    virtual void GetStatus(::naeem::hottentot::runtime::types::UInt64 &masterMId, ::ir::ntnaeem::gate::transport::TransportMessageStatus &out);
+    virtual void AcceptSlaveMassages(
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
+    virtual void RetrieveSlaveMessages(
+      ::naeem::hottentot::runtime::types::UInt32 &slaveId, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
+    virtual void Ack(
+      ::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
+    virtual void GetStatus(
+      ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
+      ::ir::ntnaeem::gate::transport::TransportMessageStatus &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
   };
 } // END OF NAMESPACE master
 } // END OF NAMESPACE gate

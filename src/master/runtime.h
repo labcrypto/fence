@@ -19,15 +19,22 @@ namespace master {
   class Runtime {
   public:
     static void Init();
+    static void Shutdown();
     static void PrintStatus();
   public:
-    static uint64_t messageCounter_;
+    static std::mutex termSignalLock_;
+    static bool termSignal_;
+    static bool masterThreadTerminated_;
+
     static std::mutex counterLock_;
+    static uint64_t messageCounter_;
+    
     static std::mutex mainLock_;
     static std::mutex inboxQueueLock_;
     static std::mutex outboxQueueLock_;
     static std::mutex transportInboxQueueLock_;
     static std::mutex transportOutboxQueueLock_;
+
     static std::map<uint32_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map
     static std::map<uint32_t, std::map<uint64_t, uint64_t>*> masterIdToSlaveIdMap_; // TODO: Replace with a persistent map
     static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;

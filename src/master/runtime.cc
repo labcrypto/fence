@@ -5,13 +5,19 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace master {
-  uint64_t Runtime::messageCounter_ = 0;
+  std::mutex Runtime::termSignalLock_;
+  bool Runtime::termSignal_;
+  bool Runtime::masterThreadTerminated_;
+
   std::mutex Runtime::counterLock_;
+  uint64_t Runtime::messageCounter_ = 0;
+
   std::mutex Runtime::mainLock_;
   std::mutex Runtime::inboxQueueLock_;
   std::mutex Runtime::outboxQueueLock_;
   std::mutex Runtime::transportInboxQueueLock_;
   std::mutex Runtime::transportOutboxQueueLock_;
+
   std::map<uint32_t, uint64_t> Runtime::slaveMessageMap_;
   std::map<uint32_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;
   LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
@@ -19,14 +25,27 @@ namespace master {
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportInboxQueue_ = NULL;
   SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportOutboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportSentQueue_ = NULL;
+
   void
   Runtime::Init() {
+    termSignal_ = false;
+    masterThreadTerminated_ = false;
+
     messageCounter_ = 5000;
+
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     transportInboxQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     transportOutboxQueue_ = new SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>;
     transportSentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
+  }
+  void
+  Runtime::Shutdown() {
+    delete inboxQueue_;
+    delete outboxQueue_;
+    delete transportInboxQueue_;
+    delete transportOutboxQueue_;
+    delete transportSentQueue_;
   }
   void
   Runtime::PrintStatus() {

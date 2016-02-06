@@ -1,3 +1,6 @@
+#include <thread>
+#include <chrono>
+
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
@@ -20,11 +23,26 @@ namespace master {
   }
   void
   TransportServiceImpl::OnShutdown() {
-    // TODO: Called when service is shutting down.
+    {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      Runtime::termSignal_ = true;
+    }
+    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for master thread to exit ..." << std::endl;
+    while (true) {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      if (Runtime::masterThreadTerminated_) {
+        ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread exited." << std::endl;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
   }
   void
-  TransportServiceImpl::AcceptSlaveMassages(::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
-                                            ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out) {
+  TransportServiceImpl::AcceptSlaveMassages(
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::AcceptSlaveMassages() is called." << std::endl;
     }
@@ -64,8 +82,11 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::RetrieveSlaveMessages(::naeem::hottentot::runtime::types::UInt32 &slaveId, 
-                                              ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out) {
+  TransportServiceImpl::RetrieveSlaveMessages(
+      ::naeem::hottentot::runtime::types::UInt32 &slaveId, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::RetrieveSlaveMessages() is called." << std::endl;
     }
@@ -83,15 +104,21 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::Ack(::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds) {
+  TransportServiceImpl::Ack(
+      ::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::Ack() is called." << std::endl;
     }
     // TODO
   }
   void
-  TransportServiceImpl::GetStatus(::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-                                  ::ir::ntnaeem::gate::transport::TransportMessageStatus &out) {
+  TransportServiceImpl::GetStatus(
+      ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
+      ::ir::ntnaeem::gate::transport::TransportMessageStatus &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::GetStatus() is called." << std::endl;
     }

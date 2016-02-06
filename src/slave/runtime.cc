@@ -5,8 +5,13 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace slave {
-  uint64_t Runtime::messageCounter_ = 0;
+  std::mutex Runtime::termSignalLock_;
+  bool Runtime::termSignal_;
+  bool Runtime::slaveThreadTerminated_;
+  
   std::mutex Runtime::counterLock_;
+  uint64_t Runtime::messageCounter_ = 0;
+
   std::mutex Runtime::mainLock_;
   std::mutex Runtime::inboxQueueLock_;
   std::mutex Runtime::outboxQueueLock_;
@@ -14,13 +19,25 @@ namespace slave {
   Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::sentQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::failedQueue_ = NULL;
+
   void
   Runtime::Init() {
+    termSignal_ = false;
+    slaveThreadTerminated_ = false;
+
     messageCounter_ = 3000;
+    
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     failedQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
+  }
+  void
+  Runtime::Shutdown() {
+    delete inboxQueue_;
+    delete outboxQueue_;
+    delete sentQueue_;
+    delete failedQueue_;
   }
   void
   Runtime::PrintStatus() {

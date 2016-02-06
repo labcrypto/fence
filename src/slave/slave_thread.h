@@ -9,7 +9,7 @@ namespace slave {
   class SlaveThread {
   public:
     static void Start();
-    static void ThreadBody();
+    static void* ThreadBody(void *);
   };
 }
 }

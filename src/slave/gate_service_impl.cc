@@ -1,4 +1,5 @@
 #include <thread>
+#include <chrono>
 
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
@@ -15,7 +16,7 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace slave {
-  void
+  void 
   PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
     std::cout << "PUT: W for mainLock" << std::endl;
@@ -24,6 +25,7 @@ namespace slave {
     std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
     Runtime::outboxQueue_->Put(message);
     std::cout << "PUT: Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
+    // pthread_exit(NULL);
   }
   void
   GateServiceImpl::OnInit() {
@@ -31,11 +33,26 @@ namespace slave {
   }
   void
   GateServiceImpl::OnShutdown() {
-    // TODO: Called when service is shutting down.
+    {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      Runtime::termSignal_ = true;
+    }
+    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for slave thread to exit ..." << std::endl;
+    while (true) {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      if (Runtime::slaveThreadTerminated_) {
+        ::naeem::hottentot::runtime::Logger::GetOut() << "Slave thread exited." << std::endl;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
   }
   void
-  GateServiceImpl::EnqueueMessage(::ir::ntnaeem::gate::Message &message, 
-                                  ::naeem::hottentot::runtime::types::UInt64 &out) {
+  GateServiceImpl::EnqueueMessage(
+      ::ir::ntnaeem::gate::Message &message, 
+      ::naeem::hottentot::runtime::types::UInt64 &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
@@ -60,16 +77,22 @@ namespace slave {
     Runtime::PrintStatus();
   }
   void
-  GateServiceImpl::GetMessageStatus(::naeem::hottentot::runtime::types::UInt64 &id, 
-                                    ::ir::ntnaeem::gate::MessageStatus &out) {
+  GateServiceImpl::GetMessageStatus(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::ir::ntnaeem::gate::MessageStatus &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
     // TODO
   }
   void
-  GateServiceImpl::HasMoreMessage(::naeem::hottentot::runtime::types::Utf8String &label, 
-                                  ::naeem::hottentot::runtime::types::Boolean &out) {
+  GateServiceImpl::HasMoreMessage(
+      ::naeem::hottentot::runtime::types::Utf8String &label, 
+      ::naeem::hottentot::runtime::types::Boolean &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMoreMessage() is called." << std::endl;
     }
@@ -80,8 +103,11 @@ namespace slave {
     }
   }
   void
-  GateServiceImpl::NextMessage(::naeem::hottentot::runtime::types::Utf8String &label, 
-                               ::ir::ntnaeem::gate::Message &out) {
+  GateServiceImpl::NextMessage(
+      ::naeem::hottentot::runtime::types::Utf8String &label, 
+      ::ir::ntnaeem::gate::Message &out, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::NextMessage() is called." << std::endl;
     }
