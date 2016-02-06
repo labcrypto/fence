@@ -33,6 +33,7 @@ namespace slave {
   }
   void
   GateServiceImpl::OnShutdown() {
+    // TODO: Persist runtime data structures
     {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;

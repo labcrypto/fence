@@ -44,6 +44,12 @@ namespace slave {
     HasMore() {
       return Size() > 0;
     }
+    void
+    Purge() {
+      for (uint32_t i = 0; i < items_.size(); i++) {
+        delete items_[i];
+      }
+    }
   private:
     std::mutex lock_;
     std::vector<M*> items_;

@@ -27,6 +27,12 @@ namespace slave {
     PopAll() {
       return std::move(items_);
     }
+    void
+    Purge() {
+      for (uint32_t i = 0; i < items_.size(); i++) {
+        delete items_[i];
+      }
+    }
   private:
     std::vector<M*> items_;
   };

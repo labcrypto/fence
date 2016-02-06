@@ -59,6 +59,15 @@ namespace slave {
       }
       return queuesMap_[label]->HasMore();
     }
+    void
+    Purge() {
+      for (typename std::map<std::string, Queue<M>*>::iterator it = queuesMap_.begin();
+           it != queuesMap_.end();
+           it++) {
+        it->second->Purge();
+        delete it->second;
+      }
+    }
   private:
     std::mutex lock_;
     std::map<std::string, Queue<M>*> queuesMap_;

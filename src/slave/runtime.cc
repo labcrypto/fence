@@ -26,7 +26,7 @@ namespace slave {
     slaveThreadTerminated_ = false;
 
     messageCounter_ = 3000;
-    
+
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
@@ -34,6 +34,10 @@ namespace slave {
   }
   void
   Runtime::Shutdown() {
+    inboxQueue_->Purge();
+    outboxQueue_->Purge();
+    sentQueue_->Purge();
+    failedQueue_->Purge();
     delete inboxQueue_;
     delete outboxQueue_;
     delete sentQueue_;
