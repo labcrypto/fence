@@ -1,4 +1,4 @@
-cppflags=-Wall -g -c -std=c++11 -I/usr/local/include/hot -I../../../naeem-gate-api/hot
+cppflags=-Wall -g -c -std=c++11 -I/usr/local/include/hot -I../../../naeem-gate-api/hot -I../../../corelibs++-api/include
 
 all:
 	mkdir -p .lib
@@ -15,7 +15,10 @@ all:
 	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/proxy/transport_service_proxy_builder.cc -o .lib/transport_service_proxy_builder.o
 	g++ $(cppflags) slave_thread.cc -o .lib/slave_thread.o
 	g++ $(cppflags) main.cc -o .lib/main.o
-	g++ .lib/runtime.o \
+
+	g++ -L../../../corelibs-api/lib \
+	    -L../../../corelibs++-api/lib \
+	    .lib/runtime.o \
 	    .lib/gate_service_impl.o \
 	    .lib/message.o \
 	    .lib/accept_report.o \
@@ -29,4 +32,7 @@ all:
 	    .lib/main.o \
 	    -lhotd \
 	    -lpthread \
+	    -lnaeem-os \
+	    -lnaeem++-conf \
+	    -lnaeem++-string \
 	    -o naeem-gate-slave-node.out

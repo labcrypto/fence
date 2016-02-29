@@ -2,6 +2,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <naeem++/conf/config_manager.h>
+
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
@@ -34,8 +36,9 @@ namespace slave {
   SlaveThread::ThreadBody(void *) {
     bool cont = true;
     time_t lastTime = time(NULL);
-    ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::hottentot::runtime::Configuration::AsUInt32("sid", "slave-id");
-    std::string masterHost = ::naeem::hottentot::runtime::Configuration::AsString("m", "master");
+    // ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::hottentot::runtime::Configuration::AsUInt32("sid", "slave-id");
+    // std::string masterHost = ::naeem::hottentot::runtime::Configuration::AsString("m", "master");
+    ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::conf::ConfigManager::GetValueAsUInt32("slave", "id");
     while (cont) {
       try {
         {
@@ -86,7 +89,10 @@ namespace slave {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
             }
             ::ir::ntnaeem::gate::transport::proxy::TransportService *transportProxy = 
-              ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(masterHost, 8766);
+              ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(
+                ::naeem::conf::ConfigManager::GetValueAsString("master", "ip"), 
+                ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "port")
+              );
             // If server is not alive, postbone the operation and release the lock.
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
