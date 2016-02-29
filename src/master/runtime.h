@@ -3,8 +3,8 @@
 
 #include <mutex>
 
-#include "../common/gate/message.h"
-#include "../common/transport/transport_message.h"
+#include <gate/message.h>
+#include <transport/transport_message.h>
 
 #include "queue.h"
 #include "bag.h"

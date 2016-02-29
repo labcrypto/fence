@@ -5,9 +5,9 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
-#include "../common/transport/transport_message_status.h"
-#include "../common/transport/transport_message.h"
-#include "../common/transport/accept_report.h"
+#include <transport/transport_message_status.h>
+#include <transport/transport_message.h>
+#include <transport/accept_report.h>
 
 #include "transport_service_impl.h"
 #include "runtime.h"
