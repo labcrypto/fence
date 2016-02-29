@@ -5,7 +5,7 @@
 #include <naeem/hottentot/runtime/service/service_runtime.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include "../common/gate/message.h"
+#include <gate/message.h>
 
 #include "gate_service_impl.h"
 #include "slave_thread.h"

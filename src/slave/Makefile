@@ -1,18 +1,20 @@
+cppflags=-Wall -g -c -std=c++11 -I/usr/local/include/hot -I../../../naeem-gate-api/hot
+
 all:
 	mkdir -p .lib
 	rm -rfv .lib/*
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot runtime.cc -o .lib/runtime.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot gate_service_impl.cc -o .lib/gate_service_impl.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/gate/message.cc -o .lib/message.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/transport/accept_report.cc -o .lib/accept_report.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/gate/message_status.cc -o .lib/message_status.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_message.cc -o .lib/transport_message.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/transport/transport_message_status.cc -o .lib/transport_message_status.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/gate/service/gate_service_request_handler.cc -o .lib/gate_service_request_handler.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/transport/proxy/transport_service_proxy.cc -o .lib/transport_service_proxy.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot ../common/transport/proxy/transport_service_proxy_builder.cc -o .lib/transport_service_proxy_builder.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot slave_thread.cc -o .lib/slave_thread.o
-	g++ -Wall -g -c -std=c++11 -I/usr/local/include/hot main.cc -o .lib/main.o
+	g++ $(cppflags) runtime.cc -o .lib/runtime.o
+	g++ $(cppflags) gate_service_impl.cc -o .lib/gate_service_impl.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/message.cc -o .lib/message.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/accept_report.cc -o .lib/accept_report.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/message_status.cc -o .lib/message_status.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/transport_message.cc -o .lib/transport_message.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/transport_message_status.cc -o .lib/transport_message_status.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/service/gate_service_request_handler.cc -o .lib/gate_service_request_handler.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/proxy/transport_service_proxy.cc -o .lib/transport_service_proxy.o
+	g++ $(cppflags) ../../../naeem-gate-api/hot/transport/proxy/transport_service_proxy_builder.cc -o .lib/transport_service_proxy_builder.o
+	g++ $(cppflags) slave_thread.cc -o .lib/slave_thread.o
+	g++ $(cppflags) main.cc -o .lib/main.o
 	g++ .lib/runtime.o \
 	    .lib/gate_service_impl.o \
 	    .lib/message.o \

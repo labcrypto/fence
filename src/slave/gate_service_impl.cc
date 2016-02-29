@@ -5,8 +5,8 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
-#include "../common/gate/message.h"
-#include "../common/transport/transport_message.h"
+#include <gate/message.h>
+#include <transport/transport_message.h>
 
 #include "gate_service_impl.h"
 #include "runtime.h"

@@ -6,11 +6,11 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include "../common/gate/message.h"
-#include "../common/transport/transport_message.h"
-#include "../common/transport/proxy/transport_service.h"
-#include "../common/transport/proxy/transport_service_proxy.h"
-#include "../common/transport/proxy/transport_service_proxy_builder.h"
+#include <gate/message.h>
+#include <transport/transport_message.h>
+#include <transport/proxy/transport_service.h>
+#include <transport/proxy/transport_service_proxy.h>
+#include <transport/proxy/transport_service_proxy_builder.h>
 
 #include "slave_thread.h"
 #include "runtime.h"

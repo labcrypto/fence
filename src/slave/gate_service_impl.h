@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string>
 
-#include "../common/gate/service/abstract_gate_service.h"
+#include <gate/service/abstract_gate_service.h>
 
 
 namespace ir {
