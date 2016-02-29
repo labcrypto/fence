@@ -83,7 +83,6 @@ main(int argc, char **argv) {
         "ERROR: Configuration value 'master.port' is not found." << std::endl;
       exit(1);
     }
-    
     std::cout << "NTNAEEM CO." << std::endl;
     std::cout << "COPYRIGHT 2015-2016" << std::endl;
     std::cout << "NAEEM GATE SLAVE SERVICE" << std::endl;
