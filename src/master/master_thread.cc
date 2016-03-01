@@ -31,6 +31,7 @@ namespace master {
   MasterThread::ThreadBody(void *) {
     bool cont = true;
     time_t lastTime = time(NULL);
+    uint32_t transferInterval = ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "transfer_interval");
     while (cont) {
       {
         std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
@@ -57,7 +58,7 @@ namespace master {
       }
       if (cont) {
         bool proceed = false;
-        if ((time(NULL) - lastTime) > 20) {
+        if ((time(NULL) - lastTime) > transferInterval) {
           lastTime = time(NULL);
           proceed = true;
         }

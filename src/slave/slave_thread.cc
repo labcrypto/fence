@@ -36,9 +36,8 @@ namespace slave {
   SlaveThread::ThreadBody(void *) {
     bool cont = true;
     time_t lastTime = time(NULL);
-    // ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::hottentot::runtime::Configuration::AsUInt32("sid", "slave-id");
-    // std::string masterHost = ::naeem::hottentot::runtime::Configuration::AsString("m", "master");
     ::naeem::hottentot::runtime::types::UInt32 slaveId = ::naeem::conf::ConfigManager::GetValueAsUInt32("slave", "id");
+    uint32_t transferInterval = ::naeem::conf::ConfigManager::GetValueAsUInt32("slave", "transfer_interval");
     while (cont) {
       try {
         {
@@ -66,7 +65,7 @@ namespace slave {
         }
         if (cont) {
           bool proceed = false;
-          if ((time(NULL) - lastTime) > 10) {
+          if ((time(NULL) - lastTime) > transferInterval) {
             lastTime = time(NULL);
             proceed = true;
           }

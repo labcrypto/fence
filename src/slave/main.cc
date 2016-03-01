@@ -21,22 +21,6 @@ main(int argc, char **argv) {
   try {
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
-    /* if (!::naeem::hottentot::runtime::Configuration::Exists("sid", "slave-id")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is mandatory. (-sid | --slave-id)" << std::endl;
-      return 1;
-    }
-    if (!::naeem::hottentot::runtime::Configuration::Exists("m", "master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is mandatory. (-m | --master)" << std::endl;
-      return 1;
-    }
-    if (!::naeem::hottentot::runtime::Configuration::HasValue("sid", "slave-id")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave id is not specified. (-sid | --slave-id)" << std::endl;
-      return 1;
-    }
-    if (!::naeem::hottentot::runtime::Configuration::HasValue("m", "master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Master host address is not specified. (-m | --master)" << std::endl;
-      return 1;
-    } */
     if (!NAEEM_os__file_exists((NAEEM_path)"/opt/naeem/gate", (NAEEM_string)"slave.conf")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: 'slave.conf' does not exist in /opt/naeem/gate directory." << std::endl;
@@ -48,19 +32,29 @@ main(int argc, char **argv) {
         "ERROR: Configuration section 'slave' is not found." << std::endl;
       exit(1);
     }
+    if (!::naeem::conf::ConfigManager::HasSection("master")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration section 'slave' is not found." << std::endl;
+      exit(1);
+    }
     if (!::naeem::conf::ConfigManager::HasSection("service")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: Configuration section 'service' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasSection("master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "ERROR: Configuration section 'master' is not found." << std::endl;
-      exit(1);
-    }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "id")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: Configuration value 'slave.id' is not found." << std::endl;
+      exit(1);
+    }
+    if (!::naeem::conf::ConfigManager::HasValue("slave", "work_dir")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'slave.work_dir' is not found." << std::endl;
+      exit(1);
+    }
+    if (!::naeem::conf::ConfigManager::HasValue("slave", "transfer_interval")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'slave.transfer_interval' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("service", "bind_ip")) {

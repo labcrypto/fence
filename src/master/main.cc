@@ -63,6 +63,16 @@ main(int argc, char **argv) {
         "ERROR: Configuration value 'gate_service.bind_port' is not found." << std::endl;
       exit(1);
     }
+    if (!::naeem::conf::ConfigManager::HasValue("master", "work_dir")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'master.work_dir' is not found." << std::endl;
+      exit(1);
+    }
+    if (!::naeem::conf::ConfigManager::HasValue("master", "transfer_interval")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'master.transfer_interval' is not found." << std::endl;
+      exit(1);
+    }
     std::cout << "NTNAEEM CO." << std::endl;
     std::cout << "COPYRIGHT 2015-2016" << std::endl;
     std::cout << "NAEEM GATE MASTER SERVICE" << std::endl;
