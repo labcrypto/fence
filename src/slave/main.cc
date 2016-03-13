@@ -102,6 +102,7 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::ir::ntnaeem::gate::slave::Runtime::Shutdown();
+    ::naeem::conf::ConfigManager::Clear();
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Service runtime is shutdown." << std::endl;
       ::naeem::hottentot::runtime::Logger::GetOut() << "About to disable logging system ..." << std::endl;

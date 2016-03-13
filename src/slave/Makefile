@@ -1,4 +1,8 @@
-cppflags=-Wall -g -c -std=c++11 -I/usr/local/include/hot -I../../../naeem-gate-api/hot -I../../../corelibs++-api/include
+cppflags=-Wall -g -c -std=c++11 \
+         -I/usr/local/include/hot \
+         -I../../../naeem-gate-api/hot \
+         -I../../../corelibs-api/include \
+         -I../../../corelibs++-api/include
 
 all:
 	mkdir -p .lib
