@@ -1,4 +1,6 @@
 #include <iostream>
+#include <limits.h>
+#include <unistd.h>
 
 #include <naeem/os.h>
 
@@ -19,14 +21,19 @@
 int
 main(int argc, char **argv) {
   try {
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    std::string execPath(result, (count > 0) ? count : 0);
+    std::string::size_type pos = execPath.find_last_of( "/" );
+    std::string execDir = execPath.substr( 0, pos);
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
-    if (!NAEEM_os__file_exists((NAEEM_path)"/opt/naeem/gate", (NAEEM_string)"slave.conf")) {
+    if (!NAEEM_os__file_exists((NAEEM_path)execDir.c_str(), (NAEEM_string)"slave.conf")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "ERROR: 'slave.conf' does not exist in /opt/naeem/gate directory." << std::endl;
+        "ERROR: 'slave.conf' does not exist in " << execDir << " directory." << std::endl;
       exit(1);
     }
-    ::naeem::conf::ConfigManager::LoadFromFile("/opt/naeem/gate/slave.conf");
+    ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/slave.conf");
     if (!::naeem::conf::ConfigManager::HasSection("slave")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: Configuration section 'slave' is not found." << std::endl;

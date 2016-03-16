@@ -14,8 +14,7 @@
 #include <naeem/gate/client/simple_gate_client.h>
 
 
-namespace ir {
-namespace ntnaeem {
+namespace naeem {
 namespace gate {
 namespace client {
   void 
@@ -27,17 +26,14 @@ namespace client {
     }
   }
   void 
-  SimpleGateClient::Destroy() {
+  SimpleGateClient::Shutdown() {
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown(); 
   }
-  void 
+  uint64_t 
   SimpleGateClient::SubmitMessage(std::string label, unsigned char *data, uint32_t length) {
     ::ir::ntnaeem::gate::proxy::GateService *proxy = 
-      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(
-        ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "gate_server_ip"), 
-        ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "gate_server_port")
-      );
+      ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(host_, port_);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is created." << std::endl;
     }
@@ -51,8 +47,12 @@ namespace client {
         message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, length));
         ::naeem::hottentot::runtime::types::UInt64 id;
         proxy->EnqueueMessage(message, id);
-        ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent." << std::endl;
-        ::naeem::hottentot::runtime::Logger::GetOut() << "Assigned id: " << id.GetValue() << std::endl;
+        uint64_t assignedId = id.GetValue();
+        ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+        if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+          ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
+        }
+        return assignedId;
       }
     } catch (std::exception &e) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: " << e.what() << std::endl;
@@ -62,12 +62,8 @@ namespace client {
       }
       throw e;
     }
-    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
-    }
+    
   }
-}
 }
 }
 }

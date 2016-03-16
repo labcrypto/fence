@@ -1,11 +1,9 @@
 #include <naeem/gate/client/runtime.h>
 
 
-namespace ir {
-namespace ntnaeem {
+namespace naeem {
 namespace gate {
 namespace client {
-}
 }
 }
 }
