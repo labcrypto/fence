@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "runtime.h"
 
 
@@ -43,20 +45,22 @@ namespace slave {
     delete sentQueue_;
     delete failedQueue_;
   }
-  void
-  Runtime::PrintStatus() {
-    std::cout << "------------------------------" << std::endl;
-    std::cout << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
-    std::cout << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << std::endl;
+  std::string
+  Runtime::GetCurrentStat() {
+    std::stringstream ss;
+    ss << "------------------------------" << std::endl;
+    ss << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
+    ss << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << std::endl;
     for (std::map<std::string, Queue<::ir::ntnaeem::gate::Message>*>::iterator it = Runtime::inboxQueue_->queuesMap_.begin();
          it != Runtime::inboxQueue_->queuesMap_.end();
          it++) {
-      std::cout << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
+      ss << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
     }
-    std::cout << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
-    std::cout << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
-    std::cout << "Size(Runtime::failedQueue_): " << Runtime::failedQueue_->Size() << std::endl;
-    std::cout << "------------------------------" << std::endl;
+    ss << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
+    ss << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
+    ss << "Size(Runtime::failedQueue_): " << Runtime::failedQueue_->Size() << std::endl;
+    ss << "------------------------------" << std::endl;
+    return ss.str();
   }
 }
 }

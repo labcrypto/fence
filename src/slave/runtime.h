@@ -18,7 +18,7 @@ namespace slave {
   public:
     static void Init();
     static void Shutdown();
-    static void PrintStatus();
+    static std::string GetCurrentStat();
   public:
     static std::mutex termSignalLock_;
     static bool termSignal_;

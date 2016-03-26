@@ -1,10 +1,9 @@
 #include <iostream>
-#include <limits.h>
-#include <unistd.h>
 
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/os/proc.h>
 
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
@@ -14,6 +13,7 @@
 #include <gate/message.h>
 
 #include "gate_service_impl.h"
+#include "gate_monitor_service_impl.h"
 #include "slave_thread.h"
 #include "runtime.h"
 
@@ -21,11 +21,7 @@
 int
 main(int argc, char **argv) {
   try {
-    char result[PATH_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    std::string execPath(result, (count > 0) ? count : 0);
-    std::string::size_type pos = execPath.find_last_of( "/" );
-    std::string execDir = execPath.substr( 0, pos);
+    std::string execDir = ::naeem::os::GetExecDir();
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     if (!NAEEM_os__file_exists((NAEEM_path)execDir.c_str(), (NAEEM_string)"slave.conf")) {
@@ -104,6 +100,13 @@ main(int argc, char **argv) {
       ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip"), 
       ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port"), 
       service
+    );
+    ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl *monitorService =
+        new ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl;
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+      ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip"), 
+      ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port"), 
+      monitorService
     );
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();

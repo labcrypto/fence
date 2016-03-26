@@ -9,6 +9,7 @@
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
 #include <gate/message.h>
+
 #include <transport/transport_message.h>
 #include <transport/proxy/transport_service.h>
 #include <transport/proxy/transport_service_proxy.h>
@@ -26,10 +27,8 @@ namespace slave {
   SlaveThread::Start() { 
     pthread_t thread;
     pthread_attr_t attr;
-
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    
     pthread_create(&thread, &attr, SlaveThread::ThreadBody, NULL);
   }
   void*
@@ -76,15 +75,13 @@ namespace slave {
               ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
               ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages waiting to be sent: " << Runtime::outboxQueue_->Size() << std::endl;
               ::naeem::hottentot::runtime::Logger::GetOut() << "Current value of message counter: " << Runtime::messageCounter_ << std::endl;
-              Runtime::PrintStatus();
+              ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
             }
             // TODO: Disable LAN ethernet
             // TODO: Enable WAN ethernet
             // Create a proxy to Master Gate
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
-            }
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
             }
             ::ir::ntnaeem::gate::transport::proxy::TransportService *transportProxy = 
@@ -126,12 +123,12 @@ namespace slave {
                   map.insert(std::pair<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*>(transportMessage->GetSlaveMId().GetValue(), transportMessage));
                 }
                 // Send queued messages to Master Gate
-                ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> acceptReports;
+                ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> enqueueReports;
                 try {
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Sending messages ..." << std::endl;
                   }
-                  transportProxy->AcceptSlaveMassages(transportMessages, acceptReports);
+                  transportProxy->Enqueue(transportMessages, enqueueReports);
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
                   }
@@ -139,21 +136,21 @@ namespace slave {
                   ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
                 }
                 // Analyse accept reports
-                for (uint32_t i = 0; i < acceptReports.Size(); i++) {
-                  ::ir::ntnaeem::gate::transport::AcceptReport *acceptReport = acceptReports.Get(i);
-                  if (acceptReport->GetStatusCode().GetValue() == 0) {
-                    map[acceptReport->GetSlaveMId().GetValue()]->SetMasterMId(acceptReport->GetMasterMId());
-                    Runtime::sentQueue_->Put(map[acceptReport->GetSlaveMId().GetValue()]);
+                for (uint32_t i = 0; i < enqueueReports.Size(); i++) {
+                  ::ir::ntnaeem::gate::transport::EnqueueReport *enqueueReport = enqueueReports.Get(i);
+                  if (enqueueReport->GetStatusCode().GetValue() == 0) {
+                    map[enqueueReport->GetSlaveMId().GetValue()]->SetMasterMId(enqueueReport->GetMasterMId());
+                    Runtime::sentQueue_->Put(map[enqueueReport->GetSlaveMId().GetValue()]);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                       ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent successfully: id(" << 
-                        acceptReport->GetSlaveMId().GetValue() << "), masterId(" << acceptReport->GetMasterMId().GetValue() << 
+                        enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
                         ")" << std::endl;
                     }
                   } else {
-                    Runtime::failedQueue_->Put(map[acceptReport->GetSlaveMId().GetValue()]);
+                    Runtime::failedQueue_->Put(map[enqueueReport->GetSlaveMId().GetValue()]);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                       ::naeem::hottentot::runtime::Logger::GetOut() << "Message send is failed with id(" << 
-                        acceptReport->GetSlaveMId().GetValue() << ")" << std::endl;
+                        enqueueReport->GetSlaveMId().GetValue() << ")" << std::endl;
                     }
                   }
                 }
@@ -165,7 +162,7 @@ namespace slave {
                 }
                 ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
-                transportProxy->RetrieveSlaveMessages(slaveId, transportMessages);
+                transportProxy->Retrieve(slaveId, transportMessages);
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << transportMessages.Size() << " messages" << std::endl;
                 ::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> acks;
                 for (uint32_t i = 0; i < transportMessages.Size(); i++) {

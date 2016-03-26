@@ -19,27 +19,36 @@ namespace slave {
   public:
     virtual void OnInit();
     virtual void OnShutdown();
-    virtual void EnqueueMessage(
+    virtual void Enqueue(
       ::ir::ntnaeem::gate::Message &message, 
       ::naeem::hottentot::runtime::types::UInt64 &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
-    virtual void GetMessageStatus(
+    virtual void GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::ir::ntnaeem::gate::MessageStatus &out, 
+      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
-    virtual void HasMoreMessage(
+    virtual void Discard(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
+    virtual void HasMore(
       ::naeem::hottentot::runtime::types::Utf8String &label, 
       ::naeem::hottentot::runtime::types::Boolean &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
-    virtual void NextMessage(
+    virtual void PopNext(
       ::naeem::hottentot::runtime::types::Utf8String &label, 
       ::ir::ntnaeem::gate::Message &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
+    virtual void Ack(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+    );
   private:
+    std::string workDir_;
   };
 } // END OF NAMESPACE slave
 } // END OF NAMESPACE gate

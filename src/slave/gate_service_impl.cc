@@ -5,7 +5,12 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
+#include <naeem/os.h>
+
+#include <naeem++/conf/config_manager.h>
+
 #include <gate/message.h>
+
 #include <transport/transport_message.h>
 
 #include "gate_service_impl.h"
@@ -16,24 +21,16 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace slave {
-  void 
-  PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
-    // TODO: Serialize and persist the message for FT purposes
-    std::cout << "PUT: W for mainLock" << std::endl;
-    std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-    std::cout << "PUT: W for outboxQueueLock" << std::endl;
-    std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
-    Runtime::outboxQueue_->Put(message);
-    std::cout << "PUT: Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
-    // pthread_exit(NULL);
-  }
   void
   GateServiceImpl::OnInit() {
+    // TODO: Load runtime data structures
+    workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
+    std::cout << "$$$ " << workDir_ << std::endl;
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
   GateServiceImpl::OnShutdown() {
-    // TODO: Persist runtime data structures
+    // TODO: Persist runtime data structures if not persisted
     {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
@@ -49,21 +46,26 @@ namespace slave {
     }
   }
   void
-  GateServiceImpl::EnqueueMessage(
-      ::ir::ntnaeem::gate::Message &message, 
-      ::naeem::hottentot::runtime::types::UInt64 &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  GateServiceImpl::Enqueue(
+    ::ir::ntnaeem::gate::Message &message, 
+    ::naeem::hottentot::runtime::types::UInt64 &out, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Enqueue() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::counterLock_);
       message.SetId(Runtime::messageCounter_);
       out.SetValue(Runtime::messageCounter_);
       Runtime::messageCounter_++;
+      NAEEM_os__write_to_file (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"counter", 
+        (NAEEM_data)&Runtime::messageCounter_, 
+        (NAEEM_length)sizeof(Runtime::messageCounter_)
+      );
     }
-    // TODO: Select a thread from thread-pool
     ::ir::ntnaeem::gate::Message *newMessage = 
       new ::ir::ntnaeem::gate::Message;
     newMessage->SetId(message.GetId());
@@ -71,31 +73,44 @@ namespace slave {
     newMessage->SetRelLabel(message.GetRelLabel());
     newMessage->SetRelId(message.GetRelId());
     newMessage->SetContent(message.GetContent());
-    // ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
-    // std::thread t(PutInOutboxQueue, newMessage);
-    // t.detach();
-    PutInOutboxQueue(newMessage);
-    Runtime::PrintStatus();
+    std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
+    std::lock_guard<std::mutex> guard3(Runtime::outboxQueueLock_);
+    try {
+      Runtime::outboxQueue_->Put(newMessage);
+    } catch (...) {
+
+    }
+    ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
   }
   void
-  GateServiceImpl::GetMessageStatus(
-      ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::ir::ntnaeem::gate::MessageStatus &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  GateServiceImpl::GetStatus(
+    ::naeem::hottentot::runtime::types::UInt64 &id, 
+    ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> &out, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetStatus() is called." << std::endl;
     }
     // TODO
   }
   void
-  GateServiceImpl::HasMoreMessage(
-      ::naeem::hottentot::runtime::types::Utf8String &label, 
-      ::naeem::hottentot::runtime::types::Boolean &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  GateServiceImpl::Discard(
+    ::naeem::hottentot::runtime::types::UInt64 &id, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMoreMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Discard() is called." << std::endl;
+    }
+    // TODO
+  }
+  void
+  GateServiceImpl::HasMore(
+    ::naeem::hottentot::runtime::types::Utf8String &label, 
+    ::naeem::hottentot::runtime::types::Boolean &out, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMore() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -104,13 +119,13 @@ namespace slave {
     }
   }
   void
-  GateServiceImpl::NextMessage(
-      ::naeem::hottentot::runtime::types::Utf8String &label, 
-      ::ir::ntnaeem::gate::Message &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  GateServiceImpl::PopNext(
+    ::naeem::hottentot::runtime::types::Utf8String &label, 
+    ::ir::ntnaeem::gate::Message &out, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::NextMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::PopNext() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -127,6 +142,16 @@ namespace slave {
         out.SetContent(message->GetContent());
       }
     }
+  }
+  void
+  GateServiceImpl::Ack(
+    ::naeem::hottentot::runtime::types::UInt64 &id, 
+    ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Ack() is called." << std::endl;
+    }
+    // TODO
   }
 } // END OF NAMESPACE master
 } // END OF NAMESPACE gate
