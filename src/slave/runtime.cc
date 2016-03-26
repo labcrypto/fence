@@ -27,7 +27,7 @@ namespace slave {
     termSignal_ = false;
     slaveThreadTerminated_ = false;
 
-    messageCounter_ = 3000;
+    messageCounter_ = 1000;
 
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;

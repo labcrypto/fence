@@ -25,7 +25,24 @@ namespace slave {
   GateServiceImpl::OnInit() {
     // TODO: Load runtime data structures
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
-    std::cout << "$$$ " << workDir_ << std::endl;
+    NAEEM_data temp;
+    NAEEM_length tempLength;
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"counter")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"counter",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::messageCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::messageCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Counter value is " << Runtime::messageCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Counter is set to " << Runtime::messageCounter_ << std::endl;
+    }
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
@@ -62,7 +79,7 @@ namespace slave {
       NAEEM_os__write_to_file (
         (NAEEM_path)workDir_.c_str(), 
         (NAEEM_string)"counter", 
-        (NAEEM_data)&Runtime::messageCounter_, 
+        (NAEEM_data)&(Runtime::messageCounter_), 
         (NAEEM_length)sizeof(Runtime::messageCounter_)
       );
     }
