@@ -204,7 +204,7 @@ namespace slave {
         ) {
         uint16_t status = 0;
         NAEEM_os__read_file3 (
-          (NAEEM_path)filePath.str().c_str(),
+          (NAEEM_path)(workDir_ + "/status/" + filePath.str()).c_str(),
           (NAEEM_data)&status,
           0
         );
