@@ -39,37 +39,44 @@ main(int argc, char **argv) {
     if (!::naeem::hottentot::runtime::Configuration::Exists("h", "host")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("h", "host")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("p", "port")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("p", "port")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("l", "label")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message label is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("l", "label")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message label is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     if (::naeem::hottentot::runtime::Configuration::Exists("i", "input") &&
         !::naeem::hottentot::runtime::Configuration::HasValue("i", "input")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Input file is not specified." << std::endl;
       PrintHelpMessage();
+      ::naeem::hottentot::runtime::Logger::Shutdown();
       exit(1);
     }
     std::string host = ::naeem::hottentot::runtime::Configuration::AsString("h", "host");

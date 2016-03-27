@@ -34,6 +34,7 @@ namespace slave {
     static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *failedQueue_;
+    static std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> states_;
   };
 }
 }

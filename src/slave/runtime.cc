@@ -21,6 +21,7 @@ namespace slave {
   Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::sentQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::failedQueue_ = NULL;
+  std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> Runtime::states_;
 
   void
   Runtime::Init() {
