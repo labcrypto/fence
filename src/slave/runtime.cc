@@ -13,13 +13,15 @@ namespace slave {
   
   std::mutex Runtime::counterLock_;
   uint64_t Runtime::messageCounter_ = 0;
+  uint64_t Runtime::transmittedCounter_ = 0;
 
   std::mutex Runtime::mainLock_;
   std::mutex Runtime::inboxQueueLock_;
   std::mutex Runtime::outboxQueueLock_;
   LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
-  Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
-  Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::sentQueue_ = NULL;
+  // Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
+  std::vector<uint64_t> Runtime::outbox_;
+  // Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::sentQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::failedQueue_ = NULL;
   std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> Runtime::states_;
 
@@ -29,21 +31,22 @@ namespace slave {
     slaveThreadTerminated_ = false;
 
     messageCounter_ = 1000;
+    transmittedCounter_ = 0;
 
     inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
-    outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
-    sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
+    // outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
+    // sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     failedQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
   }
   void
   Runtime::Shutdown() {
     inboxQueue_->Purge();
-    outboxQueue_->Purge();
-    sentQueue_->Purge();
+    // outboxQueue_->Purge();
+    // sentQueue_->Purge();
     failedQueue_->Purge();
     delete inboxQueue_;
-    delete outboxQueue_;
-    delete sentQueue_;
+    // delete outboxQueue_;
+    // delete sentQueue_;
     delete failedQueue_;
   }
   std::string
@@ -57,8 +60,9 @@ namespace slave {
          it++) {
       ss << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
     }
-    ss << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
-    ss << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
+    ss << "Size(Runtime::outboxQueue_): " << Runtime::outbox_.size() << std::endl;
+    // ss << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
+    ss << "Number of Transmitted Messages: " << Runtime::transmittedCounter_ << std::endl;
     ss << "Size(Runtime::failedQueue_): " << Runtime::failedQueue_->Size() << std::endl;
     ss << "------------------------------" << std::endl;
     return ss.str();

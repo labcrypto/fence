@@ -29,22 +29,34 @@ namespace slave {
     if (!NAEEM_os__dir_exists((NAEEM_path)workDir_.c_str())) {
       NAEEM_os__mkdir((NAEEM_path)workDir_.c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/outbox").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/outbox").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/e").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/e").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/sent").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/sent").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/t").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/t").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/status").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/status").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/s").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/s").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/f").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/f").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/r").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/r").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pa").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pa").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pna").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pna").c_str());
     }
     // Reading message counter file
     NAEEM_data temp;
     NAEEM_length tempLength;
-    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"counter")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"mco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"counter",
+        (NAEEM_string)"mco",
         &temp, 
         &tempLength
       );
@@ -57,18 +69,35 @@ namespace slave {
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Message Counter is set to " << Runtime::messageCounter_ << std::endl;
     }
+    // Reading transmitted counter
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"tco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"tco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmittedCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::transmittedCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmitted Counter value is " << Runtime::transmittedCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmitted Counter is set to " << Runtime::transmittedCounter_ << std::endl;
+    }
     // Reading states
     NAEEM_string_ptr filenames;
     NAEEM_length filenamesLength;
     NAEEM_os__enum_file_names(
-      (NAEEM_path)(workDir_ + "/status").c_str(),
+      (NAEEM_path)(workDir_ + "/s").c_str(),
       &filenames,
       &filenamesLength
     );
     for (uint32_t i = 0; i < filenamesLength; i++) {
       uint16_t status = 0;
       NAEEM_os__read_file3 (
-        (NAEEM_path)(workDir_ + "/status/" + filenames[i]).c_str(),
+        (NAEEM_path)(workDir_ + "/s/" + filenames[i]).c_str(),
         (NAEEM_data)&status,
         0
       );
@@ -77,28 +106,28 @@ namespace slave {
           atoll(filenames[i]), (::ir::ntnaeem::gate::MessageStatus)status));
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
-    // Reading outbox messages
+    // Reading enqueued messages
     NAEEM_os__enum_file_names(
-      (NAEEM_path)(workDir_ + "/outbox").c_str(),
+      (NAEEM_path)(workDir_ + "/e").c_str(),
       &filenames,
       &filenamesLength
     );
     for (uint32_t i = 0; i < filenamesLength; i++) {
-      NAEEM_data data;
+      uint64_t messageId = atoll(filenames[i]);
+      /* NAEEM_data data;
       NAEEM_length dataLength;
       NAEEM_os__read_file2 (
-        (NAEEM_path)(workDir_ + "/outbox/" + filenames[i]).c_str(),
+        (NAEEM_path)(workDir_ + "/e/" + filenames[i]).c_str(),
         &data,
         &dataLength
       );
       ::ir::ntnaeem::gate::Message *newMessage = 
         new ::ir::ntnaeem::gate::Message;
       newMessage->Deserialize(data, dataLength);
-      free(data);
-      if (Runtime::states_.find(newMessage->GetId().GetValue()) != Runtime::states_.end()) {
-        if (Runtime::states_[newMessage->GetId().GetValue()] == 
-              ::ir::ntnaeem::gate::kMessageStatus___EnqueuedForTransmission) {
-          Runtime::outboxQueue_->Put(newMessage);
+      free(data); */
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == ::ir::ntnaeem::gate::kMessageStatus___EnqueuedForTransmission) {
+          Runtime::outbox_.push_back(messageId);
         } else {
           // TODO: Message status is not EnqueuedForTransmission !
         }
@@ -142,40 +171,33 @@ namespace slave {
       Runtime::messageCounter_++;
       NAEEM_os__write_to_file (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"counter", 
+        (NAEEM_string)"mco", 
         (NAEEM_data)&(Runtime::messageCounter_), 
         (NAEEM_length)sizeof(Runtime::messageCounter_)
       );
     }
-    ::ir::ntnaeem::gate::Message *newMessage = 
-      new ::ir::ntnaeem::gate::Message;
-    newMessage->SetId(message.GetId());
-    newMessage->SetLabel(message.GetLabel());
-    newMessage->SetRelLabel(message.GetRelLabel());
-    newMessage->SetRelId(message.GetRelId());
-    newMessage->SetContent(message.GetContent());
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     std::lock_guard<std::mutex> guard3(Runtime::outboxQueueLock_);
     try {
       // Persisting message
       std::stringstream ss;
-      ss << newMessage->GetId().GetValue();
+      ss << message.GetId().GetValue();
       NAEEM_length dataLength = 0;
-      NAEEM_data data = newMessage->Serialize(&dataLength);
+      NAEEM_data data = message.Serialize(&dataLength);
       NAEEM_os__write_to_file (
-        (NAEEM_path)(workDir_ + "/outbox").c_str(), 
+        (NAEEM_path)(workDir_ + "/e").c_str(), 
         (NAEEM_string)ss.str().c_str(),
         data,
         dataLength
       );
       uint16_t status = (uint16_t)kMessageStatus___EnqueuedForTransmission;
       NAEEM_os__write_to_file (
-        (NAEEM_path)(workDir_ + "/status").c_str(), 
+        (NAEEM_path)(workDir_ + "/s").c_str(), 
         (NAEEM_string)ss.str().c_str(),
         (NAEEM_data)(&status),
         sizeof(status)
       );
-      Runtime::outboxQueue_->Put(newMessage);
+      Runtime::outbox_.push_back(message.GetId().GetValue());
       delete [] data;
     } catch (std::exception &e) {
       ::naeem::hottentot::runtime::Logger::GetError() << e.what() << std::endl;
@@ -194,17 +216,18 @@ namespace slave {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetStatus() is called." << std::endl;
     }
+    std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
       std::stringstream filePath;
       filePath << id.GetValue();
       if (NAEEM_os__file_exists(
-            (NAEEM_path)(workDir_ + "/status").c_str(), 
+            (NAEEM_path)(workDir_ + "/s").c_str(), 
             (NAEEM_string)filePath.str().c_str()
           )
         ) {
         uint16_t status = 0;
         NAEEM_os__read_file3 (
-          (NAEEM_path)(workDir_ + "/status/" + filePath.str()).c_str(),
+          (NAEEM_path)(workDir_ + "/s/" + filePath.str()).c_str(),
           (NAEEM_data)&status,
           0
         );
@@ -225,7 +248,33 @@ namespace slave {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Discard() is called." << std::endl;
     }
-    // TODO
+    std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
+    if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
+      std::stringstream filePath;
+      filePath << id.GetValue();
+      if (NAEEM_os__file_exists(
+            (NAEEM_path)(workDir_ + "/s").c_str(), 
+            (NAEEM_string)filePath.str().c_str()
+          )
+        ) {
+        uint16_t status = 0;
+        NAEEM_os__read_file3 (
+          (NAEEM_path)(workDir_ + "/s/" + filePath.str()).c_str(),
+          (NAEEM_data)&status,
+          0
+        );
+        Runtime::states_.insert(
+          std::pair<uint64_t, ::ir::ntnaeem::gate::MessageStatus>(
+            id.GetValue(), (::ir::ntnaeem::gate::MessageStatus)status));
+      } else {
+        throw std::runtime_error("Message id is not found.");
+      }
+    }
+    if (Runtime::states_[id.GetValue()] == kMessageStatus___Transmitted) {
+      throw std::runtime_error("Message is transmitted. Discard operation failed.");
+    } else {
+      // TODO: Discard the message
+    }
   }
   void
   GateServiceImpl::HasMore(

@@ -26,13 +26,15 @@ namespace slave {
 
     static std::mutex counterLock_;
     static uint64_t messageCounter_;
+    static uint64_t transmittedCounter_;
     
     static std::mutex mainLock_;
     static std::mutex inboxQueueLock_;
     static std::mutex outboxQueueLock_;
     static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
-    static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
-    static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
+    // static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
+    static std::vector<uint64_t> outbox_;
+    // static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
     static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *failedQueue_;
     static std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> states_;
   };
