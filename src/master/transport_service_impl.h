@@ -18,12 +18,12 @@ namespace master {
   public:
     virtual void OnInit();
     virtual void OnShutdown();
-    virtual void AcceptSlaveMassages(
+    virtual void Transmit(
       ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
-      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
-    virtual void RetrieveSlaveMessages(
+    virtual void Retrieve(
       ::naeem::hottentot::runtime::types::UInt32 &slaveId, 
       ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
@@ -34,7 +34,7 @@ namespace master {
     );
     virtual void GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-      ::ir::ntnaeem::gate::transport::TransportMessageStatus &out, 
+      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::transport::TransportMessageStatus> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
   };

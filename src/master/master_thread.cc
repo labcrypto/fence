@@ -6,7 +6,12 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
+#include <naeem/os.h>
+
+#include <naeem++/conf/config_manager.h>
+
 #include <gate/message.h>
+
 #include <transport/transport_message.h>
 
 #include "master_thread.h"
@@ -73,7 +78,7 @@ namespace master {
           std::lock_guard<std::mutex> guard(Runtime::mainLock_);
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is acquired." << std::endl;
-            Runtime::PrintStatus();
+            ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
           }
           // Copying from 'transport inbox queue' into 'inbox queue'
           {

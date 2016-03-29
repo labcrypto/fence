@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "runtime.h"
 
 
@@ -5,6 +7,7 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace master {
+
   std::mutex Runtime::termSignalLock_;
   bool Runtime::termSignal_;
   bool Runtime::masterThreadTerminated_;
@@ -47,37 +50,39 @@ namespace master {
     delete transportOutboxQueue_;
     delete transportSentQueue_;
   }
-  void
-  Runtime::PrintStatus() {
-    std::cout << "------------------------------" << std::endl;
-    std::cout << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
-    std::cout << "Size(Runtime::slaveMessageMap_): " << Runtime::slaveMessageMap_.size() << std::endl;
+  std::string
+  Runtime::GetCurrentStat() {
+    std::stringstream ss;
+    ss << "------------------------------" << std::endl;
+    ss << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
+    ss << "Size(Runtime::slaveMessageMap_): " << Runtime::slaveMessageMap_.size() << std::endl;
     for (auto &kv : Runtime::slaveMessageMap_) {
-      std::cout << "  '" << kv.first << "' -> '" << kv.second << "'" << std::endl;
+      ss << "  '" << kv.first << "' -> '" << kv.second << "'" << std::endl;
     }
-    std::cout << "Size(Runtime::masterIdToSlaveIdMap_): " << Runtime::masterIdToSlaveIdMap_.size() << std::endl;
+    ss << "Size(Runtime::masterIdToSlaveIdMap_): " << Runtime::masterIdToSlaveIdMap_.size() << std::endl;
     for (auto &kv : Runtime::masterIdToSlaveIdMap_) {
-      std::cout << " For slave '" << kv.first << "': " << std::endl;
+      ss << " For slave '" << kv.first << "': " << std::endl;
       for (auto &kv2 : *(kv.second)) {
-        std::cout << "    '" << kv2.first << "' -> '" << kv2.second << "'" << std::endl;
+        ss << "    '" << kv2.first << "' -> '" << kv2.second << "'" << std::endl;
       }
     }
-    std::cout << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << " labels." << std::endl;
+    ss << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << " labels." << std::endl;
     for (std::map<std::string, Queue<::ir::ntnaeem::gate::Message>*>::iterator it = Runtime::inboxQueue_->queuesMap_.begin();
          it != Runtime::inboxQueue_->queuesMap_.end();
          it++) {
-      std::cout << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
+      ss << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
     }
-    std::cout << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
-    std::cout << "Size(Runtime::transportInboxQueue_): " << Runtime::transportInboxQueue_->Size() << std::endl;
-    std::cout << "Size(Runtime::transportOutboxQueue_): " << Runtime::transportOutboxQueue_->Size() << " slaves." << std::endl;
+    ss << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
+    ss << "Size(Runtime::transportInboxQueue_): " << Runtime::transportInboxQueue_->Size() << std::endl;
+    ss << "Size(Runtime::transportOutboxQueue_): " << Runtime::transportOutboxQueue_->Size() << " slaves." << std::endl;
     for (std::map<uint32_t, Bag<::ir::ntnaeem::gate::transport::TransportMessage>*>::iterator it = Runtime::transportOutboxQueue_->maps_.begin();
          it != Runtime::transportOutboxQueue_->maps_.end();
          it++) {
-      std::cout << "  Size(Runtime::transportOutboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
+      ss << "  Size(Runtime::transportOutboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
     }
-    std::cout << "Size(Runtime::transportSentQueue_): " << Runtime::transportSentQueue_->Size() << std::endl;
-    std::cout << "------------------------------" << std::endl;
+    ss << "Size(Runtime::transportSentQueue_): " << Runtime::transportSentQueue_->Size() << std::endl;
+    ss << "------------------------------" << std::endl;
+    return ss.str();
   }
 }
 }

@@ -14,7 +14,7 @@
 namespace ir {
 namespace ntnaeem {
 namespace gate {
-namespace master { 
+namespace master {
   void
   PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
     // TODO: Serialize and persist the message for FT purposes
@@ -33,7 +33,7 @@ namespace master {
     // TODO: Called when service is shutting down.
   }
   void
-  GateServiceImpl::EnqueueMessage(
+  GateServiceImpl::Enqueue(
       ::ir::ntnaeem::gate::Message &message, 
       ::naeem::hottentot::runtime::types::UInt64 &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
@@ -62,9 +62,9 @@ namespace master {
     // Runtime::PrintStatus();
   }
   void
-  GateServiceImpl::GetMessageStatus(
+  GateServiceImpl::GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::ir::ntnaeem::gate::MessageStatus &out, 
+      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -73,7 +73,17 @@ namespace master {
     // TODO
   }
   void
-  GateServiceImpl::HasMoreMessage(
+  GateServiceImpl::Discard(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Discard() is called." << std::endl;
+    }
+    // TODO
+  }
+  void
+  GateServiceImpl::HasMore(
       ::naeem::hottentot::runtime::types::Utf8String &label, 
       ::naeem::hottentot::runtime::types::Boolean &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
@@ -88,7 +98,7 @@ namespace master {
     }
   }
   void
-  GateServiceImpl::NextMessage(
+  GateServiceImpl::PopNext(
       ::naeem::hottentot::runtime::types::Utf8String &label, 
       ::ir::ntnaeem::gate::Message &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
@@ -111,6 +121,16 @@ namespace master {
         out.SetContent(message->GetContent());
       }
     }
+  }
+  void
+  GateServiceImpl::Ack(
+      ::naeem::hottentot::runtime::types::UInt64 &id, 
+      ::naeem::hottentot::runtime::service::HotContext &hotContext
+  ) {
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Ack() is called." << std::endl;
+    }
+    // TODO
   }
 } // END OF NAMESPACE master
 } // END OF NAMESPACE gate

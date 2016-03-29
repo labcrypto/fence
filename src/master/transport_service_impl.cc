@@ -5,9 +5,8 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
-#include <transport/transport_message_status.h>
 #include <transport/transport_message.h>
-#include <transport/accept_report.h>
+#include <transport/enqueue_report.h>
 
 #include "transport_service_impl.h"
 #include "runtime.h"
@@ -38,9 +37,9 @@ namespace master {
     }
   }
   void
-  TransportServiceImpl::AcceptSlaveMassages(
+  TransportServiceImpl::Transmit(
       ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
-      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::AcceptReport> &out, 
+      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -50,8 +49,8 @@ namespace master {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
       std::lock_guard<std::mutex> guard2(Runtime::transportInboxQueueLock_);
       for (uint32_t i = 0; i < messages.Size(); i++) {
-        ::ir::ntnaeem::gate::transport::AcceptReport *acceptReport = 
-          new ::ir::ntnaeem::gate::transport::AcceptReport;
+        ::ir::ntnaeem::gate::transport::EnqueueReport *enqueueReport = 
+          new ::ir::ntnaeem::gate::transport::EnqueueReport;
         try {
           ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = 
             new ::ir::ntnaeem::gate::transport::TransportMessage();
@@ -67,22 +66,25 @@ namespace master {
             transportMessage->SetMasterMId(Runtime::messageCounter_);
             Runtime::messageCounter_++;
           }
-          acceptReport->SetMasterMId(transportMessage->GetMasterMId());
-          acceptReport->SetSlaveMId(transportMessage->GetSlaveMId());
+          enqueueReport->SetMasterMId(transportMessage->GetMasterMId());
+          enqueueReport->SetSlaveMId(transportMessage->GetSlaveMId());
           Runtime::transportInboxQueue_->Put(transportMessage);
-          acceptReport->SetStatusCode(0);
-          acceptReport->SetErrorMessage("");
+          enqueueReport->SetFailed(false);
+          enqueueReport->SetErrorMessage("");
+        } catch (std::exception &e) {
+          enqueueReport->SetFailed(true);
+          enqueueReport->SetErrorMessage(e.what());
         } catch (...) {
-          acceptReport->SetStatusCode(-1000);
-          acceptReport->SetErrorMessage("Insertion error.");
+          enqueueReport->SetFailed(true);
+          enqueueReport->SetErrorMessage("Arrival failed.");
         }
-        out.Add(acceptReport);
-        Runtime::PrintStatus();
+        out.Add(enqueueReport);
+        ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
       }
     }
   }
   void
-  TransportServiceImpl::RetrieveSlaveMessages(
+  TransportServiceImpl::Retrieve(
       ::naeem::hottentot::runtime::types::UInt32 &slaveId, 
       ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
@@ -116,7 +118,7 @@ namespace master {
   void
   TransportServiceImpl::GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-      ::ir::ntnaeem::gate::transport::TransportMessageStatus &out, 
+      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::transport::TransportMessageStatus> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
