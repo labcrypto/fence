@@ -1,4 +1,4 @@
-apiDir = ../../../naeem-gate-api
+apiDir = ../../../../naeem-gate-api
 cppflags = -Wall -g -c -std=c++11 \
            -I/usr/local/include/hot \
            -I$(apiDir)/hot
