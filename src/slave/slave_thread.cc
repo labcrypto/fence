@@ -148,8 +148,9 @@ namespace slave {
                     try {
                       outboxMessage->Deserialize(data, dataLength);
                       deserialized = true;
-                      delete data;
+                      free(data);
                     } catch (...) {
+                      delete outboxMessage;
                       // TODO: Deserialization failed.
                     }
                     if (deserialized) {
@@ -165,6 +166,7 @@ namespace slave {
                       ::naeem::hottentot::runtime::types::UInt64 masterId;
                       transportMessages.Add(transportMessage);
                       map.insert(std::pair<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*>(transportMessage->GetSlaveMId().GetValue(), transportMessage));
+                      delete outboxMessage;
                     } else {
                       // TODO: Deserialization failed.
                     }
@@ -179,7 +181,7 @@ namespace slave {
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Sending messages ..." << std::endl;
                   }
-                  transportProxy->Enqueue(transportMessages, enqueueReports);
+                  transportProxy->Transmit(transportMessages, enqueueReports);
                   enqueueDone = true;
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
@@ -195,7 +197,7 @@ namespace slave {
                 if (enqueueDone) {
                   for (uint32_t i = 0; i < enqueueReports.Size(); i++) {
                     ::ir::ntnaeem::gate::transport::EnqueueReport *enqueueReport = enqueueReports.Get(i);
-                    if (enqueueReport->GetStatusCode().GetValue() == 0) {
+                    if (!enqueueReport->GetFailed().GetValue()) {
                       map[enqueueReport->GetSlaveMId().GetValue()]->SetMasterMId(enqueueReport->GetMasterMId());
                       // Runtime::sentQueue_->Put(map[enqueueReport->GetSlaveMId().GetValue()]);
                       NAEEM_data data;
@@ -213,6 +215,13 @@ namespace slave {
                       NAEEM_os__delete_file (
                         (NAEEM_path)(workDir + "/e").c_str(), 
                         (NAEEM_string)ss.str().c_str()
+                      );
+                      uint16_t status = (uint16_t)kMessageStatus___Transmitted;
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)(workDir + "/s").c_str(), 
+                        (NAEEM_string)ss.str().c_str(),
+                        (NAEEM_data)(&status),
+                        sizeof(status)
                       );
                       Runtime::transmittedCounter_++;
                       NAEEM_os__write_to_file (
@@ -237,6 +246,8 @@ namespace slave {
                 } else {
                   // TODO: Enqueue failed.
                 }
+                enqueueReports.Purge();
+                transportMessages.Purge();
               }
               // Receive queued messages from Master Gate
               {
