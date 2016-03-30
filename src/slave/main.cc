@@ -14,6 +14,7 @@
 
 #include "gate_service_impl.h"
 #include "gate_monitor_service_impl.h"
+#include "gate_test_service_impl.h"
 #include "slave_thread.h"
 #include "runtime.h"
 
@@ -107,6 +108,13 @@ main(int argc, char **argv) {
       ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip"), 
       ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port"), 
       monitorService
+    );
+    ::ir::ntnaeem::gate::slave::GateTestServiceImpl *testService =
+        new ::ir::ntnaeem::gate::slave::GateTestServiceImpl;
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+      ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip"), 
+      ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port"), 
+      testService
     );
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();

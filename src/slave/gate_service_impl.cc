@@ -53,7 +53,7 @@ namespace slave {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pna").c_str());
     }
     /*
-     * Reading message counter file
+     * Reading message id counter file
      */
     NAEEM_data temp;
     NAEEM_length tempLength;
@@ -64,14 +64,52 @@ namespace slave {
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::messageCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::messageCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::messageIdCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::messageIdCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Counter value is " << Runtime::messageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Counter is set to " << Runtime::messageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
+    }
+    /*
+     * Reading inbox message counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"imco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"imco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::inboxMessageCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::inboxMessageCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Inbox Message Counter value is " << Runtime::inboxMessageCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Inbox Message Counter is set to " << Runtime::inboxMessageCounter_ << std::endl;
+    }
+    /*
+     * Reading outbox message counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"omco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"omco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::outboxMessageCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::outboxMessageCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Outbox Message Counter value is " << Runtime::outboxMessageCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Outbox Message Counter is set to " << Runtime::outboxMessageCounter_ << std::endl;
     }
     /*
      * Reading transmitted counter
@@ -183,19 +221,19 @@ namespace slave {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Enqueue() is called." << std::endl;
     }
     {
-      std::lock_guard<std::mutex> guard(Runtime::counterLock_);
-      message.SetId(Runtime::messageCounter_);
-      out.SetValue(Runtime::messageCounter_);
-      Runtime::messageCounter_++;
+      std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
+      message.SetId(Runtime::messageIdCounter_);
+      out.SetValue(Runtime::messageIdCounter_);
+      Runtime::messageIdCounter_++;
       NAEEM_os__write_to_file (
         (NAEEM_path)workDir_.c_str(), 
         (NAEEM_string)"mco", 
-        (NAEEM_data)&(Runtime::messageCounter_), 
-        (NAEEM_length)sizeof(Runtime::messageCounter_)
+        (NAEEM_data)&(Runtime::messageIdCounter_), 
+        (NAEEM_length)sizeof(Runtime::messageIdCounter_)
       );
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
-    std::lock_guard<std::mutex> guard3(Runtime::outboxQueueLock_);
+    std::lock_guard<std::mutex> guard3(Runtime::outboxLock_);
     try {
       /*
        * Persisting message
@@ -216,6 +254,13 @@ namespace slave {
         (NAEEM_string)ss.str().c_str(),
         (NAEEM_data)(&status),
         sizeof(status)
+      );
+      Runtime::outboxMessageCounter_++;
+      NAEEM_os__write_to_file (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"omco", 
+        (NAEEM_data)&(Runtime::outboxMessageCounter_), 
+        (NAEEM_length)sizeof(Runtime::outboxMessageCounter_)
       );
       Runtime::outbox_.push_back(message.GetId().GetValue());
       delete [] data;
@@ -307,8 +352,9 @@ namespace slave {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::inboxQueueLock_);
-      out.SetValue(Runtime::inboxQueue_->HasMore(label.ToStdString()));  
+      std::lock_guard<std::mutex> guard2(Runtime::inboxLock_);
+      // out.SetValue(Runtime::inboxQueue_->HasMore(label.ToStdString()));  
+      out.SetValue(false);
     }
   }
   void
@@ -322,8 +368,8 @@ namespace slave {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::inboxQueueLock_);
-      ::ir::ntnaeem::gate::Message *message = Runtime::inboxQueue_->Next(label.ToStdString());
+      std::lock_guard<std::mutex> guard2(Runtime::inboxLock_);
+      /*::ir::ntnaeem::gate::Message *message = Runtime::inboxQueue_->Next(label.ToStdString());
       if (message == NULL ) {
         out.SetId(0);
         out.SetRelId(0);
@@ -333,7 +379,7 @@ namespace slave {
         out.SetRelLabel(message->GetRelLabel());
         out.SetLabel(message->GetLabel());
         out.SetContent(message->GetContent());
-      }
+      }*/
     }
   }
   void

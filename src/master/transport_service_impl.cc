@@ -71,6 +71,9 @@ namespace master {
           Runtime::transportInboxQueue_->Put(transportMessage);
           enqueueReport->SetFailed(false);
           enqueueReport->SetErrorMessage("");
+          if ((i % 2) == 0) {
+            throw std::runtime_error("Simulated exception.");
+          }
         } catch (std::exception &e) {
           enqueueReport->SetFailed(true);
           enqueueReport->SetErrorMessage(e.what());

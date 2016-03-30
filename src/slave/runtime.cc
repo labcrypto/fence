@@ -3,31 +3,32 @@
 #include "runtime.h"
 
 
-#define MESSAGE_COUNTER_INITIAL_VALUE 1000
-
-
 namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace slave {
-  std::mutex Runtime::termSignalLock_;
+  
   bool Runtime::termSignal_;
   bool Runtime::slaveThreadTerminated_;
-  
-  std::mutex Runtime::counterLock_;
-  uint64_t Runtime::messageCounter_ = 0;
+
+  uint64_t Runtime::inboxMessageCounter_ = 0;
+  uint64_t Runtime::outboxMessageCounter_ = 0;
+  uint64_t Runtime::messageIdCounter_ = 0;
   uint64_t Runtime::transmittedCounter_ = 0;
   uint64_t Runtime::transmissionFailureCounter_ = 0;
 
+  std::mutex Runtime::termSignalLock_;
+  std::mutex Runtime::messageIdCounterLock_;
   std::mutex Runtime::mainLock_;
-  std::mutex Runtime::inboxQueueLock_;
-  std::mutex Runtime::outboxQueueLock_;
+  std::mutex Runtime::inboxLock_;
+  std::mutex Runtime::outboxLock_;
 
   std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> Runtime::states_;
-
-  LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
-  // Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
+  std::map<std::string, std::vector<uint64_t>*> Runtime::inbox_;
   std::vector<uint64_t> Runtime::outbox_;
+
+  // LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
+  // Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
   // Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::sentQueue_ = NULL;
   // Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::failedQueue_ = NULL;
   
@@ -36,22 +37,30 @@ namespace slave {
     termSignal_ = false;
     slaveThreadTerminated_ = false;
 
-    messageCounter_ = MESSAGE_COUNTER_INITIAL_VALUE;
+    inboxMessageCounter_ = 0;
+    outboxMessageCounter_ = 0;
+    messageIdCounter_ = 1000;
     transmittedCounter_ = 0;
     transmissionFailureCounter_ = 0;
 
-    inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
+    // inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     // outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
     // sentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     // failedQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
   }
   void
   Runtime::Shutdown() {
-    inboxQueue_->Purge();
+    for (std::map<std::string, std::vector<uint64_t>*>::iterator it = Runtime::inbox_.begin();
+         it != Runtime::inbox_.end();
+        ) {
+      delete it->second;
+      Runtime::inbox_.erase(it++);
+    }
+    // inboxQueue_->Purge();
     // outboxQueue_->Purge();
     // sentQueue_->Purge();
     // failedQueue_->Purge();
-    delete inboxQueue_;
+    // delete inboxQueue_;
     // delete outboxQueue_;
     // delete sentQueue_;
     // delete failedQueue_;
@@ -60,17 +69,17 @@ namespace slave {
   Runtime::GetCurrentStat() {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
-    ss << "MESSAGE COUNTER: " << messageCounter_ << std::endl;
-    ss << "# RECEIVED LABELS: " << Runtime::inboxQueue_->Size() << std::endl;
-    for (std::map<std::string, Queue<::ir::ntnaeem::gate::Message>*>::iterator it = Runtime::inboxQueue_->queuesMap_.begin();
-         it != Runtime::inboxQueue_->queuesMap_.end();
+    ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
+    ss << "# TOTAL RECEIVED: " << inboxMessageCounter_ << std::endl;
+    ss << "# RECEIVED LABELS: " << Runtime::inbox_.size() << std::endl;
+    for (std::map<std::string, std::vector<uint64_t>*>::iterator it = Runtime::inbox_.begin();
+         it != Runtime::inbox_.end();
          it++) {
-      ss << "  # LABEL['" << it->first << "']: " << it->second->Size() << std::endl;
+      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
     }
-    ss << "# ALL ENQUEUED: " << (messageCounter_ - MESSAGE_COUNTER_INITIAL_VALUE) << std::endl;
-    // ss << "Size(Runtime::sentQueue_): " << Runtime::sentQueue_->Size() << std::endl;
+    ss << "# TOTAL ENQUEUED: " << outboxMessageCounter_ << std::endl;
     ss << "# TRANSMITTED: " << Runtime::transmittedCounter_ << std::endl;
-    ss << "# WAITING: " << Runtime::outbox_.size() << std::endl;
+    ss << "# WAITING FOR TRANSMISSION: " << Runtime::outbox_.size() << std::endl;
     ss << "# TRANSMISSION FAILURE: " << Runtime::transmissionFailureCounter_<< std::endl;
     ss << "------------------------------" << std::endl;
     return ss.str();
