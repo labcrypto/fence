@@ -43,16 +43,6 @@ namespace slave {
     std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
     while (cont) {
       try {
-        /* {
-          std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-          if (Runtime::termSignal_) {
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Slave Thread: Received TERM SIGNAL ..." << std::endl;
-            }
-            cont = false;
-            break;
-          }
-        } */
         if (cont) {
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
@@ -73,7 +63,9 @@ namespace slave {
             proceed = true;
           }
           if (proceed) {
-            // Aquiring main lock by creating guard object
+            /*
+             * Aquiring main lock by creating guard object
+             */
             std::lock_guard<std::mutex> guard(Runtime::mainLock_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
@@ -83,7 +75,9 @@ namespace slave {
             }
             // TODO: Disable LAN ethernet
             // TODO: Enable WAN ethernet
-            // Create a proxy to Master Gate
+            /*
+             * Create a proxy to Master Gate
+             */
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
               ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
@@ -93,7 +87,9 @@ namespace slave {
                 ::naeem::conf::ConfigManager::GetValueAsString("master", "ip"), 
                 ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "port")
               );
-            // If server is not alive, postbone the operation and release the lock.
+            /*
+             * If server is not alive, postbone the operation and release the lock.
+             */
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
             }
@@ -104,13 +100,12 @@ namespace slave {
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << "Server is up and running ..." << std::endl;
               }
-              // Make a list of transport messages
+              /*
+               * Make a list of transport messages
+               */
               {
-                /* std::vector< ::ir::ntnaeem::gate::Message*> messages =
-                  Runtime::outboxQueue_->PopAll(); */
                 std::vector<uint64_t> outboxIds = std::move(Runtime::outbox_);
                 if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  // ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << messages.size() << std::endl;
                   ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << outboxIds.size() << std::endl;
                 }
                 ::naeem::hottentot::runtime::types::List< 
@@ -174,7 +169,9 @@ namespace slave {
                     // TODO: File is not read.
                   }
                 }
-                // Send queued messages to Master Gate
+                /*
+                 * Send queued messages to Master Gate
+                 */
                 bool enqueueDone = false;
                 ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> enqueueReports;
                 try {
@@ -205,17 +202,6 @@ namespace slave {
                       data = map[enqueueReport->GetSlaveMId().GetValue()]->Serialize(&dataLength);
                       std::stringstream ss;
                       ss << enqueueReport->GetSlaveMId().GetValue();
-                      NAEEM_os__write_to_file (
-                        (NAEEM_path)(workDir + "/t").c_str(), 
-                        (NAEEM_string)ss.str().c_str(),
-                        data,
-                        dataLength
-                      );
-                      delete [] data;
-                      NAEEM_os__delete_file (
-                        (NAEEM_path)(workDir + "/e").c_str(), 
-                        (NAEEM_string)ss.str().c_str()
-                      );
                       uint16_t status = (uint16_t)kMessageStatus___Transmitted;
                       NAEEM_os__write_to_file (
                         (NAEEM_path)(workDir + "/s").c_str(), 
@@ -223,6 +209,27 @@ namespace slave {
                         (NAEEM_data)(&status),
                         sizeof(status)
                       );
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)(workDir + "/t").c_str(), 
+                        (NAEEM_string)ss.str().c_str(),
+                        data,
+                        dataLength
+                      );
+                      delete [] data;
+                      if (NAEEM_os__file_exists(
+                          (NAEEM_path)(workDir + "/e").c_str(), 
+                          (NAEEM_string)ss.str().c_str()
+                        )
+                      ) {
+                        NAEEM_os__delete_file (
+                          (NAEEM_path)(workDir + "/e").c_str(), 
+                          (NAEEM_string)ss.str().c_str()
+                        );
+                      } else {
+                        ::naeem::hottentot::runtime::Logger::GetOut() << 
+                          "WARNING: Enqueud file did not exist for deletion, id was " << 
+                            ss.str() << std::endl;
+                      }
                       Runtime::transmittedCounter_++;
                       NAEEM_os__write_to_file (
                         (NAEEM_path)workDir.c_str(), 
@@ -233,14 +240,57 @@ namespace slave {
                       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                         ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent successfully: id(" << 
                           enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
-                          ")" << std::endl;
+                            ")" << std::endl;
                       }
                     } else {
-                      Runtime::failedQueue_->Put(map[enqueueReport->GetSlaveMId().GetValue()]);
+                      /* Runtime::failedQueue_->Put(map[enqueueReport->GetSlaveMId().GetValue()]);
                       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                         ::naeem::hottentot::runtime::Logger::GetOut() << "Message send is failed with id(" << 
                           enqueueReport->GetSlaveMId().GetValue() << ")" << std::endl;
+                      } */
+                      NAEEM_data data;
+                      NAEEM_length dataLength;
+                      data = map[enqueueReport->GetSlaveMId().GetValue()]->Serialize(&dataLength);
+                      std::stringstream ss;
+                      ss << enqueueReport->GetSlaveMId().GetValue();
+                      uint16_t status = (uint16_t)kMessageStatus___TransmissionFailed;
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)(workDir + "/s").c_str(), 
+                        (NAEEM_string)ss.str().c_str(),
+                        (NAEEM_data)(&status),
+                        sizeof(status)
+                      );
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)(workDir + "/f").c_str(), 
+                        (NAEEM_string)ss.str().c_str(),
+                        data,
+                        dataLength
+                      );
+                      delete [] data;
+                      if (NAEEM_os__file_exists(
+                          (NAEEM_path)(workDir + "/e").c_str(), 
+                          (NAEEM_string)ss.str().c_str()
+                        )
+                      ) {
+                        NAEEM_os__delete_file (
+                          (NAEEM_path)(workDir + "/e").c_str(), 
+                          (NAEEM_string)ss.str().c_str()
+                        );
+                      } else {
+                        ::naeem::hottentot::runtime::Logger::GetOut() << 
+                          "WARNING: Enqueud file did not exist for deletion, id was " << 
+                            ss.str() << std::endl;
                       }
+                      Runtime::transmissionFailureCounter_++;
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)workDir.c_str(), 
+                        (NAEEM_string)"fco", 
+                        (NAEEM_data)&(Runtime::transmissionFailureCounter_), 
+                        (NAEEM_length)sizeof(Runtime::transmissionFailureCounter_)
+                      );
+                      ::naeem::hottentot::runtime::Logger::GetError() << "Message is NOT enqueued: id(" << 
+                        enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
+                          "), Reason: '" << enqueueReport->GetErrorMessage() << "'" << std::endl;
                     }
                   }
                 } else {

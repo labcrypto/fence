@@ -25,7 +25,9 @@ namespace slave {
   void
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
-    // Make directories
+    /*
+     * Make directories
+     */
     if (!NAEEM_os__dir_exists((NAEEM_path)workDir_.c_str())) {
       NAEEM_os__mkdir((NAEEM_path)workDir_.c_str());
     }
@@ -50,7 +52,9 @@ namespace slave {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pna").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pna").c_str());
     }
-    // Reading message counter file
+    /*
+     * Reading message counter file
+     */
     NAEEM_data temp;
     NAEEM_length tempLength;
     if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"mco")) {
@@ -69,7 +73,9 @@ namespace slave {
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Message Counter is set to " << Runtime::messageCounter_ << std::endl;
     }
-    // Reading transmitted counter
+    /*
+     * Reading transmitted counter
+     */
     if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"tco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
@@ -86,7 +92,28 @@ namespace slave {
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Transmitted Counter is set to " << Runtime::transmittedCounter_ << std::endl;
     }
-    // Reading states
+    /*
+     * Reading transmission failure counter
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"fco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"fco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmissionFailureCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::transmissionFailureCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmission Failure Counter value is " << Runtime::transmissionFailureCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmission Failure Counter is set to " << Runtime::transmissionFailureCounter_ << std::endl;
+    }
+    /*
+     * Reading states
+     */
     NAEEM_string_ptr filenames;
     NAEEM_length filenamesLength;
     NAEEM_os__enum_file_names(
@@ -106,7 +133,9 @@ namespace slave {
           atoll(filenames[i]), (::ir::ntnaeem::gate::MessageStatus)status));
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
-    // Reading enqueued messages
+    /*
+     * Reading enqueued messages
+     */
     NAEEM_os__enum_file_names(
       (NAEEM_path)(workDir_ + "/e").c_str(),
       &filenames,
@@ -114,17 +143,6 @@ namespace slave {
     );
     for (uint32_t i = 0; i < filenamesLength; i++) {
       uint64_t messageId = atoll(filenames[i]);
-      /* NAEEM_data data;
-      NAEEM_length dataLength;
-      NAEEM_os__read_file2 (
-        (NAEEM_path)(workDir_ + "/e/" + filenames[i]).c_str(),
-        &data,
-        &dataLength
-      );
-      ::ir::ntnaeem::gate::Message *newMessage = 
-        new ::ir::ntnaeem::gate::Message;
-      newMessage->Deserialize(data, dataLength);
-      free(data); */
       if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
         if (Runtime::states_[messageId] == ::ir::ntnaeem::gate::kMessageStatus___EnqueuedForTransmission) {
           Runtime::outbox_.push_back(messageId);
@@ -179,7 +197,9 @@ namespace slave {
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     std::lock_guard<std::mutex> guard3(Runtime::outboxQueueLock_);
     try {
-      // Persisting message
+      /*
+       * Persisting message
+       */
       std::stringstream ss;
       ss << message.GetId().GetValue();
       NAEEM_length dataLength = 0;
@@ -271,7 +291,7 @@ namespace slave {
       }
     }
     if (Runtime::states_[id.GetValue()] == kMessageStatus___Transmitted) {
-      throw std::runtime_error("Message is transmitted. Discard operation failed.");
+      throw std::runtime_error("Message is transmitted. Discarding is not possible.");
     } else {
       // TODO: Discard the message
     }
