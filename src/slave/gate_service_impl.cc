@@ -249,6 +249,7 @@ namespace slave {
         dataLength
       );
       uint16_t status = (uint16_t)kMessageStatus___EnqueuedForTransmission;
+
       NAEEM_os__write_to_file (
         (NAEEM_path)(workDir_ + "/s").c_str(), 
         (NAEEM_string)ss.str().c_str(),
@@ -263,6 +264,7 @@ namespace slave {
         (NAEEM_length)sizeof(Runtime::outboxMessageCounter_)
       );
       Runtime::outbox_.push_back(message.GetId().GetValue());
+      Runtime::states_[message.GetId().GetValue()] = status;
       delete [] data;
     } catch (std::exception &e) {
       ::naeem::hottentot::runtime::Logger::GetError() << e.what() << std::endl;
@@ -275,7 +277,7 @@ namespace slave {
   void
   GateServiceImpl::GetStatus(
     ::naeem::hottentot::runtime::types::UInt64 &id, 
-    ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> &out, 
+    ::naeem::hottentot::runtime::types::UInt16 &out, 
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {

@@ -34,7 +34,7 @@ namespace master {
     );
     virtual void GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::transport::TransportMessageStatus> &out, 
+      ::naeem::hottentot::runtime::types::UInt16 &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
   private:

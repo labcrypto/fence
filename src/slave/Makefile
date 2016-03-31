@@ -5,7 +5,7 @@ cppflags = -Wall -g -c -std=c++11 \
            -I../../../corelibs-api/include \
            -I../../../corelibs++-api/include
 
-all:
+all: tools
 	mkdir -p .lib
 	rm -rfv .lib/*
 
@@ -49,3 +49,8 @@ all:
 	    -lnaeem++-string \
 	    -lnaeem++-os \
 	    -o naeem-gate-slave-node.out
+
+tools:
+	make -C stat
+	make -C mstat
+	make -C enq

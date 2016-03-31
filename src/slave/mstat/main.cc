@@ -1,5 +1,6 @@
 #include <thread>
 #include <chrono>
+#include <sstream>
 #include <iostream>
 
 #include <naeem/hottentot/runtime/configuration.h>
@@ -17,10 +18,13 @@ void PrintHelpMessage() {
   std::cout << "  ./naeem-gate-slave-mstatus [ARGUMENTS]" << std::endl;
   std::cout << std::endl;
   std::cout << "  ARGUMENTS:" << std::endl;
-  std::cout << "        -h | --host                Gate host address [Mandatory]" << std::endl;
-  std::cout << "        -p | --port                Gate port [Mandatory]" << std::endl;
+  std::cout << "        -h | --host                Slave gate host address [Mandatory]" << std::endl;
+  std::cout << "        -p | --port                Slave gate port [Mandatory]" << std::endl;
   std::cout << "        -i | --id                  Message id [Mandatory]" << std::endl;
   std::cout << "        -v                         Verbose mode [Optional]" << std::endl;
+  ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+  ::naeem::hottentot::runtime::Logger::Shutdown();
+  exit(1);
 }
 
 int 
@@ -34,34 +38,28 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (!::naeem::hottentot::runtime::Configuration::Exists("h", "host")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate host is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("h", "host")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate host is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("p", "port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate port is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("p", "port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate port is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("i", "id")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message id is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("i", "id")) {
       ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message id is not specified." << std::endl;
       PrintHelpMessage();
-      exit(1);
     }
     std::string host = ::naeem::hottentot::runtime::Configuration::AsString("h", "host");
     uint16_t port = ::naeem::hottentot::runtime::Configuration::AsUInt32("p", "port");
@@ -79,7 +77,7 @@ main(int argc, char **argv) {
       //=============================================
       if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
         ::naeem::hottentot::runtime::types::UInt64 idVar(id);
-        ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> status;
+        ::naeem::hottentot::runtime::types::UInt16 status;
         proxy->GetStatus(idVar, status);
         if (status.GetValue() == ::ir::ntnaeem::gate::kMessageStatus___Unknown) {
           ::naeem::hottentot::runtime::Logger::GetOut() << "Status: UNKNOWN" << std::endl;
@@ -90,11 +88,12 @@ main(int argc, char **argv) {
         } else if (status.GetValue() == ::ir::ntnaeem::gate::kMessageStatus___TransmissionFailed) {
           ::naeem::hottentot::runtime::Logger::GetOut() << "Status: TRANSMISSION FAILED" << std::endl;
         } else {
-          throw std::runtime_error("Status is not defined.");
+          std::stringstream ss;
+          ss << "Not known status: " << status.GetValue();
+          throw std::runtime_error(ss.str());
         }
-        
       } else {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Gate is not available." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Slave gate is not available." << std::endl;
       }
       //=============================================
       ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);

@@ -23,7 +23,7 @@ namespace slave {
   std::mutex Runtime::inboxLock_;
   std::mutex Runtime::outboxLock_;
 
-  std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> Runtime::states_;
+  std::map<uint64_t, uint16_t> Runtime::states_;
   std::map<std::string, std::vector<uint64_t>*> Runtime::inbox_;
   std::vector<uint64_t> Runtime::outbox_;
 

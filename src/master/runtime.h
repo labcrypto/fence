@@ -1,9 +1,12 @@
 #ifndef _IR_NTNAEEM_GATE__MASTER__RUNTIME_H_
 #define _IR_NTNAEEM_GATE__MASTER__RUNTIME_H_
 
+#include <vector>
+#include <map>
 #include <mutex>
 
 #include <gate/message.h>
+
 #include <transport/transport_message.h>
 
 #include "queue.h"
@@ -38,6 +41,8 @@ namespace master {
     static std::mutex transportOutboxQueueLock_;
 
     static std::vector<uint64_t> arrived_;
+    static std::vector<uint64_t> readyForPop_;
+    static std::map<uint64_t, uint16_t> states_;
 
     static std::map<uint32_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map
     static std::map<uint32_t, std::map<uint64_t, uint64_t>*> masterIdToSlaveIdMap_; // TODO: Replace with a persistent map

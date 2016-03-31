@@ -68,7 +68,7 @@ namespace master {
   void
   GateServiceImpl::GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::MessageStatus> &out, 
+      ::naeem::hottentot::runtime::types::UInt16 &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {

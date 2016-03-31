@@ -8,17 +8,17 @@
 #include <naeem/hottentot/runtime/proxy/proxy.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include <gate/proxy/gate_monitor_service.h>
-#include <gate/proxy/gate_monitor_service_proxy_builder.h>
+#include <transport/proxy/transport_monitor_service.h>
+#include <transport/proxy/transport_monitor_service_proxy_builder.h>
 
 
 void PrintHelpMessage() {
   std::cout << "Usage: " << std::endl;
-  std::cout << "  ./naeem-gate-slave-stat [ARGUMENTS]" << std::endl;
+  std::cout << "  ./naeem-gate-master-stat [ARGUMENTS]" << std::endl;
   std::cout << std::endl;
   std::cout << "  ARGUMENTS:" << std::endl;
-  std::cout << "        -h | --host                Slave gate host address [Mandatory]" << std::endl;
-  std::cout << "        -p | --port                Slave gate port [Mandatory]" << std::endl;
+  std::cout << "        -h | --host                Master gate host address [Mandatory]" << std::endl;
+  std::cout << "        -p | --port                Master gate port [Mandatory]" << std::endl;
   std::cout << "        -v                         Verbose mode [Optional]" << std::endl;
 }
 
@@ -28,27 +28,27 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Logger::GetOut() << "NTNAEEM CO." << std::endl;
     ::naeem::hottentot::runtime::Logger::GetOut() << "COPYRIGHT 2015-2016" << std::endl;
-    ::naeem::hottentot::runtime::Logger::GetOut() << "NAEEM GATE SLAVE STAT CLIENT" << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << "NAEEM GATE MASTER STAT CLIENT" << std::endl;
     ::naeem::hottentot::runtime::Logger::GetOut() << std::endl;
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (!::naeem::hottentot::runtime::Configuration::Exists("h", "host")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate host is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("h", "host")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate host is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate host is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::Exists("p", "port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate port is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
     if (!::naeem::hottentot::runtime::Configuration::HasValue("p", "port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Slave gate port is not specified." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Gate port is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
@@ -57,8 +57,8 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
-    ::ir::ntnaeem::gate::proxy::GateMonitorService *proxy = 
-      ::ir::ntnaeem::gate::proxy::GateMonitorServiceProxyBuilder::Create(host, port);
+    ::ir::ntnaeem::gate::transport::proxy::TransportMonitorService *proxy = 
+      ::ir::ntnaeem::gate::transport::proxy::TransportMonitorServiceProxyBuilder::Create(host, port);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is created." << std::endl;
       ::naeem::hottentot::runtime::Logger::GetOut() << "Target is " << host << ":" << port << std::endl;
@@ -70,10 +70,10 @@ main(int argc, char **argv) {
         proxy->GetCurrentStat(stat);
         ::naeem::hottentot::runtime::Logger::GetOut() << stat;
       } else {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Slave gate is not available." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Gate is not available." << std::endl;
       }
       //=============================================
-      ::ir::ntnaeem::gate::proxy::GateMonitorServiceProxyBuilder::Destroy(proxy);
+      ::ir::ntnaeem::gate::transport::proxy::TransportMonitorServiceProxyBuilder::Destroy(proxy);
       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
         ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
       }
@@ -81,7 +81,7 @@ main(int argc, char **argv) {
       ::naeem::hottentot::runtime::Logger::Shutdown();
     } catch (std::exception &e) {
       ::naeem::hottentot::runtime::Logger::GetError() << e.what() << std::endl;
-      ::ir::ntnaeem::gate::proxy::GateMonitorServiceProxyBuilder::Destroy(proxy);
+      ::ir::ntnaeem::gate::transport::proxy::TransportMonitorServiceProxyBuilder::Destroy(proxy);
       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
         ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
       }
@@ -90,7 +90,7 @@ main(int argc, char **argv) {
       exit(1);
     } catch (...) {
       ::naeem::hottentot::runtime::Logger::GetError() << "Error." << std::endl;
-      ::ir::ntnaeem::gate::proxy::GateMonitorServiceProxyBuilder::Destroy(proxy);
+      ::ir::ntnaeem::gate::transport::proxy::TransportMonitorServiceProxyBuilder::Destroy(proxy);
       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
         ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
       }

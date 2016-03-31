@@ -37,9 +37,6 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/a").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/a").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/af").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/af").c_str());
-    }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfp").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/qfp").c_str());
     }
@@ -95,6 +92,49 @@ namespace master {
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Arrived Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
     }
+    /*
+     * Reading states
+     */
+    NAEEM_string_ptr filenames;
+    NAEEM_length filenamesLength;
+    NAEEM_os__enum_file_names(
+      (NAEEM_path)(workDir_ + "/s").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint16_t status = 0;
+      NAEEM_os__read_file3 (
+        (NAEEM_path)(workDir_ + "/s/" + filenames[i]).c_str(),
+        (NAEEM_data)&status,
+        0
+      );
+      Runtime::states_.insert(
+        std::pair<uint64_t, uint16_t>(atoll(filenames[i]), status));
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
+    /*
+     * Reading arrived messages
+     */
+    NAEEM_os__enum_file_names(
+      (NAEEM_path)(workDir_ + "/a").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___Arrived) {
+          Runtime::arrived_.push_back(messageId);
+        } else {
+          // TODO: Message status is not Arrived !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
     ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }
   void
@@ -103,15 +143,15 @@ namespace master {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
-    // ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for master thread to exit ..." << std::endl;
-    // while (true) {
-    //   std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-    //   if (Runtime::masterThreadTerminated_) {
-    //     ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread exited." << std::endl;
-    //     break;
-    //   }
-    //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    // }
+    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for master thread to exit ..." << std::endl;
+    while (true) {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      if (Runtime::masterThreadTerminated_) {
+        ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread exited." << std::endl;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
   }
   void
   TransportServiceImpl::Transmit(
@@ -202,7 +242,7 @@ namespace master {
           enqueueReport->SetErrorMessage("Arrival failed.");
         }
         out.Add(enqueueReport);
-        ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
+        // ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
       }
     }
   }
@@ -239,7 +279,7 @@ namespace master {
   void
   TransportServiceImpl::GetStatus(
       ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-      ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::transport::TransportMessageStatus> &out, 
+      ::naeem::hottentot::runtime::types::UInt16 &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {

@@ -23,6 +23,8 @@ namespace master {
   std::mutex Runtime::transportOutboxQueueLock_;
 
   std::vector<uint64_t> Runtime::arrived_;
+  std::vector<uint64_t> Runtime::readyForPop_;
+  std::map<uint64_t, uint16_t> Runtime::states_;
 
   std::map<uint32_t, uint64_t> Runtime::slaveMessageMap_;
   std::map<uint32_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;

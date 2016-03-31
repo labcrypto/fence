@@ -119,7 +119,7 @@ namespace slave {
                       try {
                         std::stringstream filePath;
                         filePath << outboxIds[i];
-                        if (NAEEM_os__file_exists(
+                        if (NAEEM_os__file_exists (
                               (NAEEM_path)(workDir + "/e").c_str(), 
                               (NAEEM_string)filePath.str().c_str()
                             )
@@ -211,6 +211,7 @@ namespace slave {
                             (NAEEM_data)(&status),
                             sizeof(status)
                           );
+                          Runtime::states_[enqueueReport->GetSlaveMId().GetValue()] = status;
                           NAEEM_os__write_to_file (
                             (NAEEM_path)(workDir + "/t").c_str(), 
                             (NAEEM_string)ss.str().c_str(),
@@ -218,7 +219,7 @@ namespace slave {
                             dataLength
                           );
                           delete [] data;
-                          if (NAEEM_os__file_exists(
+                          if (NAEEM_os__file_exists (
                               (NAEEM_path)(workDir + "/e").c_str(), 
                               (NAEEM_string)ss.str().c_str()
                             )
@@ -257,6 +258,7 @@ namespace slave {
                             (NAEEM_data)(&status),
                             sizeof(status)
                           );
+                          Runtime::states_[enqueueReport->GetSlaveMId().GetValue()] = status;
                           NAEEM_os__write_to_file (
                             (NAEEM_path)(workDir + "/f").c_str(), 
                             (NAEEM_string)ss.str().c_str(),

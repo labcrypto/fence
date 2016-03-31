@@ -38,7 +38,7 @@ namespace slave {
     static std::mutex inboxLock_;
     static std::mutex outboxLock_;
     
-    static std::map<uint64_t, ::ir::ntnaeem::gate::MessageStatus> states_;
+    static std::map<uint64_t, uint16_t> states_;
     static std::map<std::string, std::vector<uint64_t>*> inbox_;
     static std::vector<uint64_t> outbox_;
 
