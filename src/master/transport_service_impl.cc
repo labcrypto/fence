@@ -1,3 +1,4 @@
+#include <sstream>
 #include <thread>
 #include <chrono>
 
@@ -5,6 +6,11 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
+#include <naeem/os.h>
+
+#include <naeem++/conf/config_manager.h>
+
+#include <transport/enums.h>
 #include <transport/transport_message.h>
 #include <transport/enqueue_report.h>
 
@@ -18,6 +24,77 @@ namespace gate {
 namespace master {
   void
   TransportServiceImpl::OnInit() {
+    workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
+    /*
+     * Make directories
+     */
+    if (!NAEEM_os__dir_exists((NAEEM_path)workDir_.c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)workDir_.c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/s").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/s").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/a").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/a").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/af").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/af").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfp").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/qfp").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfr").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/qfr").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ra").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/ra").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rna").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rna").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rf").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rf").c_str());
+    }
+    /*
+     * Reading message id counter file
+     */
+    NAEEM_data temp;
+    NAEEM_length tempLength;
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"mco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"mco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::messageIdCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::messageIdCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
+    }
+    /*
+     * Reading arrived total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"atco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"atco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::arrivedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::arrivedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Arrived Total Counter value is " << Runtime::arrivedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Arrived Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
+    }
     ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }
   void
@@ -43,7 +120,8 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::AcceptSlaveMassages() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "TransportServiceImpl::AcceptSlaveMassages() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -51,29 +129,71 @@ namespace master {
       for (uint32_t i = 0; i < messages.Size(); i++) {
         ::ir::ntnaeem::gate::transport::EnqueueReport *enqueueReport = 
           new ::ir::ntnaeem::gate::transport::EnqueueReport;
+        enqueueReport->SetSlaveMId(messages.Get(i)->GetSlaveMId());
         try {
-          ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = 
-            new ::ir::ntnaeem::gate::transport::TransportMessage();
-          transportMessage->SetSlaveId(messages.Get(i)->GetSlaveId());
-          transportMessage->SetSlaveMId(messages.Get(i)->GetSlaveMId());
-          transportMessage->SetRelMId(messages.Get(i)->GetRelMId());
-          transportMessage->SetRelLabel(messages.Get(i)->GetRelLabel());
-          transportMessage->SetLabel(messages.Get(i)->GetLabel());
-          transportMessage->SetContent(messages.Get(i)->GetContent());
-          // ::naeem::hottentot::runtime::Utils::PrintArray("ACCEPTING CONTENT",messages.Get(i)->GetContent().GetValue(), messages.Get(i)->GetContent().GetLength());
           {
-            std::lock_guard<std::mutex> guard(Runtime::counterLock_);
-            transportMessage->SetMasterMId(Runtime::messageCounter_);
-            Runtime::messageCounter_++;
+            std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
+            messages.Get(i)->SetMasterMId(Runtime::messageIdCounter_);
+            enqueueReport->SetMasterMId(messages.Get(i)->GetMasterMId());
+            Runtime::messageIdCounter_++;
+            NAEEM_os__write_to_file (
+              (NAEEM_path)workDir_.c_str(), 
+              (NAEEM_string)"mco", 
+              (NAEEM_data)&(Runtime::messageIdCounter_), 
+              (NAEEM_length)sizeof(Runtime::messageIdCounter_)
+            );
           }
-          enqueueReport->SetMasterMId(transportMessage->GetMasterMId());
-          enqueueReport->SetSlaveMId(transportMessage->GetSlaveMId());
-          Runtime::transportInboxQueue_->Put(transportMessage);
+          /*
+           * Message serialization
+           */
+          NAEEM_length dataLength = 0;
+          NAEEM_data data = messages.Get(i)->Serialize(&dataLength);
+          try {
+            std::stringstream ss;
+            ss << messages.Get(i)->GetMasterMId().GetValue();
+            /*
+             * Persisting message
+             */
+            NAEEM_os__write_to_file (
+              (NAEEM_path)(workDir_ + "/a").c_str(), 
+              (NAEEM_string)ss.str().c_str(),
+              data,
+              dataLength
+            );
+            /*
+             * Updating status
+             */
+            uint16_t status = (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___Arrived;
+            NAEEM_os__write_to_file (
+              (NAEEM_path)(workDir_ + "/s").c_str(), 
+              (NAEEM_string)ss.str().c_str(),
+              (NAEEM_data)(&status),
+              sizeof(status)
+            );
+            Runtime::arrived_.push_back(messages.Get(i)->GetMasterMId().GetValue());
+            /*
+             * Updating arrived total counter
+             */
+            Runtime::arrivedTotalCounter_++;
+            NAEEM_os__write_to_file (
+              (NAEEM_path)workDir_.c_str(), 
+              (NAEEM_string)"atco", 
+              (NAEEM_data)&(Runtime::arrivedTotalCounter_), 
+              (NAEEM_length)sizeof(Runtime::arrivedTotalCounter_)
+            );
+            delete [] data;
+          } catch (std::exception &e) {
+            delete [] data;
+            throw std::runtime_error(e.what());
+          } catch (...) {
+            delete [] data;
+            throw std::runtime_error("Unknown exception.");
+          }
           enqueueReport->SetFailed(false);
           enqueueReport->SetErrorMessage("");
-          if ((i % 2) == 0) {
+          /* if ((i % 2) == 0) {
             throw std::runtime_error("Simulated exception.");
-          }
+          } */
         } catch (std::exception &e) {
           enqueueReport->SetFailed(true);
           enqueueReport->SetErrorMessage(e.what());

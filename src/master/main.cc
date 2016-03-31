@@ -89,36 +89,36 @@ main(int argc, char **argv) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Starting server ..." << std::endl;
     }
-    ::ir::ntnaeem::gate::master::Runtime::Init();
-    ::ir::ntnaeem::gate::master::GateServiceImpl *gateService =
-      new ::ir::ntnaeem::gate::master::GateServiceImpl;
-    ::ir::ntnaeem::gate::master::GateMonitorServiceImpl *gateMonitorService =
-      new ::ir::ntnaeem::gate::master::GateMonitorServiceImpl;
     ::ir::ntnaeem::gate::master::TransportServiceImpl *transportService =
       new ::ir::ntnaeem::gate::master::TransportServiceImpl;
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
+      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
+      transportService
+    );
     ::ir::ntnaeem::gate::master::TransportMonitorServiceImpl *transportMonitorService =
       new ::ir::ntnaeem::gate::master::TransportMonitorServiceImpl;
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
+      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
+      transportMonitorService
+    );
+    ::ir::ntnaeem::gate::master::GateServiceImpl *gateService =
+      new ::ir::ntnaeem::gate::master::GateServiceImpl;
     ::ir::ntnaeem::gate::master::MasterThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
       ::naeem::conf::ConfigManager::GetValueAsString("gate_service", "bind_ip"), 
       ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
       gateService
     );
+    ::ir::ntnaeem::gate::master::GateMonitorServiceImpl *gateMonitorService =
+      new ::ir::ntnaeem::gate::master::GateMonitorServiceImpl;
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
       ::naeem::conf::ConfigManager::GetValueAsString("gate_service", "bind_ip"), 
       ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
       gateMonitorService
     );
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
-      transportService
-    );
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
-      transportMonitorService
-    );
+    // ::ir::ntnaeem::gate::master::Runtime::Init();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
@@ -129,8 +129,29 @@ main(int argc, char **argv) {
     }
     ::naeem::conf::ConfigManager::Clear();
     ::naeem::hottentot::runtime::Logger::Shutdown();
+  } catch (std::exception &e) {
+    std::cout << "ERROR: " << e.what() << std::endl;
+    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Service runtime is shutdown." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "About to disable logging system ..." << std::endl;
+    }
+    ::naeem::conf::ConfigManager::Clear();
+    ::naeem::hottentot::runtime::Logger::Shutdown();
+    return 1;
   } catch (...) {
-    std::cout << "Error." << std::endl;
+    std::cout << "UNKNOWN ERROR!" << std::endl;
+    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
+    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Service runtime is shutdown." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "About to disable logging system ..." << std::endl;
+    }
+    ::naeem::conf::ConfigManager::Clear();
+    ::naeem::hottentot::runtime::Logger::Shutdown();
     return 1;
   }
   return 0;

@@ -82,8 +82,8 @@ namespace master {
           }
           // Copying from 'transport inbox queue' into 'inbox queue'
           {
-            std::vector<ir::ntnaeem::gate::transport::TransportMessage*> inboxTransportMessages = 
-              Runtime::transportInboxQueue_->PopAll();
+            std::vector<ir::ntnaeem::gate::transport::TransportMessage*> inboxTransportMessages; /* = 
+              Runtime::transportInboxQueue_->PopAll(); */
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Number of transport inbox messages: " << inboxTransportMessages.size() << std::endl;
             }

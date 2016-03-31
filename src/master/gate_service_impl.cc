@@ -4,7 +4,10 @@
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
 
+#include <naeem++/conf/config_manager.h>
+
 #include <gate/message.h>
+
 #include <transport/transport_message.h>
 
 #include "gate_service_impl.h"
@@ -26,6 +29,7 @@ namespace master {
   }
   void
   GateServiceImpl::OnInit() {
+    workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
@@ -42,10 +46,10 @@ namespace master {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
     {
-      std::lock_guard<std::mutex> guard(Runtime::counterLock_);
-      message.SetId(Runtime::messageCounter_);
-      out.SetValue(Runtime::messageCounter_);
-      Runtime::messageCounter_++;
+      std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
+      message.SetId(Runtime::messageIdCounter_);
+      out.SetValue(Runtime::messageIdCounter_);
+      Runtime::messageIdCounter_++;
     }
     // TODO: Select a thread from thread-pool
     ::ir::ntnaeem::gate::Message *newMessage = 

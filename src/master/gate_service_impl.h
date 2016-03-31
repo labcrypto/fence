@@ -46,6 +46,8 @@ namespace master {
       ::naeem::hottentot::runtime::types::UInt64 &id, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
+  private:
+    std::string workDir_;
   };
 } // END OF NAMESPACE master
 } // END OF NAMESPACE gate

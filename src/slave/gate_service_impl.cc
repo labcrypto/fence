@@ -238,10 +238,10 @@ namespace slave {
       /*
        * Persisting message
        */
-      std::stringstream ss;
-      ss << message.GetId().GetValue();
       NAEEM_length dataLength = 0;
       NAEEM_data data = message.Serialize(&dataLength);
+      std::stringstream ss;
+      ss << message.GetId().GetValue();
       NAEEM_os__write_to_file (
         (NAEEM_path)(workDir_ + "/e").c_str(), 
         (NAEEM_string)ss.str().c_str(),

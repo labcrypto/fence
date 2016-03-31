@@ -37,6 +37,8 @@ namespace master {
       ::naeem::hottentot::runtime::types::Enum< ::ir::ntnaeem::gate::transport::TransportMessageStatus> &out, 
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
+  private:
+    std::string workDir_;
   };
 } // END OF NAMESPACE master
 } // END OF NAMESPACE gate
