@@ -103,15 +103,15 @@ namespace master {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
-    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for master thread to exit ..." << std::endl;
-    while (true) {
-      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-      if (Runtime::masterThreadTerminated_) {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread exited." << std::endl;
-        break;
-      }
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    // ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for master thread to exit ..." << std::endl;
+    // while (true) {
+    //   std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+    //   if (Runtime::masterThreadTerminated_) {
+    //     ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread exited." << std::endl;
+    //     break;
+    //   }
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // }
   }
   void
   TransportServiceImpl::Transmit(
@@ -218,14 +218,12 @@ namespace master {
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
       std::lock_guard<std::mutex> guard2(Runtime::transportOutboxQueueLock_);
-      std::vector<::ir::ntnaeem::gate::transport::TransportMessage*> messages = 
+      /* std::vector<::ir::ntnaeem::gate::transport::TransportMessage*> messages = 
         Runtime::transportOutboxQueue_->PopAll(slaveId.GetValue());
       for (uint32_t i = 0; i < messages.size(); i++) {
         out.Add(messages[i]);
-        // ::naeem::hottentot::runtime::Utils::PrintArray("RETRIEVING CONTENT",messages[i]->GetContent().GetValue(), messages[i]->GetContent().GetLength());
         Runtime::transportSentQueue_->Put(messages[i]);
-      }
-      // Runtime::PrintStatus();
+      } */
     }
   }
   void

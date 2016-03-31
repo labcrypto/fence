@@ -105,7 +105,6 @@ main(int argc, char **argv) {
     );
     ::ir::ntnaeem::gate::master::GateServiceImpl *gateService =
       new ::ir::ntnaeem::gate::master::GateServiceImpl;
-    ::ir::ntnaeem::gate::master::MasterThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
       ::naeem::conf::ConfigManager::GetValueAsString("gate_service", "bind_ip"), 
       ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
@@ -118,7 +117,8 @@ main(int argc, char **argv) {
       ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
       gateMonitorService
     );
-    // ::ir::ntnaeem::gate::master::Runtime::Init();
+    ::ir::ntnaeem::gate::master::Runtime::Init();
+    // ::ir::ntnaeem::gate::master::MasterThread::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
