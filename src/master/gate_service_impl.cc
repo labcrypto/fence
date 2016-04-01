@@ -97,8 +97,12 @@ namespace master {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::inboxQueueLock_);
-      out.SetValue(Runtime::inboxQueue_->HasMore(label.ToStdString()));
+      std::lock_guard<std::mutex> guard2(Runtime::readyForPopLock_);
+      if (Runtime::readyForPop_.find(label.ToStdString()) == Runtime::readyForPop_.end()) {
+        out.SetValue(false);
+      } else {
+        out.SetValue(Runtime::readyForPop_[label.ToStdString()]->size() > 0);
+      }
     }
   }
   void
@@ -112,7 +116,7 @@ namespace master {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::inboxQueueLock_);
+      std::lock_guard<std::mutex> guard2(Runtime::readyForPopLock_);
       ::ir::ntnaeem::gate::Message *message = Runtime::inboxQueue_->Next(label.ToStdString());
       if (message == NULL ) {
         out.SetId(0);

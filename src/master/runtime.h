@@ -31,17 +31,19 @@ namespace master {
 
     static uint64_t messageIdCounter_;
     static uint64_t arrivedTotalCounter_;
+    static uint64_t readyForPopTotalCounter_;
     
     static std::mutex termSignalLock_;
     static std::mutex messageIdCounterLock_;
     static std::mutex mainLock_;
-    static std::mutex inboxQueueLock_;
+    static std::mutex readyForPopLock_;
+
     static std::mutex outboxQueueLock_;
     static std::mutex transportInboxQueueLock_;
     static std::mutex transportOutboxQueueLock_;
 
     static std::vector<uint64_t> arrived_;
-    static std::vector<uint64_t> readyForPop_;
+    static std::map<std::string, std::vector<uint64_t>*> readyForPop_;
     static std::map<uint64_t, uint16_t> states_;
 
     static std::map<uint32_t, uint64_t> slaveMessageMap_; // TODO: Replace with a persistent map

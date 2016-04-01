@@ -37,11 +37,14 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/a").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/a").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/aa").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/aa").c_str());
+    }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfp").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/qfp").c_str());
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rfp").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfr").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/qfr").c_str());
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rfr").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ra").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/ra").c_str());
@@ -93,6 +96,25 @@ namespace master {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Arrived Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
     }
     /*
+     * Reading ready for pop total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"rfptco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"rfptco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::readyForPopTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::readyForPopTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::arrivedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
+    }
+    /*
      * Reading states
      */
     NAEEM_string_ptr filenames;
@@ -134,6 +156,9 @@ namespace master {
         // TODO: Id does not exist in states map.
       }
     }
+    /*
+     * Reading ready for pop messages
+     */
     NAEEM_os__free_file_names(filenames, filenamesLength);
     ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }

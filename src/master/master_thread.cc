@@ -150,7 +150,7 @@ namespace master {
                 inboxMessage.SetContent(inboxTransportMessage.GetContent());
                 data = inboxMessage.Serialize(&dataLength);
                 NAEEM_os__write_to_file (
-                  (NAEEM_path)(workDir + "/qfp").c_str(), 
+                  (NAEEM_path)(workDir + "/rfp").c_str(), 
                   (NAEEM_string)ss.str().c_str(), 
                   data, 
                   dataLength
@@ -161,20 +161,26 @@ namespace master {
                       (NAEEM_string)ss.str().c_str()
                     )
                 ) {
+                  NAEEM_os__copy_file (
+                    (NAEEM_path)(workDir + "/a").c_str(),
+                    (NAEEM_string)ss.str().c_str(),
+                    (NAEEM_path)(workDir + "/aa").c_str(),
+                    (NAEEM_string)ss.str().c_str()
+                  );
                   NAEEM_os__delete_file (
                     (NAEEM_path)(workDir + "/a").c_str(), 
                     (NAEEM_string)ss.str().c_str()
                   );
                 }
-                uint16_t status = (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___ReadyForPop;
+                uint16_t status = 
+                  (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___ReadyForPop;
                 NAEEM_os__write_to_file (
                   (NAEEM_path)(workDir + "/s").c_str(), 
                   (NAEEM_string)ss.str().c_str(),
                   (NAEEM_data)(&status),
                   sizeof(status)
                 );
-                Runtime::states_[inboxMessage.GetId().GetValue()] = status;
-                Runtime::readyForPop_.push_back(inboxMessage.GetId().GetValue());
+                
                 uint32_t slaveId = inboxTransportMessage.GetSlaveId().GetValue();
                 NAEEM_os__write_to_file (
                   (NAEEM_path)(workDir + "/s").c_str(), 
@@ -189,23 +195,24 @@ namespace master {
                   (NAEEM_data)(&slaveMId),
                   sizeof(slaveMId)
                 );
+                Runtime::states_[inboxMessage.GetId().GetValue()] = status;
+                if (Runtime::readyForPop_.find(inboxMessage.GetLabel().ToStdString()) == 
+                      Runtime::readyForPop_.end()) {
+                  Runtime::readyForPop_.insert(std::pair<std::string, std::vector<uint64_t>*>
+                    (inboxMessage.GetLabel().ToStdString(), new std::vector<uint64_t>()));
+                }
+                Runtime::readyForPop_[inboxMessage.GetLabel().ToStdString()]
+                  ->push_back(inboxMessage.GetId().GetValue());
+                Runtime::readyForPopTotalCounter_++;
+                NAEEM_os__write_to_file (
+                  (NAEEM_path)workDir.c_str(), 
+                  (NAEEM_string)"rfptco", 
+                  (NAEEM_data)&(Runtime::readyForPopTotalCounter_), 
+                  (NAEEM_length)sizeof(Runtime::readyForPopTotalCounter_)
+                );
               } else {
                 // TODO : Message is not deserialized.
               }
-              // Runtime::inboxQueue_->Put(inboxMessage->GetLabel().ToStdString(), inboxMessage);
-              // Runtime::slaveMessageMap_.insert(
-              //  std::pair<uint64_t, uint64_t>(inboxTransportMessage->GetMasterMId().GetValue(), 
-              //    inboxTransportMessage->GetSlaveId().GetValue()));
-              // if (Runtime::masterIdToSlaveIdMap_.find(inboxTransportMessage->GetSlaveId().GetValue()) == 
-              //     Runtime::masterIdToSlaveIdMap_.end()) {
-              //   Runtime::masterIdToSlaveIdMap_.insert(
-              //     std::pair<uint64_t, std::map<uint64_t, uint64_t>*>(
-              //       inboxTransportMessage->GetSlaveId().GetValue(), 
-              //         new std::map<uint64_t, uint64_t>()));
-              // }
-              // Runtime::masterIdToSlaveIdMap_[inboxTransportMessage->GetSlaveId().GetValue()]->insert(
-              //   std::pair<uint64_t, uint64_t>(inboxTransportMessage->GetMasterMId().GetValue(), 
-              //     inboxTransportMessage->GetSlaveMId().GetValue()));
             }
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {

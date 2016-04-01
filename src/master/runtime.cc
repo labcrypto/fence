@@ -13,17 +13,19 @@ namespace master {
 
   uint64_t Runtime::messageIdCounter_ = 0;
   uint64_t Runtime::arrivedTotalCounter_ = 0;
+  uint64_t Runtime::readyForPopTotalCounter_ = 0;
 
   std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
   std::mutex Runtime::mainLock_;
-  std::mutex Runtime::inboxQueueLock_;
+  std::mutex Runtime::readyForPopLock_;
+
   std::mutex Runtime::outboxQueueLock_;
   std::mutex Runtime::transportInboxQueueLock_;
   std::mutex Runtime::transportOutboxQueueLock_;
 
   std::vector<uint64_t> Runtime::arrived_;
-  std::vector<uint64_t> Runtime::readyForPop_;
+  std::map<std::string, std::vector<uint64_t>*> Runtime::readyForPop_;
   std::map<uint64_t, uint16_t> Runtime::states_;
 
   std::map<uint32_t, uint64_t> Runtime::slaveMessageMap_;
@@ -50,6 +52,12 @@ namespace master {
   }
   void
   Runtime::Shutdown() {
+    for (std::map<std::string, std::vector<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();
+         it != Runtime::readyForPop_.end();
+        ) {
+      delete it->second;
+      Runtime::readyForPop_.erase(it++);
+    }
     delete inboxQueue_;
     delete outboxQueue_;
     // delete transportInboxQueue_;
@@ -81,6 +89,7 @@ namespace master {
     ss << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
     ss << "TOTAL ARRIVED: " << Runtime::arrivedTotalCounter_ << std::endl;
     ss << "ARRIVED: " << Runtime::arrived_.size() << std::endl;
+    ss << "TOTAL READY FOR POP: " << Runtime::readyForPopTotalCounter_ << std::endl;
     ss << "Size(Runtime::transportOutboxQueue_): " << Runtime::transportOutboxQueue_->Size() << " slaves." << std::endl;
     for (std::map<uint32_t, Bag<::ir::ntnaeem::gate::transport::TransportMessage>*>::iterator it = Runtime::transportOutboxQueue_->maps_.begin();
          it != Runtime::transportOutboxQueue_->maps_.end();
