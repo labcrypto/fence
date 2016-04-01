@@ -14,12 +14,12 @@
 
 void PrintHelpMessage() {
   std::cout << "Usage: " << std::endl;
-  std::cout << "  ./naeem-gate-master-pop [ARGUMENTS]" << std::endl;
+  std::cout << "  ./naeem-gate-master-ack [ARGUMENTS]" << std::endl;
   std::cout << std::endl;
   std::cout << "  ARGUMENTS:" << std::endl;
   std::cout << "        -h | --host                Master gate host address [Mandatory]" << std::endl;
   std::cout << "        -p | --port                Master gate port [Mandatory]" << std::endl;
-  std::cout << "        -l | --label               Pop from queue with this label [Mandatory]" << std::endl;
+  std::cout << "        -i | --id                  Message id [Mandatory]" << std::endl;
   std::cout << "        -v                         Verbose mode [Optional]" << std::endl;
 }
 
@@ -29,7 +29,7 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::Logger::GetOut() << "NTNAEEM CO." << std::endl;
     ::naeem::hottentot::runtime::Logger::GetOut() << "COPYRIGHT 2015-2016" << std::endl;
-    ::naeem::hottentot::runtime::Logger::GetOut() << "NAEEM GATE MASTER POP CLIENT" << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << "NAEEM GATE MASTER ACK CLIENT" << std::endl;
     ::naeem::hottentot::runtime::Logger::GetOut() << std::endl;
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
@@ -53,19 +53,19 @@ main(int argc, char **argv) {
       PrintHelpMessage();
       exit(1);
     }
-    if (!::naeem::hottentot::runtime::Configuration::Exists("l", "label")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message label is not specified." << std::endl;
+    if (!::naeem::hottentot::runtime::Configuration::Exists("i", "id")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message id is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
-    if (!::naeem::hottentot::runtime::Configuration::HasValue("l", "label")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message label is not specified." << std::endl;
+    if (!::naeem::hottentot::runtime::Configuration::HasValue("i", "id")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Message id is not specified." << std::endl;
       PrintHelpMessage();
       exit(1);
     }
     std::string host = ::naeem::hottentot::runtime::Configuration::AsString("h", "host");
     uint16_t port = ::naeem::hottentot::runtime::Configuration::AsUInt32("p", "port");
-    std::string label = ::naeem::hottentot::runtime::Configuration::AsString("l", "label");
+    uint64_t messageId = ::naeem::hottentot::runtime::Configuration::AsUInt64("i", "id");
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
@@ -78,29 +78,11 @@ main(int argc, char **argv) {
     try {
       //=============================================
       if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-        ::naeem::hottentot::runtime::types::Boolean hasMore;
-        ::naeem::hottentot::runtime::types::Utf8String labelString(label);
-        proxy->HasMore(labelString, hasMore);
-        if (!hasMore.GetValue()) {
-          ::naeem::hottentot::runtime::Logger::GetOut() << "NO MESSAGE IS FOUND WITH THIS LABEL." << std::endl;
-        } else {
-          ::ir::ntnaeem::gate::Message message;
-          proxy->PopNext(labelString, message);
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Message is popped with id: " << message.GetId().GetValue() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Id: " << message.GetId().GetValue() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Related Id: " << message.GetRelId().GetValue() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Label: " << message.GetLabel().ToStdString() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Related Label: " << message.GetRelLabel().ToStdString() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Content: " << std::endl << message.GetContent() << std::endl;
-        }
+        ::naeem::hottentot::runtime::types::UInt64 id(messageId);
+        proxy->Ack(id);
+        ::naeem::hottentot::runtime::Logger::GetOut() << "DONE." << std::endl;
       } else {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Gate is not available." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetOut() << "ERROR: Master gate is not available." << std::endl;
       }
       //=============================================
       ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);

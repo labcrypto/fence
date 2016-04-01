@@ -249,7 +249,6 @@ namespace slave {
         dataLength
       );
       uint16_t status = (uint16_t)kMessageStatus___EnqueuedForTransmission;
-
       NAEEM_os__write_to_file (
         (NAEEM_path)(workDir_ + "/s").c_str(), 
         (NAEEM_string)ss.str().c_str(),

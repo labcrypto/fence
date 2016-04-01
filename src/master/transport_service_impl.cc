@@ -70,6 +70,15 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pat").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pat").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/e").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/e").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ea").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/ea").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ef").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/ef").c_str());
+    }
     /*
      * Reading message id counter file
      */
@@ -124,10 +133,67 @@ namespace master {
       for (uint32_t i = 0; i < sizeof(Runtime::readyForPopTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::arrivedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
+    }
+    /*
+     * Reading popped and acked total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"patco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"patco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::poppedAndAckedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::poppedAndAckedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Popped And Acked Total Counter value is " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Popped And Acked Total Counter is set to " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
+    }
+    /*
+     * Reading enqueue failed total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"eftco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"eftco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::enqueueFailedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::enqueueFailedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Enqueue Failed Total Counter value is " << Runtime::enqueueFailedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueue Failed Total Counter is set to " << Runtime::enqueueFailedTotalCounter_ << std::endl;
+    }
+    /*
+     * Reading enqueued total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"etco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"etco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::enqueuedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::enqueuedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Enqueued Total Counter value is " << Runtime::enqueuedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
     }
     /*
      * Reading states
@@ -171,6 +237,7 @@ namespace master {
         // TODO: Id does not exist in states map.
       }
     }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
     /*
      * Reading ready for pop messages
      */
@@ -244,6 +311,28 @@ namespace master {
           (*(Runtime::poppedButNotAcked_[message.GetLabel().ToStdString()]))[messageId] = popTime;
         } else {
           // TODO: Message status is not PoppedButNotAcked !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
+    /*
+     * Reading enqueued messages
+     */
+    NAEEM_os__enum_file_names (
+      (NAEEM_path)(workDir_ + "/e").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___EnqueuedForTransmission) {
+          Runtime::enqueued_.push_back(messageId);
+        } else {
+          // TODO: Message status is not Arrived !
         }
       } else {
         // TODO: Id does not exist in states map.
