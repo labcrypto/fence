@@ -180,17 +180,16 @@ namespace master {
                   (NAEEM_data)(&status),
                   sizeof(status)
                 );
-                
                 uint32_t slaveId = inboxTransportMessage.GetSlaveId().GetValue();
                 NAEEM_os__write_to_file (
-                  (NAEEM_path)(workDir + "/s").c_str(), 
+                  (NAEEM_path)(workDir + "/ss").c_str(), 
                   (NAEEM_string)(ss.str() + ".slaveid").c_str(),
                   (NAEEM_data)(&slaveId),
                   sizeof(slaveId)
                 );
                 uint64_t slaveMId = inboxTransportMessage.GetSlaveMId().GetValue();
                 NAEEM_os__write_to_file (
-                  (NAEEM_path)(workDir + "/s").c_str(), 
+                  (NAEEM_path)(workDir + "/ss").c_str(), 
                   (NAEEM_string)(ss.str() + ".slavemid").c_str(),
                   (NAEEM_data)(&slaveMId),
                   sizeof(slaveMId)
@@ -198,8 +197,8 @@ namespace master {
                 Runtime::states_[inboxMessage.GetId().GetValue()] = status;
                 if (Runtime::readyForPop_.find(inboxMessage.GetLabel().ToStdString()) == 
                       Runtime::readyForPop_.end()) {
-                  Runtime::readyForPop_.insert(std::pair<std::string, std::vector<uint64_t>*>
-                    (inboxMessage.GetLabel().ToStdString(), new std::vector<uint64_t>()));
+                  Runtime::readyForPop_.insert(std::pair<std::string, std::deque<uint64_t>*>
+                    (inboxMessage.GetLabel().ToStdString(), new std::deque<uint64_t>()));
                 }
                 Runtime::readyForPop_[inboxMessage.GetLabel().ToStdString()]
                   ->push_back(inboxMessage.GetId().GetValue());

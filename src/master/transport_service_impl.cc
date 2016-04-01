@@ -34,16 +34,19 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/s").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/s").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ss").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/ss").c_str());
+    }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/a").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/a").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/aa").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/aa").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfp").c_str())) {
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rfp").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rfp").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/qfr").c_str())) {
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rfr").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rfr").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/ra").c_str())) {
@@ -54,6 +57,18 @@ namespace master {
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rf").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rf").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pna").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pna").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pnat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pnat").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pa").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pa").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pat").c_str());
     }
     /*
      * Reading message id counter file
@@ -118,7 +133,7 @@ namespace master {
      * Reading states
      */
     NAEEM_string_ptr filenames;
-    NAEEM_length filenamesLength;
+    NAEEM_length filenamesLength = 0;
     NAEEM_os__enum_file_names(
       (NAEEM_path)(workDir_ + "/s").c_str(),
       &filenames,
@@ -128,7 +143,7 @@ namespace master {
       uint16_t status = 0;
       NAEEM_os__read_file3 (
         (NAEEM_path)(workDir_ + "/s/" + filenames[i]).c_str(),
-        (NAEEM_data)&status,
+        (NAEEM_data)(&status),
         0
       );
       Runtime::states_.insert(
@@ -138,7 +153,7 @@ namespace master {
     /*
      * Reading arrived messages
      */
-    NAEEM_os__enum_file_names(
+    NAEEM_os__enum_file_names (
       (NAEEM_path)(workDir_ + "/a").c_str(),
       &filenames,
       &filenamesLength
@@ -159,6 +174,81 @@ namespace master {
     /*
      * Reading ready for pop messages
      */
+    NAEEM_os__enum_file_names(
+      (NAEEM_path)(workDir_ + "/rfp").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___ReadyForPop) {
+          NAEEM_os__read_file_with_path (
+            (NAEEM_path)(workDir_ + "/rfp").c_str(), 
+            (NAEEM_string)filenames[i],
+            &temp, 
+            &tempLength
+          );
+          ::ir::ntnaeem::gate::Message message;
+          message.Deserialize(temp, tempLength);
+          free(temp);
+          if (Runtime::readyForPop_.find(message.GetLabel().ToStdString()) == 
+                Runtime::readyForPop_.end()) {
+            Runtime::readyForPop_.insert(std::pair<std::string, std::deque<uint64_t>*>
+              (message.GetLabel().ToStdString(), new std::deque<uint64_t>()));
+          }
+          Runtime::readyForPop_[message.GetLabel().ToStdString()]
+            ->push_back(message.GetId().GetValue());
+        } else {
+          // TODO: Message status is not ReadyForPop !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
+    /*
+     * Reading popped but not acked messages
+     */
+    NAEEM_os__enum_file_names(
+      (NAEEM_path)(workDir_ + "/pna").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___PoppedButNotAcked) {
+          NAEEM_os__read_file_with_path (
+            (NAEEM_path)(workDir_ + "/pna").c_str(), 
+            (NAEEM_string)filenames[i],
+            &temp, 
+            &tempLength
+          );
+          uint64_t popTime = 0;
+          NAEEM_os__read_file3 (
+            (NAEEM_path)(workDir_ + "/pnat/" + filenames[i]).c_str(),
+            (NAEEM_data)(&popTime),
+            0
+          );
+          ::ir::ntnaeem::gate::Message message;
+          message.Deserialize(temp, tempLength);
+          free(temp);
+          if (Runtime::poppedButNotAcked_.find(message.GetLabel().ToStdString()) == 
+                Runtime::poppedButNotAcked_.end()) {
+            Runtime::poppedButNotAcked_.insert(std::pair<std::string, std::map<uint64_t, uint64_t>*>
+              (message.GetLabel().ToStdString(), new std::map<uint64_t, uint64_t>()));
+          }
+          (*(Runtime::poppedButNotAcked_[message.GetLabel().ToStdString()]))[messageId] = popTime;
+        } else {
+          // TODO: Message status is not PoppedButNotAcked !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }
@@ -190,7 +280,7 @@ namespace master {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::transportInboxQueueLock_);
+      std::lock_guard<std::mutex> guard2(Runtime::arrivedLock_);
       for (uint32_t i = 0; i < messages.Size(); i++) {
         ::ir::ntnaeem::gate::transport::EnqueueReport *enqueueReport = 
           new ::ir::ntnaeem::gate::transport::EnqueueReport;
