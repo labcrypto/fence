@@ -227,7 +227,6 @@ namespace master {
             for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
               std::stringstream ss;
               ss << enqueuedIds[i];
-
               if (NAEEM_os__file_exists (
                     (NAEEM_path)(workDir + "/e").c_str(),
                     (NAEEM_string)ss.str().c_str()
@@ -243,6 +242,7 @@ namespace master {
                 );
                 ::ir::ntnaeem::gate::Message message;
                 message.Deserialize(data, dataLength);
+                free(data);
                 std::stringstream rss;
                 rss << message.GetRelId().GetValue();
                 if (NAEEM_os__file_exists (
@@ -250,7 +250,72 @@ namespace master {
                       (NAEEM_string)(ss.str() + ".slaveid").c_str()
                     )
                 ) {
-                  uint64_t 
+                  uint32_t slaveId;
+                  NAEEM_os__read_file3 (
+                    (NAEEM_path)(workDir + "/ss/" + ss.str() + ".slaveid").c_str(),
+                    (NAEEM_data)&slaveId,
+                    0
+                  );
+                  if (NAEEM_os__file_exists (
+                        (NAEEM_path)(workDir + "/ss").c_str(),
+                        (NAEEM_string)(ss.str() + ".slavemid").c_str()
+                      )
+                  ) {
+                    uint64_t slaveMId;
+                    NAEEM_os__read_file3 (
+                      (NAEEM_path)(workDir + "/ss/" + ss.str() + ".slavemid").c_str(),
+                      (NAEEM_data)&slaveMId,
+                      0
+                    );
+                    uint16_t status = 
+                      (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___ReadyForRetrieval;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)(workDir + "/s").c_str(), 
+                      (NAEEM_string)ss.str().c_str(),
+                      (NAEEM_data)(&status),
+                      sizeof(status)
+                    );
+                    Runtime::states_[message.GetId().GetValue()] = status;
+                    NAEEM_os__copy_file (
+                      (NAEEM_path)(workDir + "/e").c_str(),
+                      (NAEEM_string)ss.str().c_str(),
+                      (NAEEM_path)(workDir + "/ea").c_str(),
+                      (NAEEM_string)ss.str().c_str()
+                    );
+                    NAEEM_os__delete_file (
+                      (NAEEM_path)(workDir + "/e").c_str(), 
+                      (NAEEM_string)ss.str().c_str()
+                    );
+                    ::ir::ntnaeem::gate::transport::TransportMessage transportMessage;
+                    transportMessage.SetMasterMId(message.GetId());
+                    transportMessage.SetSlaveId(slaveId);
+                    transportMessage.SetSlaveMId(0);
+                    transportMessage.SetRelMId(slaveMId);
+                    transportMessage.SetLabel(message.GetLabel());
+                    transportMessage.SetContent(message.GetContent());
+                    data = transportMessage.Serialize(&dataLength);
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)(workDir + "/rfr").c_str(), 
+                      (NAEEM_string)ss.str().c_str(),
+                      data,
+                      dataLength
+                    );
+                    delete [] data;
+                    if (Runtime::readyForRetrieval_.find(slaveId) == Runtime::readyForRetrieval_.end()) {
+                      Runtime::readyForRetrieval_.insert(std::pair<uint32_t, std::vector<uint64_t>*>
+                        (slaveId, new std::vector<uint64_t>()));
+                    }
+                    Runtime::readyForRetrieval_[slaveId]->push_back(message.GetId().GetValue());
+                    Runtime::readyForRetrievalTotalCounter_++;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)workDir.c_str(), 
+                      (NAEEM_string)"rfrtco", 
+                      (NAEEM_data)&(Runtime::readyForRetrievalTotalCounter_), 
+                      (NAEEM_length)sizeof(Runtime::readyForRetrievalTotalCounter_)
+                    );
+                  } else {
+                    // TODO: Message status file does not exist.
+                  }
                 } else {
                   // TODO: Message status file does not exist.
                 }

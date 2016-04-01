@@ -196,6 +196,25 @@ namespace master {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
     }
     /*
+     * Reading ready for retrieval total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"rfrtco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"rfrtco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::readyForRetrievalTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::readyForRetrievalTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Retrieval Total Counter value is " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Retrieval Total Counter is set to " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
+    }
+    /*
      * Reading states
      */
     NAEEM_string_ptr filenames;
@@ -332,7 +351,44 @@ namespace master {
               (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___EnqueuedForTransmission) {
           Runtime::enqueued_.push_back(messageId);
         } else {
-          // TODO: Message status is not Arrived !
+          // TODO: Message status is not EnqueuedForTransmission !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
+    /*
+     * Reading ready for retrieval messages
+     */
+    NAEEM_os__enum_file_names (
+      (NAEEM_path)(workDir_ + "/rfr").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___ReadyForRetrieval) {
+          NAEEM_os__read_file_with_path (
+            (NAEEM_path)(workDir_ + "/rfr").c_str(), 
+            (NAEEM_string)filenames[i],
+            &temp, 
+            &tempLength
+          );
+          ::ir::ntnaeem::gate::transport::TransportMessage transportMessage;
+          transportMessage.Deserialize(temp, tempLength);
+          free(temp);
+          if (Runtime::readyForRetrieval_.find(transportMessage.GetSlaveId().GetValue()) 
+                == Runtime::readyForRetrieval_.end()) {
+            Runtime::readyForRetrieval_.insert(std::pair<uint32_t, std::vector<uint64_t>*>
+              (transportMessage.GetSlaveId().GetValue(), new std::vector<uint64_t>()));
+          }
+          Runtime::readyForRetrieval_[transportMessage.GetSlaveId().GetValue()]
+            ->push_back(transportMessage.GetMasterMId().GetValue());
+        } else {
+          // TODO: Message status is not ReadyForRetrieval !
         }
       } else {
         // TODO: Id does not exist in states map.

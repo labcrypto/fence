@@ -17,6 +17,7 @@ namespace master {
   uint64_t Runtime::poppedAndAckedTotalCounter_ = 0;
   uint64_t Runtime::enqueuedTotalCounter_ = 0;
   uint64_t Runtime::enqueueFailedTotalCounter_ = 0;
+  uint64_t Runtime::readyForRetrievalTotalCounter_ = 0;
 
   std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
@@ -31,13 +32,9 @@ namespace master {
   std::vector<uint64_t> Runtime::enqueued_;
   std::map<std::string, std::map<uint64_t, uint64_t>*> Runtime::poppedButNotAcked_;
   std::map<std::string, std::deque<uint64_t>*> Runtime::readyForPop_;
+  std::map<uint32_t, std::vector<uint64_t>*> Runtime::readyForRetrieval_;
   std::map<uint64_t, uint16_t> Runtime::states_;
 
-  // std::map<uint32_t, uint64_t> Runtime::slaveMessageMap_;
-  // std::map<uint32_t, std::map<uint64_t, uint64_t>*> Runtime::masterIdToSlaveIdMap_;
-  // LabelQueueMap< ::ir::ntnaeem::gate::Message>* Runtime::inboxQueue_ = NULL;
-  // Bag< ::ir::ntnaeem::gate::Message>* Runtime::outboxQueue_ = NULL;
-  // Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportInboxQueue_ = NULL;
   SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportOutboxQueue_ = NULL;
   Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportSentQueue_ = NULL;
 
@@ -48,9 +45,6 @@ namespace master {
 
     messageIdCounter_ = 5000;
 
-    // inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
-    // outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
-    // transportInboxQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
     transportOutboxQueue_ = new SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>;
     transportSentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
   }
@@ -68,9 +62,12 @@ namespace master {
       delete it->second;
       Runtime::poppedButNotAcked_.erase(it++);
     }
-    // delete inboxQueue_;
-    // delete outboxQueue_;
-    // delete transportInboxQueue_;
+    for (std::map<uint32_t, std::vector<uint64_t>*>::iterator it = Runtime::readyForRetrieval_.begin();
+         it != Runtime::readyForRetrieval_.end();
+        ) {
+      delete it->second;
+      Runtime::readyForRetrieval_.erase(it++);
+    }
     delete transportOutboxQueue_;
     delete transportSentQueue_;
   }
@@ -79,24 +76,6 @@ namespace master {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
-    /*ss << "Size(Runtime::slaveMessageMap_): " << Runtime::slaveMessageMap_.size() << std::endl;
-    for (auto &kv : Runtime::slaveMessageMap_) {
-      ss << "  '" << kv.first << "' -> '" << kv.second << "'" << std::endl;
-    }
-    ss << "Size(Runtime::masterIdToSlaveIdMap_): " << Runtime::masterIdToSlaveIdMap_.size() << std::endl;
-    for (auto &kv : Runtime::masterIdToSlaveIdMap_) {
-      ss << " For slave '" << kv.first << "': " << std::endl;
-      for (auto &kv2 : *(kv.second)) {
-        ss << "    '" << kv2.first << "' -> '" << kv2.second << "'" << std::endl;
-      }
-    }
-    ss << "Size(Runtime::inboxQueue_): " << Runtime::inboxQueue_->Size() << " labels." << std::endl;*/
-    /*for (std::map<std::string, Queue<::ir::ntnaeem::gate::Message>*>::iterator it = Runtime::inboxQueue_->queuesMap_.begin();
-         it != Runtime::inboxQueue_->queuesMap_.end();
-         it++) {
-      ss << "  Size(Runtime::inboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
-    }*/
-    
     ss << "# ARRIVED: " << Runtime::arrived_.size() << std::endl;
     uint64_t sumOfReadyForPop = 0;
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();
@@ -108,7 +87,7 @@ namespace master {
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();
          it != Runtime::readyForPop_.end();
          it++) {
-      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;;
+      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
     }
     uint64_t sumOfPoppedButNotAcked = 0;
     for (std::map<std::string, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::poppedButNotAcked_.begin();
@@ -120,7 +99,19 @@ namespace master {
     for (std::map<std::string, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::poppedButNotAcked_.begin();
          it != Runtime::poppedButNotAcked_.end();
          it++) {
-      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;;
+      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
+    }
+    uint64_t sumOfReadyForRetrieval = 0;
+    for (std::map<uint32_t, std::vector<uint64_t>*>::iterator it = Runtime::readyForRetrieval_.begin();
+         it != Runtime::readyForRetrieval_.end();
+         it++) {
+      sumOfReadyForRetrieval += it->second->size();
+    }
+    ss << "# READY FOR RETRIEVAL: " << sumOfReadyForRetrieval << std::endl;
+    for (std::map<uint32_t, std::vector<uint64_t>*>::iterator it = Runtime::readyForRetrieval_.begin();
+         it != Runtime::readyForRetrieval_.end();
+         it++) {
+      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
     }
     ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
     ss << "---" << std::endl;
@@ -129,14 +120,7 @@ namespace master {
     ss << "# TOTAL POPPED AND ACKED: " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
     ss << "# TOTAL ENQUEUED: " << Runtime::enqueuedTotalCounter_ << std::endl;
     ss << "# TOTAL ENQUEUE FAILED: " << Runtime::enqueueFailedTotalCounter_ << std::endl;
-    /* ss << "Size(Runtime::outboxQueue_): " << Runtime::outboxQueue_->Size() << std::endl;
-    ss << "Size(Runtime::transportOutboxQueue_): " << Runtime::transportOutboxQueue_->Size() << " slaves." << std::endl;
-    for (std::map<uint32_t, Bag<::ir::ntnaeem::gate::transport::TransportMessage>*>::iterator it = Runtime::transportOutboxQueue_->maps_.begin();
-         it != Runtime::transportOutboxQueue_->maps_.end();
-         it++) {
-      ss << "  Size(Runtime::transportOutboxQueue_['" << it->first << "']): " << it->second->Size() << std::endl;
-    }
-    ss << "Size(Runtime::transportSentQueue_): " << Runtime::transportSentQueue_->Size() << std::endl; */
+    ss << "# TOTAL READY FOR RETRIEVAL: " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
     ss << "------------------------------" << std::endl;
     return ss.str();
   }
