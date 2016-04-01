@@ -122,7 +122,6 @@ main(int argc, char **argv) {
         ::ir::ntnaeem::gate::Message message;
         message.SetId(0);
         message.SetLabel(label);
-        message.SetRelLabel("");
         message.SetRelId(0);
         message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, dataLength));
         ::naeem::hottentot::runtime::types::UInt64 id;

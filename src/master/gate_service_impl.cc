@@ -245,7 +245,6 @@ namespace master {
       free(data);
       out.SetId(message.GetId());
       out.SetRelId(message.GetRelId());
-      out.SetRelLabel(message.GetRelLabel());
       out.SetLabel(message.GetLabel());
       out.SetContent(message.GetContent());
       if (!messageIsChosen) {

@@ -155,7 +155,6 @@ namespace slave {
                           transportMessage->SetSlaveId(slaveId);
                           transportMessage->SetSlaveMId(outboxMessage->GetId());
                           transportMessage->SetRelMId(0);
-                          transportMessage->SetRelLabel("");
                           transportMessage->SetLabel(outboxMessage->GetLabel());
                           transportMessage->SetContent(outboxMessage->GetContent());
                           ::naeem::hottentot::runtime::types::UInt64 masterId;

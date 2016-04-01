@@ -95,8 +95,6 @@ main(int argc, char **argv) {
           ::naeem::hottentot::runtime::Logger::GetOut() << 
             "Label: " << message.GetLabel().ToStdString() << std::endl;
           ::naeem::hottentot::runtime::Logger::GetOut() << 
-            "Related Label: " << message.GetRelLabel().ToStdString() << std::endl;
-          ::naeem::hottentot::runtime::Logger::GetOut() << 
             "Content: " << std::endl << message.GetContent() << std::endl;
         }
       } else {

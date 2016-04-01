@@ -91,7 +91,7 @@ namespace master {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Number of transport inbox messages: " << arrivedIds.size() << std::endl;
             }
-            for (uint32_t i = 0; i < arrivedIds.size(); i++) {
+            for (uint64_t i = 0; i < arrivedIds.size(); i++) {
               std::stringstream ss;
               ss << arrivedIds[i];
               /*
@@ -145,7 +145,6 @@ namespace master {
               if (deserialized) {
                 inboxMessage.SetId(inboxTransportMessage.GetMasterMId());
                 inboxMessage.SetRelId(0);
-                inboxMessage.SetRelLabel("");
                 inboxMessage.SetLabel(inboxTransportMessage.GetLabel());
                 inboxMessage.SetContent(inboxTransportMessage.GetContent());
                 data = inboxMessage.Serialize(&dataLength);
@@ -218,9 +217,47 @@ namespace master {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Messages moved from transport inbox to gate inbox." << std::endl;
           }
           /* 
-           * Copying from 'outbox queue' to 'transport outbox queue'
+           * Copying 'enqueued' messages to 'ready for retrieval' queue
            */
           {
+            std::vector<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
+            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              ::naeem::hottentot::runtime::Logger::GetOut() << "Number of enqueued messages: " << enqueuedIds.size() << std::endl;
+            }
+            for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
+              std::stringstream ss;
+              ss << enqueuedIds[i];
+
+              if (NAEEM_os__file_exists (
+                    (NAEEM_path)(workDir + "/e").c_str(),
+                    (NAEEM_string)ss.str().c_str()
+                  )
+              ) {
+                NAEEM_data data;
+                NAEEM_length dataLength;
+                NAEEM_os__read_file_with_path (
+                  (NAEEM_path)(workDir + "/e").c_str(), 
+                  (NAEEM_string)ss.str().c_str(),
+                  &data, 
+                  &dataLength
+                );
+                ::ir::ntnaeem::gate::Message message;
+                message.Deserialize(data, dataLength);
+                std::stringstream rss;
+                rss << message.GetRelId().GetValue();
+                if (NAEEM_os__file_exists (
+                      (NAEEM_path)(workDir + "/ss").c_str(),
+                      (NAEEM_string)(ss.str() + ".slaveid").c_str()
+                    )
+                ) {
+                  uint64_t 
+                } else {
+                  // TODO: Message status file does not exist.
+                }
+              } else {
+                // TODO: Message file does not exist.
+              }
+            }
             /* std::vector<ir::ntnaeem::gate::Message*> outboxMessages = 
               Runtime::outboxQueue_->PopAll();
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {

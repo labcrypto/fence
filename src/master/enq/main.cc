@@ -138,7 +138,6 @@ main(int argc, char **argv) {
         ::ir::ntnaeem::gate::Message message;
         message.SetId(0);
         message.SetLabel(label);
-        message.SetRelLabel("");
         message.SetRelId(relatedIdVar);
         message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, dataLength));
         proxy->Enqueue(message, id);
