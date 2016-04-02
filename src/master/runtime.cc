@@ -111,7 +111,7 @@ namespace master {
     for (std::map<uint32_t, std::vector<uint64_t>*>::iterator it = Runtime::readyForRetrieval_.begin();
          it != Runtime::readyForRetrieval_.end();
          it++) {
-      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
+      ss << "  # SLAVE['" << it->first << "']: " << it->second->size() << std::endl;
     }
     ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
     ss << "---" << std::endl;

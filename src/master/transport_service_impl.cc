@@ -215,6 +215,25 @@ namespace master {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Retrieval Total Counter is set to " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
     }
     /*
+     * Reading enqueue failed total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"eftco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"eftco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::enqueueFailedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::enqueueFailedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueue Failed Total Counter value is " << Runtime::enqueueFailedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueue Failed Total Counter is set to " << Runtime::enqueueFailedTotalCounter_ << std::endl;
+    }
+    /*
      * Reading states
      */
     NAEEM_string_ptr filenames;

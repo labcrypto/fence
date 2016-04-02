@@ -247,23 +247,23 @@ namespace master {
                 rss << message.GetRelId().GetValue();
                 if (NAEEM_os__file_exists (
                       (NAEEM_path)(workDir + "/ss").c_str(),
-                      (NAEEM_string)(ss.str() + ".slaveid").c_str()
+                      (NAEEM_string)(rss.str() + ".slaveid").c_str()
                     )
                 ) {
                   uint32_t slaveId;
                   NAEEM_os__read_file3 (
-                    (NAEEM_path)(workDir + "/ss/" + ss.str() + ".slaveid").c_str(),
+                    (NAEEM_path)(workDir + "/ss/" + rss.str() + ".slaveid").c_str(),
                     (NAEEM_data)&slaveId,
                     0
                   );
                   if (NAEEM_os__file_exists (
                         (NAEEM_path)(workDir + "/ss").c_str(),
-                        (NAEEM_string)(ss.str() + ".slavemid").c_str()
+                        (NAEEM_string)(rss.str() + ".slavemid").c_str()
                       )
                   ) {
                     uint64_t slaveMId;
                     NAEEM_os__read_file3 (
-                      (NAEEM_path)(workDir + "/ss/" + ss.str() + ".slavemid").c_str(),
+                      (NAEEM_path)(workDir + "/ss/" + rss.str() + ".slavemid").c_str(),
                       (NAEEM_data)&slaveMId,
                       0
                     );
@@ -317,7 +317,32 @@ namespace master {
                     // TODO: Message status file does not exist.
                   }
                 } else {
-                  // TODO: Message status file does not exist.
+                  uint16_t status = 
+                    (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___EnqueueFailed;
+                  NAEEM_os__write_to_file (
+                    (NAEEM_path)(workDir + "/s").c_str(), 
+                    (NAEEM_string)ss.str().c_str(),
+                    (NAEEM_data)(&status),
+                    sizeof(status)
+                  );
+                  Runtime::states_[message.GetId().GetValue()] = status;
+                  NAEEM_os__copy_file (
+                    (NAEEM_path)(workDir + "/e").c_str(),
+                    (NAEEM_string)ss.str().c_str(),
+                    (NAEEM_path)(workDir + "/ea").c_str(),
+                    (NAEEM_string)ss.str().c_str()
+                  );
+                  NAEEM_os__delete_file (
+                    (NAEEM_path)(workDir + "/e").c_str(), 
+                    (NAEEM_string)ss.str().c_str()
+                  );
+                  Runtime::enqueueFailedTotalCounter_++;
+                  NAEEM_os__write_to_file (
+                    (NAEEM_path)workDir.c_str(), 
+                    (NAEEM_string)"eftco", 
+                    (NAEEM_data)&(Runtime::enqueueFailedTotalCounter_), 
+                    (NAEEM_length)sizeof(Runtime::enqueueFailedTotalCounter_)
+                  );
                 }
               } else {
                 // TODO: Message file does not exist.
