@@ -54,3 +54,4 @@ tools:
 	make -C pop
 	make -C enq
 	make -C ack
+	make -C spop

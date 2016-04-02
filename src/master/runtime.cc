@@ -18,6 +18,7 @@ namespace master {
   uint64_t Runtime::enqueuedTotalCounter_ = 0;
   uint64_t Runtime::enqueueFailedTotalCounter_ = 0;
   uint64_t Runtime::readyForRetrievalTotalCounter_ = 0;
+  uint64_t Runtime::retrievedAndAckedTotalCounter_ = 0;
 
   std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
@@ -25,28 +26,21 @@ namespace master {
   std::mutex Runtime::readyForPopLock_;
   std::mutex Runtime::arrivedLock_;
   std::mutex Runtime::enqueueLock_;
-  
-  std::mutex Runtime::transportOutboxQueueLock_;
+  std::mutex Runtime::readyForRetrievalLock_;
 
+  std::map<uint64_t, uint16_t> Runtime::states_;
   std::vector<uint64_t> Runtime::arrived_;
   std::vector<uint64_t> Runtime::enqueued_;
   std::map<std::string, std::map<uint64_t, uint64_t>*> Runtime::poppedButNotAcked_;
   std::map<std::string, std::deque<uint64_t>*> Runtime::readyForPop_;
   std::map<uint32_t, std::vector<uint64_t>*> Runtime::readyForRetrieval_;
-  std::map<uint64_t, uint16_t> Runtime::states_;
-
-  SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportOutboxQueue_ = NULL;
-  Bag< ::ir::ntnaeem::gate::transport::TransportMessage>* Runtime::transportSentQueue_ = NULL;
-
+  std::map<uint32_t, std::map<uint64_t, uint64_t>*> Runtime::retrievedButNotAcked_;
+  
   void
   Runtime::Init() {
     termSignal_ = false;
     masterThreadTerminated_ = false;
-
     messageIdCounter_ = 5000;
-
-    transportOutboxQueue_ = new SlaveBagMap< ::ir::ntnaeem::gate::transport::TransportMessage>;
-    transportSentQueue_ = new Bag< ::ir::ntnaeem::gate::transport::TransportMessage>;
   }
   void
   Runtime::Shutdown() {
@@ -68,8 +62,12 @@ namespace master {
       delete it->second;
       Runtime::readyForRetrieval_.erase(it++);
     }
-    delete transportOutboxQueue_;
-    delete transportSentQueue_;
+    for (std::map<uint32_t, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::retrievedButNotAcked_.begin();
+         it != Runtime::retrievedButNotAcked_.end();
+        ) {
+      delete it->second;
+      Runtime::retrievedButNotAcked_.erase(it++);
+    }
   }
   std::string
   Runtime::GetCurrentStat() {
@@ -77,6 +75,7 @@ namespace master {
     ss << "------------------------------" << std::endl;
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
     ss << "# ARRIVED: " << Runtime::arrived_.size() << std::endl;
+    ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
     uint64_t sumOfReadyForPop = 0;
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();
          it != Runtime::readyForPop_.end();
@@ -113,7 +112,18 @@ namespace master {
          it++) {
       ss << "  # SLAVE['" << it->first << "']: " << it->second->size() << std::endl;
     }
-    ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
+    uint64_t sumOfRetrievedButNotAcked = 0;
+    for (std::map<uint32_t, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::retrievedButNotAcked_.begin();
+         it != Runtime::retrievedButNotAcked_.end();
+         it++) {
+      sumOfRetrievedButNotAcked += it->second->size();
+    }
+    ss << "# RERIEVED BUT NOT ACKED: " << sumOfRetrievedButNotAcked << std::endl;
+    for (std::map<uint32_t, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::retrievedButNotAcked_.begin();
+         it != Runtime::retrievedButNotAcked_.end();
+         it++) {
+      ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
+    }
     ss << "---" << std::endl;
     ss << "# TOTAL ARRIVED: " << Runtime::arrivedTotalCounter_ << std::endl;
     ss << "# TOTAL READY FOR POP: " << Runtime::readyForPopTotalCounter_ << std::endl;

@@ -256,6 +256,12 @@ namespace master {
                     (NAEEM_data)&slaveId,
                     0
                   );
+                  NAEEM_os__write_to_file (
+                    (NAEEM_path)(workDir + "/ss").c_str(), 
+                    (NAEEM_string)(ss.str() + ".slaveid").c_str(),
+                    (NAEEM_data)(&slaveId),
+                    sizeof(slaveId)
+                  );
                   if (NAEEM_os__file_exists (
                         (NAEEM_path)(workDir + "/ss").c_str(),
                         (NAEEM_string)(rss.str() + ".slavemid").c_str()

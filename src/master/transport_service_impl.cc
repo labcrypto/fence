@@ -55,6 +55,9 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rna").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rna").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rnat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rnat").c_str());
+    }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rf").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rf").c_str());
     }
@@ -414,6 +417,55 @@ namespace master {
       }
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
+    /*
+     * Reading retrieved but not acked messages
+     */
+    NAEEM_os__enum_file_names(
+      (NAEEM_path)(workDir_ + "/rna").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      if (Runtime::states_.find(messageId) != Runtime::states_.end()) {
+        if (Runtime::states_[messageId] == 
+              (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___RetrievedButNotAcked) {
+          NAEEM_os__read_file_with_path (
+            (NAEEM_path)(workDir_ + "/rna").c_str(), 
+            (NAEEM_string)filenames[i],
+            &temp, 
+            &tempLength
+          );
+          ::ir::ntnaeem::gate::transport::TransportMessage transportMessage;
+          transportMessage.Deserialize(temp, tempLength);
+          free(temp);
+          uint64_t popTime = 0;
+          NAEEM_os__read_file3 (
+            (NAEEM_path)(workDir_ + "/rnat/" + filenames[i]).c_str(),
+            (NAEEM_data)(&popTime),
+            0
+          );
+          uint32_t slaveId;
+          NAEEM_os__read_file3 (
+            (NAEEM_path)(workDir_ + "/ss/" + filenames[i] + ".slaveid").c_str(),
+            (NAEEM_data)(&slaveId),
+            0
+          );
+          if (Runtime::retrievedButNotAcked_.find(slaveId) == 
+                Runtime::retrievedButNotAcked_.end()) {
+            Runtime::retrievedButNotAcked_.insert(
+              std::pair<uint32_t, std::map<uint64_t, uint64_t>*>
+                (slaveId, new std::map<uint64_t, uint64_t>()));
+          }
+          (*(Runtime::retrievedButNotAcked_[slaveId]))[transportMessage.GetMasterMId().GetValue()] = popTime;
+        } else {
+          // TODO: Message status is not PoppedButNotAcked !
+        }
+      } else {
+        // TODO: Id does not exist in states map.
+      }
+    }
+    NAEEM_os__free_file_names(filenames, filenamesLength);
     ::naeem::hottentot::runtime::Logger::GetOut() << "Transport Service is initialized." << std::endl;
   }
   void
@@ -536,13 +588,99 @@ namespace master {
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      std::lock_guard<std::mutex> guard2(Runtime::transportOutboxQueueLock_);
-      /* std::vector<::ir::ntnaeem::gate::transport::TransportMessage*> messages = 
-        Runtime::transportOutboxQueue_->PopAll(slaveId.GetValue());
-      for (uint32_t i = 0; i < messages.size(); i++) {
-        out.Add(messages[i]);
-        Runtime::transportSentQueue_->Put(messages[i]);
-      } */
+      std::lock_guard<std::mutex> guard2(Runtime::readyForRetrievalLock_);
+      if (Runtime::retrievedButNotAcked_.find(slaveId.GetValue()) != Runtime::retrievedButNotAcked_.end()) {
+        if (Runtime::retrievedButNotAcked_[slaveId.GetValue()]->size() > 0) {
+          for (std::map<uint64_t, uint64_t>::iterator it = Runtime::retrievedButNotAcked_[slaveId.GetValue()]->begin();
+               it != Runtime::retrievedButNotAcked_[slaveId.GetValue()]->end();
+               it++) {
+            uint64_t currentTime = time(NULL);
+            if ((currentTime - it->second) > 10) {
+              std::stringstream ss;
+              ss << it->first;
+              NAEEM_data data;
+              NAEEM_length dataLength;
+              NAEEM_os__read_file_with_path (
+                (NAEEM_path)(workDir_ + "/rna").c_str(),
+                (NAEEM_string)ss.str().c_str(),
+                &data,
+                &dataLength
+              );
+              ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage =
+                new ::ir::ntnaeem::gate::transport::TransportMessage;
+              transportMessage->Deserialize(data, dataLength);
+              out.Add(transportMessage);
+              free(data);
+              uint64_t currentTime = time(NULL);
+              NAEEM_os__write_to_file (
+                (NAEEM_path)(workDir_ + "/rnat").c_str(),
+                (NAEEM_string)ss.str().c_str(),
+                (NAEEM_data)&currentTime,
+                sizeof(currentTime)
+              );
+              if (Runtime::retrievedButNotAcked_.find(slaveId.GetValue()) == Runtime::retrievedButNotAcked_.end()) {
+                Runtime::retrievedButNotAcked_.insert(
+                  std::pair<uint32_t, std::map<uint64_t, uint64_t>*>(
+                    slaveId.GetValue(), new std::map<uint64_t, uint64_t>()));
+              }
+              (*(Runtime::retrievedButNotAcked_[slaveId.GetValue()]))[it->first] = currentTime;
+            }
+          }
+        }
+      }
+      if (Runtime::readyForRetrieval_.find(slaveId.GetValue()) == Runtime::readyForRetrieval_.end()) {
+        return;
+      }
+      if (Runtime::readyForRetrieval_[slaveId.GetValue()]->size() == 0) {
+        return;
+      }
+
+      std::vector<uint64_t> readyForRetrievalIds = std::move(*(Runtime::readyForRetrieval_[slaveId.GetValue()]));
+      for (uint64_t i = 0; i < readyForRetrievalIds.size(); i++) {
+        std::stringstream ss;
+        ss << readyForRetrievalIds[i];
+        NAEEM_data data;
+        NAEEM_length dataLength;
+        NAEEM_os__read_file_with_path (
+          (NAEEM_path)(workDir_ + "/rfr").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          &data,
+          &dataLength
+        );
+        ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage =
+          new ::ir::ntnaeem::gate::transport::TransportMessage;
+        transportMessage->Deserialize(data, dataLength);
+        free(data);
+        out.Add(transportMessage);
+        uint16_t status = 
+          (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___RetrievedButNotAcked;
+        NAEEM_os__write_to_file (
+          (NAEEM_path)(workDir_ + "/s").c_str(), 
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_data)(&status),
+          sizeof(status)
+        );
+        Runtime::states_[readyForRetrievalIds[i]] = status;
+        NAEEM_os__move_file (
+          (NAEEM_path)(workDir_ + "/rfr").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_path)(workDir_ + "/rna").c_str(),
+          (NAEEM_string)ss.str().c_str()
+        );
+        uint64_t currentTime = time(NULL);
+        NAEEM_os__write_to_file (
+          (NAEEM_path)(workDir_ + "/rnat").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_data)&currentTime,
+          sizeof(currentTime)
+        );
+        if (Runtime::retrievedButNotAcked_.find(slaveId.GetValue()) == Runtime::retrievedButNotAcked_.end()) {
+          Runtime::retrievedButNotAcked_.insert(
+            std::pair<uint32_t, std::map<uint64_t, uint64_t>*>(
+              slaveId.GetValue(), new std::map<uint64_t, uint64_t>()));
+        }
+        (*(Runtime::retrievedButNotAcked_[slaveId.GetValue()]))[readyForRetrievalIds[i]] = currentTime;
+      }      
     }
   }
   void

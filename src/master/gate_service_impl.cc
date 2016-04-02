@@ -22,15 +22,6 @@ namespace ir {
 namespace ntnaeem {
 namespace gate {
 namespace master {
-  // void
-  // PutInOutboxQueue(::ir::ntnaeem::gate::Message *message) {
-  //   // TODO: Serialize and persist the message for FT purposes
-  //   std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-  //   std::lock_guard<std::mutex> guard2(Runtime::outboxQueueLock_);
-  //   Runtime::outboxQueue_->Put(message);
-  //   std::cout << "Message is enqueued with id: " << message->GetId().GetValue() << std::endl;
-  //   // pthread_exit(NULL);
-  // }
   void
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
@@ -38,7 +29,6 @@ namespace master {
   }
   void
   GateServiceImpl::OnShutdown() {
-    // TODO: Called when service is shutting down.
   }
   void
   GateServiceImpl::Enqueue(
@@ -98,25 +88,6 @@ namespace master {
       ::naeem::hottentot::runtime::Logger::GetError() << "Error in enqueuing message." << std::endl;
       throw std::runtime_error("Enqueue error.");
     }
-    // {
-    //   std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
-    //   message.SetId(Runtime::messageIdCounter_);
-    //   out.SetValue(Runtime::messageIdCounter_);
-    //   Runtime::messageIdCounter_++;
-    // }
-    // // TODO: Select a thread from thread-pool
-    // ::ir::ntnaeem::gate::Message *newMessage = 
-    //   new ::ir::ntnaeem::gate::Message;
-    // newMessage->SetId(message.GetId());
-    // newMessage->SetLabel(message.GetLabel());
-    // newMessage->SetRelLabel(message.GetRelLabel());
-    // newMessage->SetRelId(message.GetRelId());
-    // newMessage->SetContent(message.GetContent());
-    // // ::naeem::hottentot::runtime::Utils::PrintArray("CONTENT", message.GetContent().GetValue(), message.GetContent().GetLength());
-    // // std::thread t(PutInOutboxQueue, newMessage);
-    // // t.detach();
-    // PutInOutboxQueue(newMessage);
-    // // Runtime::PrintStatus();
   }
   void
   GateServiceImpl::GetStatus(
@@ -196,7 +167,7 @@ namespace master {
                it != Runtime::poppedButNotAcked_[label.ToStdString()]->end();
                it++) {
             uint64_t currentTime = time(NULL);
-            if ((currentTime - it->second) > 10) {
+            if ((currentTime - it->second) > 60) {
               messageId = it->first;
               messageIsChosen = true;
               break;
