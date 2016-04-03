@@ -26,11 +26,11 @@ namespace slave {
     static bool termSignal_;
     static bool slaveThreadTerminated_;
 
-    static uint64_t outboxMessageCounter_;
-    static uint64_t inboxMessageCounter_;
     static uint64_t messageIdCounter_;
-    static uint64_t transmittedCounter_;
-    static uint64_t transmissionFailureCounter_;
+    static uint64_t enqueuedTotalCounter_;
+    static uint64_t readyForPopTotalCounter_;
+    static uint64_t transmittedTotalCounter_;
+    static uint64_t transmissionFailureTotalCounter_;
     
     static std::mutex termSignalLock_;
     static std::mutex messageIdCounterLock_;
@@ -42,7 +42,7 @@ namespace slave {
     static std::map<std::string, std::vector<uint64_t>*> inbox_;
     static std::vector<uint64_t> outbox_;
 
-    //static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
+    // static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
     // static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
     // static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
     // static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *failedQueue_;

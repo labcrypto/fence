@@ -232,12 +232,12 @@ namespace slave {
                               "WARNING: Enqueud file did not exist for deletion, id was " << 
                                 ss.str() << std::endl;
                           }
-                          Runtime::transmittedCounter_++;
+                          Runtime::transmittedTotalCounter_++;
                           NAEEM_os__write_to_file (
                             (NAEEM_path)workDir.c_str(), 
-                            (NAEEM_string)"tco", 
-                            (NAEEM_data)&(Runtime::transmittedCounter_), 
-                            (NAEEM_length)sizeof(Runtime::transmittedCounter_)
+                            (NAEEM_string)"ttco", 
+                            (NAEEM_data)&(Runtime::transmittedTotalCounter_), 
+                            (NAEEM_length)sizeof(Runtime::transmittedTotalCounter_)
                           );
                           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                             ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent successfully: slaveId(" << 
@@ -279,12 +279,12 @@ namespace slave {
                               "WARNING: Enqueud file did not exist for deletion, id was " << 
                                 ss.str() << std::endl;
                           }
-                          Runtime::transmissionFailureCounter_++;
+                          Runtime::transmissionFailureTotalCounter_++;
                           NAEEM_os__write_to_file (
                             (NAEEM_path)workDir.c_str(), 
-                            (NAEEM_string)"fco", 
-                            (NAEEM_data)&(Runtime::transmissionFailureCounter_), 
-                            (NAEEM_length)sizeof(Runtime::transmissionFailureCounter_)
+                            (NAEEM_string)"ftco", 
+                            (NAEEM_data)&(Runtime::transmissionFailureTotalCounter_), 
+                            (NAEEM_length)sizeof(Runtime::transmissionFailureTotalCounter_)
                           );
                           ::naeem::hottentot::runtime::Logger::GetError() << "Message is NOT enqueued: slaveId(" << 
                             enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
@@ -304,80 +304,77 @@ namespace slave {
                  * Receive queued messages from Master Gate
                  */
                 {
-                //   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                //     ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
-                //   }
-                //   ::naeem::hottentot::runtime::types::List< 
-                //     ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
-                //   ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
-                //   transportProxy->Retrieve(slaveId, transportMessages);
-                //   ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << 
-                //     transportMessages.Size() << " messages" << std::endl;
-                //   for (uint32_t i = 0; i < transportMessages.Size(); i++) {
-                //     ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = transportMessages.Get(i);
-                //     /*
-                //      * Building up received message object
-                //      */
-                //     ::ir::ntnaeem::gate::Message *message = new ::ir::ntnaeem::gate::Message;
-                //     {
-                //       std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
-                //       message->SetId(Runtime::messageIdCounter_);
-                //       Runtime::messageIdCounter_++;
-                //     }
-                //     message->SetRelId(transportMessage->GetRelMId());
-                //     message->SetLabel(transportMessage->GetLabel());
-                //     message->SetRelLabel(transportMessage->GetRelLabel());
-                //     message->SetContent(transportMessage->GetContent());
-                  //   /*
-                  //    * Persisting message object
-                  //    */
-                  //   NAEEM_data data;
-                  //   NAEEM_length dataLength;
-                  //   data = message->Serialize(&dataLength);
-                  //   std::stringstream ss;
-                  //   ss << message->GetId().GetValue();
-                  //   uint16_t status = (uint16_t)kMessageStatus___ReadyForPop;
-                  //   NAEEM_os__write_to_file (
-                  //     (NAEEM_path)(workDir + "/s").c_str(), 
-                  //     (NAEEM_string)ss.str().c_str(),
-                  //     (NAEEM_data)(&status),
-                  //     sizeof(status)
-                  //   );
-                  //   NAEEM_os__write_to_file (
-                  //     (NAEEM_path)(workDir + "/r").c_str(), 
-                  //     (NAEEM_string)ss.str().c_str(),
-                  //     data,
-                  //     dataLength
-                  //   );
-                  //   delete [] data;
-                  //   delete message;
-                  //   /*
-                  //    * Updating total inbox counter
-                  //    */
-                  //   Runtime::inboxMessageCounter_++;
-                  //   NAEEM_os__write_to_file (
-                  //     (NAEEM_path)workDir.c_str(), 
-                  //     (NAEEM_string)"imco", 
-                  //     (NAEEM_data)&(Runtime::inboxMessageCounter_), 
-                  //     (NAEEM_length)sizeof(Runtime::inboxMessageCounter_)
-                  //   );
-                  //   transportMessages.Purge();
-                  // }
-                  /* ::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> acks;
+                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                    ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
+                  }
+                  ::naeem::hottentot::runtime::types::List< 
+                    ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
+                  ::naeem::hottentot::runtime::types::List< 
+                    ::naeem::hottentot::runtime::types::UInt64> acks;
+                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                    ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
+                  }
+                  transportProxy->Retrieve(slaveId, transportMessages);
+                  if (::naeem::hottentot::runtime::Configuration::Verbose() || transportMessages.Size() > 0) {
+                    ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << 
+                      transportMessages.Size() << " messages" << std::endl;
+                  }
                   for (uint32_t i = 0; i < transportMessages.Size(); i++) {
                     ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = transportMessages.Get(i);
+                    /*
+                     * Building up received message object
+                     */
                     ::ir::ntnaeem::gate::Message *message = new ::ir::ntnaeem::gate::Message;
                     {
-                      std::lock_guard<std::mutex> guard(Runtime::counterLock_);
-                      message->SetId(Runtime::messageCounter_);
-                      Runtime::messageCounter_++;
+                      std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
+                      message->SetId(Runtime::messageIdCounter_);
+                      Runtime::messageIdCounter_++;
+                      NAEEM_os__write_to_file (
+                        (NAEEM_path)workDir.c_str(), 
+                        (NAEEM_string)"mco", 
+                        (NAEEM_data)&(Runtime::messageIdCounter_), 
+                        (NAEEM_length)sizeof(Runtime::messageIdCounter_)
+                      );
                     }
+                    uint64_t messageId = message->GetId().GetValue();
                     message->SetRelId(transportMessage->GetRelMId());
                     message->SetLabel(transportMessage->GetLabel());
-                    message->SetRelLabel(transportMessage->GetRelLabel());
                     message->SetContent(transportMessage->GetContent());
-                    Runtime::inboxQueue_->Put(message->GetLabel().ToStdString(), message);
+                    /*
+                     * Persisting message object
+                     */
+                    std::stringstream ss;
+                    ss << messageId;
+                    uint16_t status = (uint16_t)kMessageStatus___ReadyForPop;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)(workDir + "/s").c_str(), 
+                      (NAEEM_string)ss.str().c_str(),
+                      (NAEEM_data)(&status),
+                      sizeof(status)
+                    );
+                    Runtime::states_[messageId] = status;
+                    NAEEM_data data;
+                    NAEEM_length dataLength;
+                    data = message->Serialize(&dataLength);
+                    delete message;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)(workDir + "/r").c_str(), 
+                      (NAEEM_string)ss.str().c_str(),
+                      data,
+                      dataLength
+                    );
+                    delete [] data;
                     acks.Add(new ::naeem::hottentot::runtime::types::UInt64(transportMessage->GetMasterMId().GetValue()));
+                    /*
+                     * Updating total inbox counter
+                     */
+                    Runtime::readyForPopTotalCounter_++;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)workDir.c_str(), 
+                      (NAEEM_string)"rfptco", 
+                      (NAEEM_data)&(Runtime::readyForPopTotalCounter_), 
+                      (NAEEM_length)sizeof(Runtime::readyForPopTotalCounter_)
+                    );
                   }
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Sending acks ..." << std::endl;
@@ -385,7 +382,9 @@ namespace slave {
                   transportProxy->Ack(acks);
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << "Messages are retrieved." << std::endl;
-                  } */
+                  }
+                  transportMessages.Purge();
+                  acks.Purge();
                 }
                 /*
                  * Disconnect from Master Gate

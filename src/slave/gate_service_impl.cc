@@ -53,6 +53,12 @@ namespace slave {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pna").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pna").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pnat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pnat").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/pat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/pat").c_str());
+    }
     /*
      * Reading message id counter file
      */
@@ -75,80 +81,80 @@ namespace slave {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
     }
     /*
-     * Reading inbox message counter file
+     * Reading ready for pop total counter file
      */
-    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"imco")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"rfptco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"imco",
+        (NAEEM_string)"rfptco",
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::inboxMessageCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::inboxMessageCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::readyForPopTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::readyForPopTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Inbox Message Counter value is " << Runtime::inboxMessageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Inbox Message Counter is set to " << Runtime::inboxMessageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
     }
     /*
-     * Reading outbox message counter file
+     * Reading enqueued total counter file
      */
-    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"omco")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"etco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"omco",
+        (NAEEM_string)"etco",
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::outboxMessageCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::outboxMessageCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::enqueuedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::enqueuedTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Outbox Message Counter value is " << Runtime::outboxMessageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Enqueued Total Counter value is " << Runtime::enqueuedTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Outbox Message Counter is set to " << Runtime::outboxMessageCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
     }
     /*
-     * Reading transmitted counter
+     * Reading transmitted total counter
      */
-    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"tco")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"ttco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"tco",
+        (NAEEM_string)"ttco",
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmittedCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::transmittedCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmittedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::transmittedTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmitted Counter value is " << Runtime::transmittedCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmitted Total Counter value is " << Runtime::transmittedTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmitted Counter is set to " << Runtime::transmittedCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmitted Total Counter is set to " << Runtime::transmittedTotalCounter_ << std::endl;
     }
     /*
-     * Reading transmission failure counter
+     * Reading transmission failure total counter
      */
-    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"fco")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"ftco")) {
       NAEEM_os__read_file_with_path (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"fco",
+        (NAEEM_string)"ftco",
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmissionFailureCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::transmissionFailureCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::transmissionFailureTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::transmissionFailureTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmission Failure Counter value is " << Runtime::transmissionFailureCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmission Failure Total Counter value is " << Runtime::transmissionFailureTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmission Failure Counter is set to " << Runtime::transmissionFailureCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmission Failure Total Counter is set to " << Runtime::transmissionFailureTotalCounter_ << std::endl;
     }
     /*
      * Reading states
@@ -256,12 +262,12 @@ namespace slave {
         (NAEEM_data)(&status),
         sizeof(status)
       );
-      Runtime::outboxMessageCounter_++;
+      Runtime::enqueuedTotalCounter_++;
       NAEEM_os__write_to_file (
         (NAEEM_path)workDir_.c_str(), 
-        (NAEEM_string)"omco", 
-        (NAEEM_data)&(Runtime::outboxMessageCounter_), 
-        (NAEEM_length)sizeof(Runtime::outboxMessageCounter_)
+        (NAEEM_string)"etco", 
+        (NAEEM_data)&(Runtime::enqueuedTotalCounter_), 
+        (NAEEM_length)sizeof(Runtime::enqueuedTotalCounter_)
       );
       Runtime::outbox_.push_back(message.GetId().GetValue());
       Runtime::states_[message.GetId().GetValue()] = status;

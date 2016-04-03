@@ -11,11 +11,11 @@ namespace slave {
   bool Runtime::termSignal_;
   bool Runtime::slaveThreadTerminated_;
 
-  uint64_t Runtime::inboxMessageCounter_ = 0;
-  uint64_t Runtime::outboxMessageCounter_ = 0;
   uint64_t Runtime::messageIdCounter_ = 0;
-  uint64_t Runtime::transmittedCounter_ = 0;
-  uint64_t Runtime::transmissionFailureCounter_ = 0;
+  uint64_t Runtime::enqueuedTotalCounter_ = 0;
+  uint64_t Runtime::readyForPopTotalCounter_ = 0;
+  uint64_t Runtime::transmittedTotalCounter_ = 0;
+  uint64_t Runtime::transmissionFailureTotalCounter_ = 0;
 
   std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
@@ -37,11 +37,11 @@ namespace slave {
     termSignal_ = false;
     slaveThreadTerminated_ = false;
 
-    inboxMessageCounter_ = 0;
-    outboxMessageCounter_ = 0;
     messageIdCounter_ = 1000;
-    transmittedCounter_ = 0;
-    transmissionFailureCounter_ = 0;
+    enqueuedTotalCounter_ = 0;
+    readyForPopTotalCounter_ = 0;
+    transmittedTotalCounter_ = 0;
+    transmissionFailureTotalCounter_ = 0;
 
     // inboxQueue_ = new LabelQueueMap< ::ir::ntnaeem::gate::Message>;
     // outboxQueue_ = new Bag< ::ir::ntnaeem::gate::Message>;
@@ -70,17 +70,18 @@ namespace slave {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
-    ss << "# TOTAL RECEIVED: " << inboxMessageCounter_ << std::endl;
-    ss << "# RECEIVED LABELS: " << Runtime::inbox_.size() << std::endl;
+    /*ss << "# RECEIVED LABELS: " << Runtime::inbox_.size() << std::endl;
     for (std::map<std::string, std::vector<uint64_t>*>::iterator it = Runtime::inbox_.begin();
          it != Runtime::inbox_.end();
          it++) {
       ss << "  # LABEL['" << it->first << "']: " << it->second->size() << std::endl;
-    }
-    ss << "# TOTAL ENQUEUED: " << outboxMessageCounter_ << std::endl;
-    ss << "# TRANSMITTED: " << Runtime::transmittedCounter_ << std::endl;
+    }*/
     ss << "# WAITING FOR TRANSMISSION: " << Runtime::outbox_.size() << std::endl;
-    ss << "# TRANSMISSION FAILURE: " << Runtime::transmissionFailureCounter_<< std::endl;
+    ss << "---" << std::endl;
+    ss << "# TOTAL ENQUEUED: " << enqueuedTotalCounter_ << std::endl;
+    ss << "# TOTAL TRANSMITTED: " << Runtime::transmittedTotalCounter_ << std::endl;
+    ss << "# TOTAL TRANSMISSION FAILURE: " << Runtime::transmissionFailureTotalCounter_<< std::endl;
+    ss << "# TOTAL READY FOR POP: " << readyForPopTotalCounter_ << std::endl;
     ss << "------------------------------" << std::endl;
     return ss.str();
   }
