@@ -58,6 +58,9 @@ namespace master {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rnat").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rnat").c_str());
     }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rat").c_str());
+    }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir_ + "/rf").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir_ + "/rf").c_str());
     }
@@ -235,6 +238,25 @@ namespace master {
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueue Failed Total Counter is set to " << Runtime::enqueueFailedTotalCounter_ << std::endl;
+    }
+    /*
+     * Reading retrieved and acked total counter file
+     */
+    if (NAEEM_os__file_exists((NAEEM_path)workDir_.c_str(), (NAEEM_string)"ratco")) {
+      NAEEM_os__read_file_with_path (
+        (NAEEM_path)workDir_.c_str(), 
+        (NAEEM_string)"ratco",
+        &temp, 
+        &tempLength
+      );
+      NAEEM_data ptr = (NAEEM_data)&(Runtime::retrievedAndAckedTotalCounter_);
+      for (uint32_t i = 0; i < sizeof(Runtime::retrievedAndAckedTotalCounter_); i++) {
+        ptr[i] = temp[i];
+      }
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Retrieved And Acked Total Counter value is " << Runtime::retrievedAndAckedTotalCounter_ << std::endl;
+      free(temp);
+    } else {
+      ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieved And Acked Total Counter is set to " << Runtime::retrievedAndAckedTotalCounter_ << std::endl;
     }
     /*
      * Reading states
@@ -445,12 +467,12 @@ namespace master {
             (NAEEM_data)(&popTime),
             0
           );
-          uint32_t slaveId;
-          NAEEM_os__read_file3 (
+          uint32_t slaveId = transportMessage.GetSlaveId().GetValue();
+          /* NAEEM_os__read_file3 (
             (NAEEM_path)(workDir_ + "/ss/" + filenames[i] + ".slaveid").c_str(),
             (NAEEM_data)(&slaveId),
             0
-          );
+          ); */
           if (Runtime::retrievedButNotAcked_.find(slaveId) == 
                 Runtime::retrievedButNotAcked_.end()) {
             Runtime::retrievedButNotAcked_.insert(
@@ -562,9 +584,6 @@ namespace master {
           }
           enqueueReport->SetFailed(false);
           enqueueReport->SetErrorMessage("");
-          /* if ((i % 2) == 0) {
-            throw std::runtime_error("Simulated exception.");
-          } */
         } catch (std::exception &e) {
           enqueueReport->SetFailed(true);
           enqueueReport->SetErrorMessage(e.what());
@@ -573,7 +592,6 @@ namespace master {
           enqueueReport->SetErrorMessage("Arrival failed.");
         }
         out.Add(enqueueReport);
-        // ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
       }
     }
   }
@@ -634,7 +652,6 @@ namespace master {
       if (Runtime::readyForRetrieval_[slaveId.GetValue()]->size() == 0) {
         return;
       }
-
       std::vector<uint64_t> readyForRetrievalIds = std::move(*(Runtime::readyForRetrieval_[slaveId.GetValue()]));
       for (uint64_t i = 0; i < readyForRetrievalIds.size(); i++) {
         std::stringstream ss;
@@ -691,7 +708,61 @@ namespace master {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "TransportServiceImpl::Ack() is called." << std::endl;
     }
-    // TODO
+    for (uint32_t i = 0; i < masterMIds.Size(); i++) {
+      uint64_t messageId = masterMIds.Get(i)->GetValue();
+      std::stringstream ss;
+      ss << messageId;
+      if (NAEEM_os__file_exists (
+            (NAEEM_path)(workDir_ + "/rna").c_str(), 
+            (NAEEM_string)ss.str().c_str()
+          )
+      ) {
+        NAEEM_data data;
+        NAEEM_length dataLength;
+        NAEEM_os__read_file_with_path (
+          (NAEEM_path)(workDir_ + "/rna").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          &data,
+          &dataLength
+        );
+        ::ir::ntnaeem::gate::transport::TransportMessage transportMessage;
+        transportMessage.Deserialize(data, dataLength);
+        free(data);
+        if (Runtime::retrievedButNotAcked_.find(transportMessage.GetSlaveId().GetValue()) 
+              != Runtime::retrievedButNotAcked_.end()) {
+          Runtime::retrievedButNotAcked_[transportMessage.GetSlaveId().GetValue()]->erase(messageId);
+        }
+        uint16_t status = 
+          (uint16_t)::ir::ntnaeem::gate::transport::kTransportMessageStatus___RetrievedAndAcked;
+        NAEEM_os__write_to_file (
+          (NAEEM_path)(workDir_ + "/s").c_str(), 
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_data)(&status),
+          sizeof(status)
+        );
+        Runtime::states_[messageId] = status;
+        NAEEM_os__move_file (
+          (NAEEM_path)(workDir_ + "/rna").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_path)(workDir_ + "/ra").c_str(),
+          (NAEEM_string)ss.str().c_str()
+        );
+        uint64_t currentTime = time(NULL);
+        NAEEM_os__write_to_file (
+          (NAEEM_path)(workDir_ + "/rat").c_str(),
+          (NAEEM_string)ss.str().c_str(),
+          (NAEEM_data)&currentTime,
+          sizeof(currentTime)
+        );
+        Runtime::retrievedAndAckedTotalCounter_++;
+        NAEEM_os__write_to_file (
+          (NAEEM_path)workDir_.c_str(), 
+          (NAEEM_string)"ratco", 
+          (NAEEM_data)&(Runtime::retrievedAndAckedTotalCounter_), 
+          (NAEEM_length)sizeof(Runtime::retrievedAndAckedTotalCounter_)
+        );
+      }
+    }
   }
   void
   TransportServiceImpl::GetStatus(

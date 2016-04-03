@@ -118,7 +118,7 @@ namespace master {
          it++) {
       sumOfRetrievedButNotAcked += it->second->size();
     }
-    ss << "# RERIEVED BUT NOT ACKED: " << sumOfRetrievedButNotAcked << std::endl;
+    ss << "# RETRIEVED BUT NOT ACKED: " << sumOfRetrievedButNotAcked << std::endl;
     for (std::map<uint32_t, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::retrievedButNotAcked_.begin();
          it != Runtime::retrievedButNotAcked_.end();
          it++) {
@@ -131,6 +131,7 @@ namespace master {
     ss << "# TOTAL ENQUEUED: " << Runtime::enqueuedTotalCounter_ << std::endl;
     ss << "# TOTAL ENQUEUE FAILED: " << Runtime::enqueueFailedTotalCounter_ << std::endl;
     ss << "# TOTAL READY FOR RETRIEVAL: " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
+    ss << "# TOTAL RETRIEVED AND ACKED: " << Runtime::retrievedAndAckedTotalCounter_ << std::endl;
     ss << "------------------------------" << std::endl;
     return ss.str();
   }

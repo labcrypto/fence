@@ -87,7 +87,6 @@ namespace master {
            */
           {
             std::vector<uint64_t> arrivedIds = std::move(Runtime::arrived_);
-            // std::vector<ir::ntnaeem::gate::transport::TransportMessage*> inboxTransportMessages;
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << "Number of transport inbox messages: " << arrivedIds.size() << std::endl;
             }
@@ -256,12 +255,12 @@ namespace master {
                     (NAEEM_data)&slaveId,
                     0
                   );
-                  NAEEM_os__write_to_file (
+                  /* NAEEM_os__write_to_file (
                     (NAEEM_path)(workDir + "/ss").c_str(), 
                     (NAEEM_string)(ss.str() + ".slaveid").c_str(),
                     (NAEEM_data)(&slaveId),
                     sizeof(slaveId)
-                  );
+                  ); */
                   if (NAEEM_os__file_exists (
                         (NAEEM_path)(workDir + "/ss").c_str(),
                         (NAEEM_string)(rss.str() + ".slavemid").c_str()
@@ -354,36 +353,6 @@ namespace master {
                 // TODO: Message file does not exist.
               }
             }
-            /* std::vector<ir::ntnaeem::gate::Message*> outboxMessages = 
-              Runtime::outboxQueue_->PopAll();
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Number of outbox messages: " << outboxMessages.size() << std::endl;
-            }
-            for (uint32_t i = 0; i < outboxMessages.size(); i++) {
-              ::ir::ntnaeem::gate::Message *outboxMessage = 
-                outboxMessages[i];
-              if (Runtime::slaveMessageMap_.find(outboxMessage->GetRelId().GetValue()) == Runtime::slaveMessageMap_.end() ||
-                  Runtime::masterIdToSlaveIdMap_.find(Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]) == Runtime::masterIdToSlaveIdMap_.end() ||
-                  Runtime::masterIdToSlaveIdMap_[Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]]->find(outboxMessage->GetRelId().GetValue()) == Runtime::masterIdToSlaveIdMap_[Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]]->end()) {
-                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  ::naeem::hottentot::runtime::Logger::GetOut() << "Outbox message is dropped." << std::endl;
-                }
-                continue;
-              }
-              ::ir::ntnaeem::gate::transport::TransportMessage *outboxTransportMessage =
-                new ::ir::ntnaeem::gate::transport::TransportMessage;
-              outboxTransportMessage->SetMasterMId(outboxMessage->GetId());
-              outboxTransportMessage->SetSlaveId(Runtime::slaveMessageMap_[outboxMessage->GetRelId().GetValue()]);
-              outboxTransportMessage->SetSlaveMId(0);
-              outboxTransportMessage->SetRelMId(Runtime::masterIdToSlaveIdMap_[outboxTransportMessage->GetSlaveId().GetValue()]->at(outboxMessage->GetRelId().GetValue()));
-              outboxTransportMessage->SetRelLabel(outboxMessage->GetRelLabel());
-              outboxTransportMessage->SetLabel(outboxMessage->GetLabel());
-              outboxTransportMessage->SetContent(outboxMessage->GetContent());
-              Runtime::transportOutboxQueue_->Put(outboxTransportMessage->GetSlaveId().GetValue(), outboxTransportMessage);
-            }
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Messages moved from gate outbox to transport outbox." << std::endl;
-            } */
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is released." << std::endl;
