@@ -292,7 +292,9 @@ namespace slave {
                         }
                       }
                     } else {
-                      // TODO: Enqueue failed.
+                      for (uint32_t i = 0; i < outboxIds.size(); i++) {
+                        Runtime::outbox_.push_back(outboxIds[i]);
+                      }
                     }
                     enqueueReports.Purge();
                     transportMessages.Purge();
@@ -302,30 +304,30 @@ namespace slave {
                  * Receive queued messages from Master Gate
                  */
                 {
-                  // if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  //   ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
-                  // }
-                  // ::naeem::hottentot::runtime::types::List< 
-                  //   ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
-                  // ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
-                  // transportProxy->Retrieve(slaveId, transportMessages);
-                  // ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << 
-                  //   transportMessages.Size() << " messages" << std::endl;
-                  // for (uint32_t i = 0; i < transportMessages.Size(); i++) {
-                  //   ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = transportMessages.Get(i);
-                  //   /*
-                  //    * Building up received message object
-                  //    */
-                  //   ::ir::ntnaeem::gate::Message *message = new ::ir::ntnaeem::gate::Message;
-                  //   {
-                  //     std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
-                  //     message->SetId(Runtime::messageIdCounter_);
-                  //     Runtime::messageIdCounter_++;
-                  //   }
-                  //   message->SetRelId(transportMessage->GetRelMId());
-                  //   message->SetLabel(transportMessage->GetLabel());
-                  //   message->SetRelLabel(transportMessage->GetRelLabel());
-                  //   message->SetContent(transportMessage->GetContent());
+                //   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                //     ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
+                //   }
+                //   ::naeem::hottentot::runtime::types::List< 
+                //     ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
+                //   ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
+                //   transportProxy->Retrieve(slaveId, transportMessages);
+                //   ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << 
+                //     transportMessages.Size() << " messages" << std::endl;
+                //   for (uint32_t i = 0; i < transportMessages.Size(); i++) {
+                //     ::ir::ntnaeem::gate::transport::TransportMessage *transportMessage = transportMessages.Get(i);
+                //     /*
+                //      * Building up received message object
+                //      */
+                //     ::ir::ntnaeem::gate::Message *message = new ::ir::ntnaeem::gate::Message;
+                //     {
+                //       std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
+                //       message->SetId(Runtime::messageIdCounter_);
+                //       Runtime::messageIdCounter_++;
+                //     }
+                //     message->SetRelId(transportMessage->GetRelMId());
+                //     message->SetLabel(transportMessage->GetLabel());
+                //     message->SetRelLabel(transportMessage->GetRelLabel());
+                //     message->SetContent(transportMessage->GetContent());
                   //   /*
                   //    * Persisting message object
                   //    */

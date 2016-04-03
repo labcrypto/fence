@@ -38,6 +38,7 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
     );
   private:
+    uint32_t ackTimeout_;
     std::string workDir_;
   };
 } // END OF NAMESPACE master

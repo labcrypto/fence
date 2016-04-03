@@ -25,6 +25,7 @@ namespace master {
   void
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
+    ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "ack_timeout");
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void
@@ -98,7 +99,27 @@ namespace master {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
-    // TODO
+    std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
+    if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
+      std::stringstream filePath;
+      filePath << id.GetValue();
+      if (NAEEM_os__file_exists(
+            (NAEEM_path)(workDir_ + "/s").c_str(), 
+            (NAEEM_string)filePath.str().c_str()
+          )
+        ) {
+        uint16_t status = 0;
+        NAEEM_os__read_file3 (
+          (NAEEM_path)(workDir_ + "/s/" + filePath.str()).c_str(),
+          (NAEEM_data)&status,
+          0
+        );
+        Runtime::states_.insert(std::pair<uint64_t, uint16_t>(id.GetValue(), status));
+      } else {
+        throw std::runtime_error("Message id is not found.");
+      }
+    }
+    out.SetValue(Runtime::states_[id.GetValue()]);
   }
   void
   GateServiceImpl::Discard(
@@ -167,7 +188,7 @@ namespace master {
                it != Runtime::poppedButNotAcked_[label.ToStdString()]->end();
                it++) {
             uint64_t currentTime = time(NULL);
-            if ((currentTime - it->second) > 60) {
+            if ((currentTime - it->second) > ackTimeout_) {
               messageId = it->first;
               messageIsChosen = true;
               break;

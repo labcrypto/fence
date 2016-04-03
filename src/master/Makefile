@@ -55,3 +55,4 @@ tools:
 	make -C enq
 	make -C ack
 	make -C spop
+	make -C sack

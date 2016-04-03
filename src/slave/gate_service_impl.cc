@@ -25,6 +25,7 @@ namespace slave {
   void
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
+    ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("slave", "ack_timeout");
     /*
      * Make directories
      */

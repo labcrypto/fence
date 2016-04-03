@@ -56,6 +56,11 @@ main(int argc, char **argv) {
         "ERROR: Configuration value 'slave.work_dir' is not found." << std::endl;
       exit(1);
     }
+    if (!::naeem::conf::ConfigManager::HasValue("slave", "ack_timeout")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'slave.ack_timeout' is not found." << std::endl;
+      exit(1);
+    }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "transfer_interval")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: Configuration value 'slave.transfer_interval' is not found." << std::endl;

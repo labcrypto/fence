@@ -72,6 +72,11 @@ main(int argc, char **argv) {
         "ERROR: Configuration value 'master.work_dir' is not found." << std::endl;
       exit(1);
     }
+    if (!::naeem::conf::ConfigManager::HasValue("master", "ack_timeout")) {
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "ERROR: Configuration value 'master.ack_timeout' is not found." << std::endl;
+      exit(1);
+    }
     if (!::naeem::conf::ConfigManager::HasValue("master", "transfer_interval")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
         "ERROR: Configuration value 'master.transfer_interval' is not found." << std::endl;
