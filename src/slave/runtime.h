@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <deque>
 
 #include <gate/message.h>
 #include <transport/transport_message.h>
@@ -29,24 +30,21 @@ namespace slave {
     static uint64_t messageIdCounter_;
     static uint64_t enqueuedTotalCounter_;
     static uint64_t readyForPopTotalCounter_;
+    static uint64_t poppedAndAckedTotalCounter_;
     static uint64_t transmittedTotalCounter_;
     static uint64_t transmissionFailureTotalCounter_;
     
     static std::mutex termSignalLock_;
     static std::mutex messageIdCounterLock_;
     static std::mutex mainLock_;
-    static std::mutex inboxLock_;
-    static std::mutex outboxLock_;
+    static std::mutex readyForPopLock_;
+    static std::mutex enqueueLock_;
     
     static std::map<uint64_t, uint16_t> states_;
     static std::map<std::string, std::vector<uint64_t>*> inbox_;
     static std::vector<uint64_t> outbox_;
-
-    // static LabelQueueMap< ::ir::ntnaeem::gate::Message> *inboxQueue_;
-    // static Bag< ::ir::ntnaeem::gate::Message> *outboxQueue_;
-    // static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *sentQueue_;
-    // static Bag< ::ir::ntnaeem::gate::transport::TransportMessage> *failedQueue_;
-    
+    static std::map<std::string, std::map<uint64_t, uint64_t>*> poppedButNotAcked_;
+    static std::map<std::string, std::deque<uint64_t>*> readyForPop_;
   };
 }
 }

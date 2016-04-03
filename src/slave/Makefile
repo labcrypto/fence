@@ -54,3 +54,6 @@ tools:
 	make -C stat
 	make -C mstat
 	make -C enq
+	make -C ack
+	make -C pop
+	

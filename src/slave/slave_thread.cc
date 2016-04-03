@@ -356,7 +356,6 @@ namespace slave {
                     NAEEM_data data;
                     NAEEM_length dataLength;
                     data = message->Serialize(&dataLength);
-                    delete message;
                     NAEEM_os__write_to_file (
                       (NAEEM_path)(workDir + "/r").c_str(), 
                       (NAEEM_string)ss.str().c_str(),
@@ -364,10 +363,16 @@ namespace slave {
                       dataLength
                     );
                     delete [] data;
-                    acks.Add(new ::naeem::hottentot::runtime::types::UInt64(transportMessage->GetMasterMId().GetValue()));
-                    /*
-                     * Updating total inbox counter
-                     */
+                    acks.Add(new ::naeem::hottentot::runtime::types::UInt64(
+                      transportMessage->GetMasterMId().GetValue()));
+                    if (Runtime::readyForPop_.find(message->GetLabel().ToStdString()) == 
+                          Runtime::readyForPop_.end()) {
+                      Runtime::readyForPop_.insert(std::pair<std::string, std::deque<uint64_t>*>
+                        (message->GetLabel().ToStdString(), new std::deque<uint64_t>()));
+                    }
+                    Runtime::readyForPop_[message->GetLabel().ToStdString()]
+                      ->push_back(messageId);
+                    delete message;
                     Runtime::readyForPopTotalCounter_++;
                     NAEEM_os__write_to_file (
                       (NAEEM_path)workDir.c_str(), 
