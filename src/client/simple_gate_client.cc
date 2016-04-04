@@ -66,11 +66,12 @@ namespace client {
         NAEEM_length dataLength;
         NAEEM_data data = message.Serialize(&dataLength);
         NAEEM_os__write_to_file (
-          (NAEEM_path)workDir.c_str(), 
+          (NAEEM_path)(workDir + "/w").c_str(), 
           (NAEEM_string)ss.str().c_str(), 
           data, 
           dataLength
         );
+        Runtime::waiting_.push_back(messageId);
       } catch (std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: " << e.what() << std::endl;
       } catch (...) {

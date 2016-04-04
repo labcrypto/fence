@@ -82,6 +82,7 @@ namespace client {
                 );
                 ::ir::ntnaeem::gate::Message message;
                 message.Deserialize(data, dataLength);
+                free(data);
                 ::ir::ntnaeem::gate::proxy::GateService *proxy = 
                   ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(host, port);
                 if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -92,7 +93,7 @@ namespace client {
                     ::naeem::hottentot::runtime::types::UInt64 id;
                     proxy->Enqueue(message, id);
                     uint64_t assignedId = id.GetValue();
-                    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+                    // ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy object is destroyed." << std::endl;
                     }
@@ -103,7 +104,7 @@ namespace client {
                       (NAEEM_string)ss.str().c_str()
                     );
                     NAEEM_os__write_to_file (
-                      (NAEEM_path)(workDir + "/w").c_str(),
+                      (NAEEM_path)(workDir + "/s").c_str(),
                       (NAEEM_string)(ss.str() + ".gid").c_str(),
                       (NAEEM_data)(&assignedId),
                       sizeof(assignedId)
