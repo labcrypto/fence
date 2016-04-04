@@ -10,26 +10,26 @@ libName=libnaeem-gate-client
 majorVersion=1
 minorVersion=0
 
-
 all:
 	mkdir -p .lib
 	rm -rfv .lib/*
 	
 	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/message.cc -o .lib/message.o
-	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/message_status.cc -o .lib/message_status.o
 	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/proxy/gate_service_proxy.cc -o .lib/gate_service_proxy.o
 	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/proxy/gate_service_proxy_builder.cc -o .lib/gate_service_proxy_builder.o
+
 	g++ $(cppflags) runtime.cc -o .lib/runtime.o
 	g++ $(cppflags) simple_gate_client.cc -o .lib/simple_gate_client.o
+	g++ $(cppflags) submitter_thread.cc -o .lib/submitter_thread.o
 
 	rm -rf .lib/$(libName).a.$(majorVersion).$(minorVersion)
 	ar -cq .lib/$(libName).a.$(majorVersion).$(minorVersion) \
          .lib/runtime.o \
          .lib/message.o \
-         .lib/message_status.o \
          .lib/gate_service_proxy.o \
          .lib/gate_service_proxy_builder.o \
-         .lib/simple_gate_client.o
+         .lib/simple_gate_client.o \
+         .lib/submitter_thread.o
 	cp -v .lib/$(libName).a.$(majorVersion).$(minorVersion) $(apiDir)/client/lib
 	rm -rf .lib/$(libName).a.$(majorVersion)
 	rm -rf .lib/$(libName).a 
@@ -44,10 +44,10 @@ all:
 	g++ -shared -Wl,-soname,$(libName).so.$(majorVersion) -o .lib/$(libName).so.$(majorVersion).$(minorVersion) \
       	 .lib/runtime.o \
          .lib/message.o \
-         .lib/message_status.o \
          .lib/gate_service_proxy.o \
          .lib/gate_service_proxy_builder.o \
-         .lib/simple_gate_client.o
+         .lib/simple_gate_client.o \
+         .lib/submitter_thread.o
 	cp -v .lib/$(libName).so.$(majorVersion).$(minorVersion) $(apiDir)/client/lib
 	rm -rf .lib/$(libName).so.$(majorVersion)
 	rm -rf .lib/$(libName).so
