@@ -34,7 +34,7 @@ namespace client {
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown();
   }
-  void 
+  uint64_t 
   SimpleGateClient::SubmitMessage(std::string label, unsigned char *data, uint32_t length) {
     if (!::naeem::conf::ConfigManager::HasValue("gate-client", "work_dir")) {
       std::cout << "ERROR: Value 'gate-client.work_dir' is not found in configurations." << std::endl;
@@ -78,6 +78,7 @@ namespace client {
         ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: Unknown error." << std::endl;
       }
     }
+    return messageId;
   }
 }
 }

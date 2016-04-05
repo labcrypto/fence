@@ -109,6 +109,14 @@ namespace client {
                       (NAEEM_data)(&assignedId),
                       sizeof(assignedId)
                     );
+                    std::stringstream css;
+                    css << assignedId;
+                    NAEEM_os__write_to_file (
+                      (NAEEM_path)(workDir + "/s").c_str(),
+                      (NAEEM_string)(css.str() + ".cid").c_str(),
+                      (NAEEM_data)(&messageId),
+                      sizeof(messageId)
+                    );
                     std::cout << "Sent." << std::endl;
                   } else {
                     throw std::runtime_error("Gate is not available.");
