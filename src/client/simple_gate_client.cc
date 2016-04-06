@@ -296,7 +296,7 @@ namespace client {
           );
           uint64_t currentTime = time(NULL);
           NAEEM_os__write_to_file (
-            (NAEEM_path)(workDir + "/pat").c_str(),
+            (NAEEM_path)(workDir + "/pnat").c_str(),
             (NAEEM_string)ss.str().c_str(),
             (NAEEM_data)&currentTime,
             sizeof(currentTime)

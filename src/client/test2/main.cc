@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
   gateClient->Init();
   std::vector<::naeem::gate::client::Message*> messages;
   messages = gateClient->GetMessages();
+  std::vector<uint64_t> ids;
   while (cont) {
     for (uint32_t i = 0; i < messages.size(); i++) {
       std::cout << "Id: '" << messages[i]->GetId() << "'" << std::endl;
@@ -46,8 +47,10 @@ int main(int argc, char **argv) {
       std::cout << "Label: '" << messages[i]->GetLabel() << "'" << std::endl;
       std::cout << messages[i]->GetContent() << std::endl;
       std::cout << "---------------------" << std::endl;
+      ids.push_back(messages[i]->GetId());
       delete messages[i];
     }
+    gateClient->Ack(ids);
     messages = gateClient->GetMessages();
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
