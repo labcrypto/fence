@@ -8,6 +8,7 @@ namespace ntnaeem {
 namespace gate {
 namespace slave {
   
+  bool Runtime::initialized_ = false;
   bool Runtime::termSignal_;
   bool Runtime::slaveThreadTerminated_;
 
@@ -32,12 +33,19 @@ namespace slave {
   
   void
   Runtime::Init() {
+    if (initialized_) {
+      return;
+    }
     termSignal_ = false;
     slaveThreadTerminated_ = false;
     messageIdCounter_ = 1000;
+    initialized_ = true;
   }
   void
   Runtime::Shutdown() {
+    if (!initialized_) {
+      return;
+    }
     for (std::map<std::string, std::vector<uint64_t>*>::iterator it = Runtime::inbox_.begin();
          it != Runtime::inbox_.end();
         ) {

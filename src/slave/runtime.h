@@ -24,6 +24,7 @@ namespace slave {
     static std::string GetCurrentStat();
   public:
     
+    static bool initialized_;
     static bool termSignal_;
     static bool slaveThreadTerminated_;
 
