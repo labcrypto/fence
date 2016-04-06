@@ -130,12 +130,20 @@ namespace client {
                 std::stringstream crss;
                 crss << message.GetRelId().GetValue();
                 uint64_t clientRelId;
-                NAEEM_os__read_file3 (
-                  (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
-                  (NAEEM_data)&clientRelId,
-                  0
-                );
-                clientMessage->SetRelId(clientRelId);
+                if (NAEEM_os__file_exists (
+                      (NAEEM_path)(workDir + "/s").c_str(),
+                      (NAEEM_string)(crss.str() + ".cid").c_str()
+                    )
+                ) {
+                  NAEEM_os__read_file3 (
+                    (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
+                    (NAEEM_data)&clientRelId,
+                    0
+                  );
+                  clientMessage->SetRelId (clientRelId);
+                } else {
+                  clientMessage->SetRelId (0);
+                }
               } else {
                 clientMessage->SetRelId(0);
               }
@@ -194,12 +202,20 @@ namespace client {
           std::stringstream crss;
           crss << message.GetRelId().GetValue();
           uint64_t clientRelId;
-          NAEEM_os__read_file3 (
-            (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
-            (NAEEM_data)&clientRelId,
-            0
-          );
-          clientMessage->SetRelId (clientRelId);
+          if (NAEEM_os__file_exists (
+                (NAEEM_path)(workDir + "/s").c_str(),
+                (NAEEM_string)(crss.str() + ".cid").c_str()
+              )
+          ) {
+            NAEEM_os__read_file3 (
+              (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
+              (NAEEM_data)&clientRelId,
+              0
+            );
+            clientMessage->SetRelId (clientRelId);
+          } else {
+            clientMessage->SetRelId (0);
+          }
         } else {
           clientMessage->SetRelId (0);
         }

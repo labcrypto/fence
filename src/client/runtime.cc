@@ -75,8 +75,8 @@ namespace client {
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pna").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir + "/pna").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pat").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pat").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pnat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pnat").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pa").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir + "/pa").c_str());
