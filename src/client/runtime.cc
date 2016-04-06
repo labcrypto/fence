@@ -11,7 +11,6 @@
 #include <naeem++/conf/config_manager.h>
 
 #include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/submitter_thread.h>
 
 
 namespace naeem {
@@ -26,7 +25,9 @@ namespace client {
   std::mutex Runtime::mainLock_;
 
   uint64_t Runtime::messageIdCounter_;
-  std::vector<uint64_t> Runtime::waiting_;
+  std::vector<uint64_t> Runtime::enqueued_;
+  std::vector<uint64_t> Runtime::received_;
+  std::vector<uint64_t> Runtime::poppedButNotAcked_;
 
   void
   Runtime::Init(int agrc, char **argv) {
@@ -50,11 +51,23 @@ namespace client {
     if (!NAEEM_os__dir_exists((NAEEM_path)workDir.c_str())) {
       NAEEM_os__mkdir((NAEEM_path)workDir.c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/w").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/w").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/e").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/e").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/a").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/a").c_str());
     }
     if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/s").c_str())) {
       NAEEM_os__mkdir((NAEEM_path)(workDir + "/s").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/r").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/r").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pna").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pna").c_str());
+    }
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pa").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pa").c_str());
     }
     /*
      * Reading message id counter file
@@ -83,18 +96,38 @@ namespace client {
     NAEEM_string_ptr filenames;
     NAEEM_length filenamesLength;
     NAEEM_os__enum_file_names (
-      (NAEEM_path)(workDir + "/w").c_str(),
+      (NAEEM_path)(workDir + "/e").c_str(),
       &filenames,
       &filenamesLength
     );
     for (uint32_t i = 0; i < filenamesLength; i++) {
       uint64_t messageId = atoll(filenames[i]);
-      Runtime::waiting_.push_back(messageId);
+      Runtime::enqueued_.push_back(messageId);
     }
     /*
-     * Starting submitter thread
+     * Reading received messages
      */
-    SubmitterThread::Start();
+    NAEEM_os__enum_file_names (
+      (NAEEM_path)(workDir + "/r").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      Runtime::received_.push_back(messageId);
+    }
+    /*
+     * Reading popped but not acked messages
+     */
+    NAEEM_os__enum_file_names (
+      (NAEEM_path)(workDir + "/pna").c_str(),
+      &filenames,
+      &filenamesLength
+    );
+    for (uint32_t i = 0; i < filenamesLength; i++) {
+      uint64_t messageId = atoll(filenames[i]);
+      Runtime::poppedButNotAcked_.push_back(messageId);
+    }
   }
   void
   Runtime::Shutdown() {
