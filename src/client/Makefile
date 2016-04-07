@@ -19,17 +19,21 @@ all:
 	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/proxy/gate_service_proxy_builder.cc -o .lib/gate_service_proxy_builder.o
 
 	g++ $(cppflags) runtime.cc -o .lib/runtime.o
-	g++ $(cppflags) simple_gate_client.cc -o .lib/simple_gate_client.o
+	g++ $(cppflags) default_message_receiver.cc -o .lib/default_message_receiver.o
+	g++ $(cppflags) default_message_submitter.cc -o .lib/default_message_submitter.o
 	g++ $(cppflags) submitter_thread.cc -o .lib/submitter_thread.o
+	g++ $(cppflags) receiver_thread.cc -o .lib/receiver_thread.o
 
 	rm -rf .lib/$(libName).a.$(majorVersion).$(minorVersion)
 	ar -cq .lib/$(libName).a.$(majorVersion).$(minorVersion) \
-         .lib/runtime.o \
          .lib/message.o \
          .lib/gate_service_proxy.o \
          .lib/gate_service_proxy_builder.o \
-         .lib/simple_gate_client.o \
-         .lib/submitter_thread.o
+         .lib/runtime.o \
+         .lib/default_message_receiver.o \
+         .lib/default_message_submitter.o \
+         .lib/submitter_thread.o \
+         .lib/receiver_thread.o
 	cp -v .lib/$(libName).a.$(majorVersion).$(minorVersion) $(apiDir)/client/lib
 	rm -rf .lib/$(libName).a.$(majorVersion)
 	rm -rf .lib/$(libName).a 
@@ -42,12 +46,14 @@ all:
 
 	rm -rf .lib/$(libName).so.$(majorVersion).$(minorVersion)
 	g++ -shared -Wl,-soname,$(libName).so.$(majorVersion) -o .lib/$(libName).so.$(majorVersion).$(minorVersion) \
-      	 .lib/runtime.o \
-         .lib/message.o \
+      	 .lib/message.o \
          .lib/gate_service_proxy.o \
          .lib/gate_service_proxy_builder.o \
-         .lib/simple_gate_client.o \
-         .lib/submitter_thread.o
+         .lib/runtime.o \
+         .lib/default_message_receiver.o \
+         .lib/default_message_submitter.o \
+         .lib/submitter_thread.o \
+         .lib/receiver_thread.o
 	cp -v .lib/$(libName).so.$(majorVersion).$(minorVersion) $(apiDir)/client/lib
 	rm -rf .lib/$(libName).so.$(majorVersion)
 	rm -rf .lib/$(libName).so

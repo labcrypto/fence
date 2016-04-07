@@ -9,19 +9,15 @@
 #include <naeem++/conf/config_manager.h>
 
 #include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/simple_gate_client.h>
+#include <naeem/gate/client/default_message_submitter.h>
 
 
 bool cont = true;
-::naeem::gate::client::GateClient *gateClient = NULL;
+::naeem::gate::client::MessageSubmitter *messageSubmitter = NULL;
 
 void 
 SigTermHanlder(int flag) {
-  if (gateClient) {
-    gateClient->Shutdown();
-    // delete gateClient;
-  }
-  ::naeem::conf::ConfigManager::Clear();
+  cont = false;
 }
 
 int main(int argc, char **argv) {
@@ -35,16 +31,27 @@ int main(int argc, char **argv) {
 
   std::string execDir = ::naeem::os::GetExecDir();
   ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/test1.conf");
-  gateClient = new ::naeem::gate::client::SimpleGateClient("hop", "hop-reply");
-  gateClient->Init();
+  std::string gateHost = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
+  uint16_t gatePort = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
+  std::string workDirPath = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+  messageSubmitter = 
+    new ::naeem::gate::client::DefaultMessageSubmitter (
+      gateHost, 
+      gatePort,
+      "test1-request",
+      workDirPath
+    );
+  messageSubmitter->Init();
   uint16_t i = 0;
   while (cont) {
-    gateClient->SubmitMessage((unsigned char *)"123456", 7);
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    messageSubmitter->SubmitMessage((unsigned char *)"123456", 7);
     i++;
-    // if (i == 5) {
-    //   break;
-    // }
+    std::this_thread::sleep_for(std::chrono::seconds(5));
   }
+  if (messageSubmitter) {
+    messageSubmitter->Shutdown();
+    delete messageSubmitter;
+  }
+  ::naeem::conf::ConfigManager::Clear();
   return 0;
 }

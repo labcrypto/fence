@@ -12,16 +12,15 @@
 
 #include <gate/message.h>
 
-#include <naeem/gate/client/simple_gate_client.h>
+#include <naeem/gate/client/default_message_receiver.h>
 #include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/submitter_thread.h>
 
 
 namespace naeem {
 namespace gate {
 namespace client {
   void 
-  SimpleGateClient::Init (
+  DefaultMessageReceiver::Init (
     int argc, 
     char **argv
   ) {
@@ -31,74 +30,23 @@ namespace client {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
     ::naeem::gate::client::Runtime::Init(argc, argv);
-    submitterThread_ = new SubmitterThread(enqueueLabel_, popLabel_);
-    submitterThread_->Start();
+    receiverThread_ = new ReceiverThread(gateHost_, gatePort_, popLabel_, workDirPath_);
+    receiverThread_->Start();
   }
   void 
-  SimpleGateClient::Shutdown() {
+  DefaultMessageReceiver::Shutdown() {
     ::naeem::gate::client::Runtime::Shutdown();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown();
-    delete submitterThread_;
-  }
-  uint64_t 
-  SimpleGateClient::SubmitMessage (
-    unsigned char *data, 
-    uint32_t length
-  ) {
-    if (!::naeem::conf::ConfigManager::HasValue("gate-client", "work_dir")) {
-      throw std::runtime_error("(2) ERROR: Value 'gate-client.work_dir' is not found in configurations.");
-    }
-    std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
-    uint64_t messageId;
-    {
-      std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
-      messageId = Runtime::messageIdCounter_;
-      Runtime::messageIdCounter_++;
-      NAEEM_os__write_to_file (
-        (NAEEM_path)workDir.c_str(), 
-        (NAEEM_string)"mco", 
-        (NAEEM_data)&(Runtime::messageIdCounter_), 
-        (NAEEM_length)sizeof(Runtime::messageIdCounter_)
-      );
-    }
-    std::stringstream ss;
-    ss << messageId;
-    {
-      std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      ::ir::ntnaeem::gate::Message message;
-      try {
-        message.SetId(0);
-        message.SetLabel(enqueueLabel_);
-        message.SetRelId(0);
-        message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, length));
-        NAEEM_length dataLength;
-        NAEEM_data data = message.Serialize(&dataLength);
-        NAEEM_os__write_to_file (
-          (NAEEM_path)(workDir + "/e").c_str(), 
-          (NAEEM_string)ss.str().c_str(), 
-          data, 
-          dataLength
-        );
-        delete [] data;
-        Runtime::enqueued_.push_back(messageId);
-      } catch (std::exception &e) {
-        ::naeem::hottentot::runtime::Logger::GetError() << 
-          "ERROR: " << e.what() << std::endl;
-      } catch (...) {
-        ::naeem::hottentot::runtime::Logger::GetError() << 
-          "ERROR: Unknown error." << std::endl;
-      }
-    }
-    return messageId;
+    delete receiverThread_;
   }
   std::vector<Message*>
-  SimpleGateClient::GetMessages () {
+  DefaultMessageReceiver::GetMessages () {
     if (!::naeem::conf::ConfigManager::HasValue("gate-client", "work_dir")) {
       throw std::runtime_error("(3) ERROR: Value 'gate-client.work_dir' is not found in configurations.");
     }
-    std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
-    uint32_t ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout");
+    /* std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+    uint32_t ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout"); */
     std::vector<Message*> messages;
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -114,7 +62,7 @@ namespace client {
               NAEEM_data data;
               NAEEM_length dataLength;
               NAEEM_os__read_file_with_path (
-                (NAEEM_path)(workDir + "/pna").c_str(),
+                (NAEEM_path)(workDirPath_ + "/pna").c_str(),
                 (NAEEM_string)ss.str().c_str(),
                 &data,
                 &dataLength
@@ -131,12 +79,12 @@ namespace client {
                 crss << message.GetRelId().GetValue();
                 uint64_t clientRelId;
                 if (NAEEM_os__file_exists (
-                      (NAEEM_path)(workDir + "/s").c_str(),
+                      (NAEEM_path)(workDirPath_ + "/s").c_str(),
                       (NAEEM_string)(crss.str() + ".cid").c_str()
                     )
                 ) {
                   NAEEM_os__read_file3 (
-                    (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
+                    (NAEEM_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
                     (NAEEM_data)&clientRelId,
                     0
                   );
@@ -158,7 +106,7 @@ namespace client {
               /* ------------------------------------------ */
               uint64_t currentTime = time(NULL);
               NAEEM_os__write_to_file (
-                (NAEEM_path)(workDir + "/pnat").c_str(),
+                (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
                 (NAEEM_string)ss.str().c_str(),
                 (NAEEM_data)&currentTime,
                 sizeof(currentTime)
@@ -186,7 +134,7 @@ namespace client {
         NAEEM_data data;
         NAEEM_length dataLength;
         NAEEM_os__read_file_with_path (
-          (NAEEM_path)(workDir + "/r").c_str(),
+          (NAEEM_path)(workDirPath_ + "/r").c_str(),
           (NAEEM_string)ss.str().c_str(),
           &data,
           &dataLength
@@ -203,12 +151,12 @@ namespace client {
           crss << message.GetRelId().GetValue();
           uint64_t clientRelId;
           if (NAEEM_os__file_exists (
-                (NAEEM_path)(workDir + "/s").c_str(),
+                (NAEEM_path)(workDirPath_ + "/s").c_str(),
                 (NAEEM_string)(crss.str() + ".cid").c_str()
               )
           ) {
             NAEEM_os__read_file3 (
-              (NAEEM_path)(workDir + "/s/" + crss.str() + ".cid").c_str(),
+              (NAEEM_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
               (NAEEM_data)&clientRelId,
               0
             );
@@ -229,20 +177,20 @@ namespace client {
         messages.push_back(clientMessage);
         /* ------------------------------------------ */
         NAEEM_os__copy_file (
-          (NAEEM_path)(workDir + "/r").c_str(),
+          (NAEEM_path)(workDirPath_ + "/r").c_str(),
           (NAEEM_string)ss.str().c_str(),
-          (NAEEM_path)(workDir + "/a").c_str(),
+          (NAEEM_path)(workDirPath_ + "/a").c_str(),
           (NAEEM_string)ss.str().c_str()
         );
         NAEEM_os__move_file (
-          (NAEEM_path)(workDir + "/r").c_str(),
+          (NAEEM_path)(workDirPath_ + "/r").c_str(),
           (NAEEM_string)ss.str().c_str(),
-          (NAEEM_path)(workDir + "/pna").c_str(),
+          (NAEEM_path)(workDirPath_ + "/pna").c_str(),
           (NAEEM_string)ss.str().c_str()
         );
         uint64_t currentTime = time(NULL);
         NAEEM_os__write_to_file (
-          (NAEEM_path)(workDir + "/pnat").c_str(),
+          (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
           (NAEEM_string)ss.str().c_str(),
           (NAEEM_data)&currentTime,
           sizeof(currentTime)
@@ -258,10 +206,10 @@ namespace client {
     return messages;
   }
   void
-  SimpleGateClient::Ack (
+  DefaultMessageReceiver::Ack (
     std::vector<uint64_t> ids
   ) {
-    std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+    // std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
       for (uint32_t i = 0; i < ids.size(); i++) {
@@ -269,14 +217,14 @@ namespace client {
         std::stringstream ss;
         ss << messageId;
         if (NAEEM_os__file_exists (
-              (NAEEM_path)(workDir + "/pna").c_str(), 
+              (NAEEM_path)(workDirPath_ + "/pna").c_str(), 
               (NAEEM_string)ss.str().c_str()
             )
         ) {
           NAEEM_data data;
           NAEEM_length dataLength;
           NAEEM_os__read_file_with_path (
-            (NAEEM_path)(workDir + "/pna").c_str(),
+            (NAEEM_path)(workDirPath_ + "/pna").c_str(),
             (NAEEM_string)ss.str().c_str(),
             &data,
             &dataLength
@@ -289,14 +237,14 @@ namespace client {
             Runtime::poppedButNotAcked_[popLabel_]->erase(messageId);
           }
           NAEEM_os__move_file (
-            (NAEEM_path)(workDir + "/pna").c_str(),
+            (NAEEM_path)(workDirPath_ + "/pna").c_str(),
             (NAEEM_string)ss.str().c_str(),
-            (NAEEM_path)(workDir + "/pa").c_str(),
+            (NAEEM_path)(workDirPath_ + "/pa").c_str(),
             (NAEEM_string)ss.str().c_str()
           );
           uint64_t currentTime = time(NULL);
           NAEEM_os__write_to_file (
-            (NAEEM_path)(workDir + "/pnat").c_str(),
+            (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
             (NAEEM_string)ss.str().c_str(),
             (NAEEM_data)&currentTime,
             sizeof(currentTime)
