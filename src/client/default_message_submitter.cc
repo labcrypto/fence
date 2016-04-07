@@ -1,4 +1,6 @@
 #include <sstream>
+#include <chrono>
+#include <thread>
 
 #include <naeem/os.h>
 
@@ -35,6 +37,19 @@ namespace client {
   }
   void 
   DefaultMessageSubmitter::Shutdown() {
+    {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      Runtime::termSignal_ = true;
+    }
+    std::cout << "Waiting for submitter thread to exit ..." << std::endl;
+    while (true) {
+      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
+      if (Runtime::submitterThreadTerminated_) {
+        std::cout << "Submitter thread exited." << std::endl;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
     ::naeem::gate::client::Runtime::Shutdown();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown();

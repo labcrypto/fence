@@ -5,8 +5,6 @@
 
 #include <naeem/os.h>
 
-#include <naeem++/conf/config_manager.h>
-
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
@@ -37,9 +35,6 @@ namespace client {
       (::naeem::gate::client::ReceiverThread*)(thisObject);
     bool cont = true;
     time_t lastTime = time(NULL);
-    /* std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
-    std::string host = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
-    uint32_t port = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port"); */
     while (cont) {
       try {
         if (cont) {
@@ -159,7 +154,7 @@ namespace client {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Slave thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-    Runtime::submitterThreadTerminated_ = true;
+    Runtime::receiverThreadTerminated_ = true;
     pthread_exit(NULL);
   }
 }

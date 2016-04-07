@@ -20,8 +20,9 @@ namespace gate {
 namespace client {
 
   bool Runtime::initialized_ = false;
-  bool Runtime::termSignal_;
-  bool Runtime::submitterThreadTerminated_;
+  bool Runtime::termSignal_ = false;
+  bool Runtime::submitterThreadTerminated_ = false;
+  bool Runtime::receiverThreadTerminated_ = false;
 
   std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
