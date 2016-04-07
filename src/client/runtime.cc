@@ -33,7 +33,7 @@ namespace client {
   std::map<std::string, std::map<uint64_t, uint64_t>*> Runtime::poppedButNotAcked_;
 
   void
-  Runtime::Init(int agrc, char **argv) {
+  Runtime::Init(std::string workDirPath, int agrc, char **argv) {
     if (!::naeem::conf::ConfigManager::HasValue("gate-client", "host")) {
       std::cout << "ERROR: Value 'gate-client.host' is not found in configurations." << std::endl;
       exit(1);
@@ -46,49 +46,48 @@ namespace client {
       std::cout << "(1) ERROR: Value 'gate-client.work_dir' is not found in configurations." << std::endl;
       exit(1);
     }
-    Runtime::messageIdCounter_ = 10;
-    std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
     if (initialized_) {
       return;
     }
+    Runtime::messageIdCounter_ = 10;
     /*
      * Make directories
      */
-    if (!NAEEM_os__dir_exists((NAEEM_path)workDir.c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)workDir.c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)workDirPath.c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)workDirPath.c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/e").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/e").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/e").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/e").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/a").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/a").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/a").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/a").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/s").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/s").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/s").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/s").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/r").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/r").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/r").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/r").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/ra").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/ra").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/ra").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/ra").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pna").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pna").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/pna").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/pna").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pnat").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pnat").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/pnat").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/pnat").c_str());
     }
-    if (!NAEEM_os__dir_exists((NAEEM_path)(workDir + "/pa").c_str())) {
-      NAEEM_os__mkdir((NAEEM_path)(workDir + "/pa").c_str());
+    if (!NAEEM_os__dir_exists((NAEEM_path)(workDirPath + "/pa").c_str())) {
+      NAEEM_os__mkdir((NAEEM_path)(workDirPath + "/pa").c_str());
     }
     /*
      * Reading message id counter file
      */
     NAEEM_data temp;
     NAEEM_length tempLength;
-    if (NAEEM_os__file_exists((NAEEM_path)workDir.c_str(), (NAEEM_string)"mco")) {
+    if (NAEEM_os__file_exists((NAEEM_path)workDirPath.c_str(), (NAEEM_string)"mco")) {
       NAEEM_os__read_file_with_path (
-        (NAEEM_path)workDir.c_str(), 
+        (NAEEM_path)workDirPath.c_str(), 
         (NAEEM_string)"mco",
         &temp, 
         &tempLength
@@ -108,7 +107,7 @@ namespace client {
     NAEEM_string_ptr filenames;
     NAEEM_length filenamesLength;
     NAEEM_os__enum_file_names (
-      (NAEEM_path)(workDir + "/e").c_str(),
+      (NAEEM_path)(workDirPath + "/e").c_str(),
       &filenames,
       &filenamesLength
     );
@@ -121,7 +120,7 @@ namespace client {
      * Reading received messages
      */
     NAEEM_os__enum_file_names (
-      (NAEEM_path)(workDir + "/r").c_str(),
+      (NAEEM_path)(workDirPath + "/r").c_str(),
       &filenames,
       &filenamesLength
     );
@@ -130,7 +129,7 @@ namespace client {
       NAEEM_data data;
       NAEEM_length dataLength;
       NAEEM_os__read_file_with_path (
-        (NAEEM_path)(workDir + "/r").c_str(), 
+        (NAEEM_path)(workDirPath + "/r").c_str(), 
         (NAEEM_string)filenames[i],
         &data, 
         &dataLength
@@ -150,7 +149,7 @@ namespace client {
      * Reading popped but not acked messages
      */
     NAEEM_os__enum_file_names (
-      (NAEEM_path)(workDir + "/pna").c_str(),
+      (NAEEM_path)(workDirPath + "/pna").c_str(),
       &filenames,
       &filenamesLength
     );
@@ -159,14 +158,14 @@ namespace client {
       NAEEM_data data;
       NAEEM_length dataLength;
       NAEEM_os__read_file_with_path (
-        (NAEEM_path)(workDir + "/pna").c_str(), 
+        (NAEEM_path)(workDirPath + "/pna").c_str(), 
         (NAEEM_string)filenames[i],
         &data, 
         &dataLength
       );
       uint64_t popTime = 0;
       NAEEM_os__read_file3 (
-        (NAEEM_path)(workDir + "/pnat/" + filenames[i]).c_str(),
+        (NAEEM_path)(workDirPath + "/pnat/" + filenames[i]).c_str(),
         (NAEEM_data)(&popTime),
         0
       );
@@ -213,6 +212,7 @@ namespace client {
       delete it->second;
       Runtime::poppedButNotAcked_.erase(it++);
     }
+    initialized_ = false;
   }
 }
 }

@@ -29,7 +29,7 @@ namespace client {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
     }
-    ::naeem::gate::client::Runtime::Init(argc, argv);
+    ::naeem::gate::client::Runtime::Init(workDirPath_, argc, argv);
     receiverThread_ = new ReceiverThread(gateHost_, gatePort_, popLabel_, workDirPath_);
     receiverThread_->Start();
   }
@@ -42,11 +42,6 @@ namespace client {
   }
   std::vector<Message*>
   DefaultMessageReceiver::GetMessages () {
-    if (!::naeem::conf::ConfigManager::HasValue("gate-client", "work_dir")) {
-      throw std::runtime_error("(3) ERROR: Value 'gate-client.work_dir' is not found in configurations.");
-    }
-    /* std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
-    uint32_t ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout"); */
     std::vector<Message*> messages;
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -209,7 +204,6 @@ namespace client {
   DefaultMessageReceiver::Ack (
     std::vector<uint64_t> ids
   ) {
-    // std::string workDir = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
       for (uint32_t i = 0; i < ids.size(); i++) {

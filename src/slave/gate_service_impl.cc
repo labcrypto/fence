@@ -25,6 +25,9 @@ namespace slave {
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("slave", "work_dir");
     ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("slave", "ack_timeout");
+    if (Runtime::coreInitialized_) {
+      return;
+    }
     /*
      * Make directories
      */
@@ -315,6 +318,7 @@ namespace slave {
       }
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
+    Runtime::coreInitialized_ = true;
     ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
   }
   void

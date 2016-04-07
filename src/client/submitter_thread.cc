@@ -63,13 +63,8 @@ namespace client {
             proceed = true;
           }
           if (proceed) {
-            /*
-             * Aquiring main lock by creating guard object
-             */
             std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-            if (Runtime::enqueued_.size() == 0) {
-              std::cout << "Nothing to send." << std::endl;
-            } else {
+            if (Runtime::enqueued_.size() > 0) {
               std::deque<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
               uint64_t enqueuedCounter = 0;
               for (uint64_t i = 0; i < enqueuedIds.size(); i++) {

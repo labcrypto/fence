@@ -9,6 +9,7 @@ namespace gate {
 namespace slave {
   
   bool Runtime::initialized_ = false;
+  bool Runtime::coreInitialized_ = false;
   bool Runtime::termSignal_;
   bool Runtime::slaveThreadTerminated_;
 

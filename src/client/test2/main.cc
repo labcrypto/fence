@@ -9,19 +9,15 @@
 #include <naeem++/conf/config_manager.h>
 
 #include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/simple_gate_client.h>
+#include <naeem/gate/client/default_message_receiver.h>
 
 
 bool cont = true;
-::naeem::gate::client::GateClient *gateClient = NULL;
+::naeem::gate::client::MessageReceiver *messageReceiver = NULL;
 
 void 
 SigTermHanlder(int flag) {
-  if (gateClient) {
-    gateClient->Shutdown();
-    // delete gateClient;
-  }
-  ::naeem::conf::ConfigManager::Clear();
+  cont = false;
 }
 
 int main(int argc, char **argv) {
@@ -35,10 +31,21 @@ int main(int argc, char **argv) {
 
   std::string execDir = ::naeem::os::GetExecDir();
   ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/test2.conf");
-  gateClient = new ::naeem::gate::client::SimpleGateClient("hop", "hop-reply");
-  gateClient->Init();
+  std::string gateHost = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
+  uint16_t gatePort = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
+  std::string workDirPath = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+  uint32_t ackTimeout = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout");
+  messageReceiver = 
+    new ::naeem::gate::client::DefaultMessageReceiver (
+      gateHost, 
+      gatePort,
+      "test2-response",
+      workDirPath,
+      ackTimeout
+    );
+  messageReceiver->Init();
   std::vector<::naeem::gate::client::Message*> messages;
-  messages = gateClient->GetMessages();
+  messages = messageReceiver->GetMessages();
   std::vector<uint64_t> ids;
   while (cont) {
     for (uint32_t i = 0; i < messages.size(); i++) {
@@ -50,9 +57,14 @@ int main(int argc, char **argv) {
       ids.push_back(messages[i]->GetId());
       delete messages[i];
     }
-    gateClient->Ack(ids);
-    messages = gateClient->GetMessages();
+    messageReceiver->Ack(ids);
+    messages = messageReceiver->GetMessages();
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
+  if (messageReceiver) {
+    messageReceiver->Shutdown();
+    delete messageReceiver;
+  }
+  ::naeem::conf::ConfigManager::Clear();
   return 0;
 }

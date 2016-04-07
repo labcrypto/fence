@@ -25,6 +25,7 @@ namespace slave {
   public:
     
     static bool initialized_;
+    static bool coreInitialized_;
     static bool termSignal_;
     static bool slaveThreadTerminated_;
 

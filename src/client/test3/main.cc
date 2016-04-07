@@ -9,19 +9,17 @@
 #include <naeem++/conf/config_manager.h>
 
 #include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/simple_gate_client.h>
+#include <naeem/gate/client/default_message_receiver.h>
+#include <naeem/gate/client/default_message_submitter.h>
 
 
 bool cont = true;
-::naeem::gate::client::GateClient *gateClient = NULL;
+::naeem::gate::client::MessageReceiver *messageReceiver = NULL;
+::naeem::gate::client::MessageSubmitter *messageSubmitter = NULL;
 
 void 
 SigTermHanlder(int flag) {
-  if (gateClient) {
-    gateClient->Shutdown();
-    // delete gateClient;
-  }
-  ::naeem::conf::ConfigManager::Clear();
+  cont = false;
 }
 
 int main(int argc, char **argv) {
@@ -35,12 +33,31 @@ int main(int argc, char **argv) {
 
   std::string execDir = ::naeem::os::GetExecDir();
   ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/test3.conf");
-  gateClient = new ::naeem::gate::client::SimpleGateClient("test3-req", "test3-reply");
-  gateClient->Init();
-  uint64_t reqId = gateClient->SubmitMessage((unsigned char *)"123456", 7);
+  std::string gateHost = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
+  uint16_t gatePort = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
+  std::string workDirPath = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+  uint32_t ackTimeout = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout");
+  messageSubmitter = 
+    new ::naeem::gate::client::DefaultMessageSubmitter (
+      gateHost,
+      gatePort,
+      "test3-request",
+      workDirPath
+    );
+  messageReceiver = 
+    new ::naeem::gate::client::DefaultMessageReceiver (
+      gateHost,
+      gatePort,
+      "test3-response",
+      workDirPath,
+      ackTimeout
+    );
+  messageSubmitter->Init();
+  messageReceiver->Init();
+  uint64_t reqId = messageSubmitter->SubmitMessage((unsigned char *)"123456", 7);
   std::cout << "Message is enqueued with id: " << reqId << std::endl;
   std::vector<::naeem::gate::client::Message*> messages;
-  messages = gateClient->GetMessages();
+  messages = messageReceiver->GetMessages();
   std::vector<uint64_t> ids;
   while (cont) {
     for (uint32_t i = 0; i < messages.size(); i++) {
@@ -56,12 +73,18 @@ int main(int argc, char **argv) {
       }
       delete messages[i];
     }
-    gateClient->Ack(ids);
-    messages = gateClient->GetMessages();
+    messageReceiver->Ack(ids);
+    messages = messageReceiver->GetMessages();
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  gateClient->Shutdown();
-  // delete gateClient;
+  if (messageReceiver) {
+    messageReceiver->Shutdown();
+    delete messageReceiver;
+  }
+  if (messageSubmitter) {
+    messageSubmitter->Shutdown();
+    delete messageSubmitter;
+  }
   ::naeem::conf::ConfigManager::Clear();
   return 0;
 }

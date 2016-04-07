@@ -121,6 +121,54 @@ main(int argc, char **argv) {
       ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port"), 
       testService
     );
+    if (::naeem::conf::ConfigManager::HasValue("service", "bind_ip2") &&
+        ::naeem::conf::ConfigManager::HasValue("service", "bind_port2")) {
+      ::ir::ntnaeem::gate::slave::GateServiceImpl *service2 =
+        new ::ir::ntnaeem::gate::slave::GateServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip2"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port2"), 
+        service2
+      );
+      ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl *monitorService2 =
+          new ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip2"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port2"), 
+        monitorService2
+      );
+      ::ir::ntnaeem::gate::slave::GateTestServiceImpl *testService2 =
+          new ::ir::ntnaeem::gate::slave::GateTestServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip2"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port2"), 
+        testService2
+      );
+    }
+    if (::naeem::conf::ConfigManager::HasValue("service", "bind_ip3") &&
+        ::naeem::conf::ConfigManager::HasValue("service", "bind_port3")) {
+      ::ir::ntnaeem::gate::slave::GateServiceImpl *service3 =
+        new ::ir::ntnaeem::gate::slave::GateServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip3"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port3"), 
+        service3
+      );
+      ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl *monitorService3 =
+          new ::ir::ntnaeem::gate::slave::GateMonitorServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip3"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port3"), 
+        monitorService3
+      );
+      ::ir::ntnaeem::gate::slave::GateTestServiceImpl *testService3 =
+          new ::ir::ntnaeem::gate::slave::GateTestServiceImpl;
+      ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
+        ::naeem::conf::ConfigManager::GetValueAsString("service", "bind_ip3"), 
+        ::naeem::conf::ConfigManager::GetValueAsUInt32("service", "bind_port3"), 
+        testService3
+      );
+    }
     ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
     ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();

@@ -24,4 +24,4 @@ all:
 	    -lhotd \
 	    -lpthread \
 	    -lnaeem-os \
-	    -o naeem-gate-slave-stat.out
+	    -o naeem-gate-slave-enq.out
