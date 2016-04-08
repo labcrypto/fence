@@ -1,4 +1,4 @@
-# GATE DURABLE QUEUE
+## GATE DURABLE QUEUE
 ### About Gate
 Gate is a durable queue.
 
