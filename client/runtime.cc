@@ -35,18 +35,6 @@ namespace client {
 
   void
   Runtime::Init(std::string workDirPath, int agrc, char **argv) {
-    if (!::naeem::conf::ConfigManager::HasValue("gate-client", "host")) {
-      std::cout << "ERROR: Value 'gate-client.host' is not found in configurations." << std::endl;
-      exit(1);
-    }
-    if (!::naeem::conf::ConfigManager::HasValue("gate-client", "port")) {
-      std::cout << "ERROR: Value 'gate-client.port' is not found in configurations." << std::endl;
-      exit(1);
-    }
-    if (!::naeem::conf::ConfigManager::HasValue("gate-client", "work_dir")) {
-      std::cout << "(1) ERROR: Value 'gate-client.work_dir' is not found in configurations." << std::endl;
-      exit(1);
-    }
     if (initialized_) {
       return;
     }
