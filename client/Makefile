@@ -1,11 +1,11 @@
 cppflags=-Wall -g -c -fPIC -std=c++11 \
          -I/usr/local/include/hot \
-         -I../../../naeem-gate-api/hot \
-         -I../../../naeem-gate-api/client/include \
-         -I../../../corelibs-api/include \
-         -I../../../corelibs++-api/include
+         -I../../naeem-gate-api/hot \
+         -I../../naeem-gate-api/client/include \
+         -I../../corelibs-api/include \
+         -I../../corelibs++-api/include
 PWD=$(shell pwd)
-apiDir=$(PWD)/../../../naeem-gate-api
+apiDir=$(PWD)/../../naeem-gate-api
 libName=libnaeem-gate-client
 majorVersion=1
 minorVersion=0
@@ -14,9 +14,9 @@ all:
 	mkdir -p .lib
 	rm -rfv .lib/*
 	
-	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/message.cc -o .lib/message.o
-	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/proxy/gate_service_proxy.cc -o .lib/gate_service_proxy.o
-	g++ $(cppflags) ../../../naeem-gate-api/hot/gate/proxy/gate_service_proxy_builder.cc -o .lib/gate_service_proxy_builder.o
+	g++ $(cppflags) $(apiDir)/hot/gate/message.cc -o .lib/message.o
+	g++ $(cppflags) $(apiDir)/hot/gate/proxy/gate_service_proxy.cc -o .lib/gate_service_proxy.o
+	g++ $(cppflags) $(apiDir)/hot/gate/proxy/gate_service_proxy_builder.cc -o .lib/gate_service_proxy_builder.o
 
 	g++ $(cppflags) runtime.cc -o .lib/runtime.o
 	g++ $(cppflags) default_message_receiver.cc -o .lib/default_message_receiver.o
