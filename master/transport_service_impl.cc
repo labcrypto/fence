@@ -104,12 +104,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
     }
     /*
@@ -127,12 +127,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Arrived Total Counter value is " << Runtime::arrivedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Arrived Total Counter is set to " << Runtime::arrivedTotalCounter_ << std::endl;
     }
     /*
@@ -150,12 +150,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() <<  
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
     }
     /*
@@ -173,12 +173,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Popped And Acked Total Counter value is " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Popped And Acked Total Counter is set to " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
     }
     /*
@@ -196,12 +196,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Enqueue Failed Total Counter value is " << Runtime::enqueueFailedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Enqueue Failed Total Counter is set to " << Runtime::enqueueFailedTotalCounter_ << std::endl;
     }
     /*
@@ -219,12 +219,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Enqueued Total Counter value is " << Runtime::enqueuedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
     }
     /*
@@ -242,12 +242,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Ready For Retrieval Total Counter value is " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Ready For Retrieval Total Counter is set to " << Runtime::readyForRetrievalTotalCounter_ << std::endl;
     }
     /*
@@ -265,12 +265,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Enqueue Failed Total Counter value is " << Runtime::enqueueFailedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() <<  
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Enqueue Failed Total Counter is set to " << Runtime::enqueueFailedTotalCounter_ << std::endl;
     }
     /*
@@ -288,12 +288,12 @@ namespace master {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Last Retrieved And Acked Total Counter value is " << Runtime::retrievedAndAckedTotalCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Retrieved And Acked Total Counter is set to " << Runtime::retrievedAndAckedTotalCounter_ << std::endl;
     }
     /*
@@ -527,7 +527,7 @@ namespace master {
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     ::naeem::hottentot::runtime::Logger::GetOut() << 
-      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
         "Transport Service is initialized." << std::endl;
   }
   void
@@ -537,13 +537,13 @@ namespace master {
       Runtime::termSignal_ = true;
     }
     ::naeem::hottentot::runtime::Logger::GetOut() << 
-      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
         "Waiting for master thread to exit ..." << std::endl;
     while (true) {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       if (Runtime::masterThreadTerminated_) {
         ::naeem::hottentot::runtime::Logger::GetOut() << 
-          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
             "Master thread exited." << std::endl;
         break;
       }
@@ -558,7 +558,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "TransportServiceImpl::AcceptSlaveMassages() is called." << std::endl;
     }
     {
@@ -622,10 +622,10 @@ namespace master {
             delete [] data;
           } catch (std::exception &e) {
             delete [] data;
-            throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: " + e.what());
+            throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: " + e.what());
           } catch (...) {
             delete [] data;
-            throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Unknown exception.");
+            throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Unknown exception.");
           }
           enqueueReport->SetFailed(false);
           enqueueReport->SetErrorMessage("");
@@ -752,7 +752,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "TransportServiceImpl::Ack() is called." << std::endl;
     }
     {
@@ -823,7 +823,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "TransportServiceImpl::GetStatus() is called." << std::endl;
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
@@ -843,7 +843,7 @@ namespace master {
         );
         Runtime::states_.insert(std::pair<uint64_t, uint16_t>(masterMId.GetValue(), status));
       } else {
-        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message id is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Message id is not found.");
       }
     }
     out.SetValue(Runtime::states_[masterMId.GetValue()]);

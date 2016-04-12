@@ -44,7 +44,7 @@ namespace master {
         if (Runtime::termSignal_) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Master Thread: Received TERM SIGNAL ..." << std::endl;
           }
           cont = false;
@@ -59,7 +59,7 @@ namespace master {
         if (Runtime::termSignal_) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Master Thread: Received TERM SIGNAL ..." << std::endl;
           }
           cont = false;
@@ -75,12 +75,12 @@ namespace master {
         if (proceed) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Waiting for main lock ..." << std::endl;
           }
           /*
@@ -89,7 +89,7 @@ namespace master {
           std::lock_guard<std::mutex> guard(Runtime::mainLock_);
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Main lock is acquired." << std::endl;
             ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
           }
@@ -100,7 +100,7 @@ namespace master {
             std::vector<uint64_t> arrivedIds = std::move(Runtime::arrived_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
-                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "Number of transport inbox messages: " << arrivedIds.size() << std::endl;
             }
             for (uint64_t i = 0; i < arrivedIds.size(); i++) {
@@ -128,16 +128,16 @@ namespace master {
                 } else {
                   // TODO: Message file is not found.
                   ::naeem::hottentot::runtime::Logger::GetError() << 
-                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                       "File does not exist." << std::endl;
                 }
               } catch (std::exception &e) {
                 ::naeem::hottentot::runtime::Logger::GetError() <<
-                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                      "ERROR: " << e.what() << std::endl;
               } catch (...) {
                 ::naeem::hottentot::runtime::Logger::GetError() <<
-                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                      "ERROR: Unknown." << std::endl;
               }
               /*
@@ -152,11 +152,11 @@ namespace master {
                   deserialized = true;
                 } catch (std::exception &e) {
                   ::naeem::hottentot::runtime::Logger::GetError() <<
-                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                       "ERROR: " << e.what() << std::endl;
                 } catch (...) {
                   ::naeem::hottentot::runtime::Logger::GetError() << 
-                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                       "ERROR: Unknown." << std::endl;
                 }
                 free(data);
@@ -237,7 +237,7 @@ namespace master {
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Messages moved from transport inbox to gate inbox." << std::endl;
           }
           /* 
@@ -247,7 +247,7 @@ namespace master {
             std::vector<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
-                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "Number of enqueued messages: " << enqueuedIds.size() << std::endl;
             }
             for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
@@ -377,7 +377,7 @@ namespace master {
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
             ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                 "Main lock is released." << std::endl;
           }
         }
@@ -385,7 +385,7 @@ namespace master {
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Master thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);

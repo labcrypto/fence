@@ -28,7 +28,7 @@ namespace master {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
     ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "ack_timeout");
     ::naeem::hottentot::runtime::Logger::GetOut() << 
-      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
         "Gate Service is initialized." << std::endl;
   }
   void
@@ -42,7 +42,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
     {
@@ -89,14 +89,14 @@ namespace master {
       Runtime::enqueued_.push_back(message.GetId().GetValue());
     } catch (std::exception &e) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           e.what() << std::endl;
-      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: " + e.what());
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: " + e.what());
     } catch (...) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Error in enqueuing message." << std::endl;
-      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Enqueue error.");
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Enqueue error.");
     }
   }
   void
@@ -107,7 +107,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
@@ -127,7 +127,7 @@ namespace master {
         );
         Runtime::states_.insert(std::pair<uint64_t, uint16_t>(id.GetValue(), status));
       } else {
-        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message id is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Message id is not found.");
       }
     }
     out.SetValue(Runtime::states_[id.GetValue()]);
@@ -139,7 +139,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::Discard() is called." << std::endl;
     }
     // TODO
@@ -152,7 +152,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::HasMoreMessage() is called." << std::endl;
     }
     {
@@ -191,7 +191,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::NextMessage() is called." << std::endl;
     }
     {
@@ -228,7 +228,7 @@ namespace master {
         Runtime::readyForPop_[label.ToStdString()]->pop_front();
       }
       if (messageId == 0) {
-        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Internal server error.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Internal server error.");
       }
       std::stringstream ss;
       ss << messageId;
@@ -295,7 +295,7 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateServiceImpl::Ack() is called." << std::endl;
     }
     {
@@ -354,7 +354,7 @@ namespace master {
           (NAEEM_length)sizeof(Runtime::poppedAndAckedTotalCounter_)
         );
       } else {
-        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: Message is not found.");
       }
     }
   }
