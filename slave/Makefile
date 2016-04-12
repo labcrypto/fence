@@ -1,9 +1,9 @@
-apiDir = ../../../naeem-gate-api
+apiDir = ../../naeem-gate-api
 cppflags = -Wall -g -c -std=c++11 \
            -I/usr/local/include/hot \
            -I$(apiDir)/hot \
-           -I../../../corelibs-api/include \
-           -I../../../corelibs++-api/include
+           -I../../corelibs-api/include \
+           -I../../corelibs++-api/include
 
 all: tools
 	mkdir -p .lib
@@ -26,8 +26,8 @@ all: tools
 	g++ $(cppflags) slave_thread.cc -o .lib/slave_thread.o
 	g++ $(cppflags) main.cc -o .lib/main.o
 
-	g++ -L../../../corelibs-api/lib \
-	    -L../../../corelibs++-api/lib \
+	g++ -L../../corelibs-api/lib \
+	    -L../../corelibs++-api/lib \
 	    .lib/message.o \
 	    .lib/gate_service_request_handler.o \
 	    .lib/gate_monitor_service_request_handler.o \
@@ -48,6 +48,7 @@ all: tools
 	    -lnaeem++-conf \
 	    -lnaeem++-string \
 	    -lnaeem++-os \
+	    -lnaeem++-date \
 	    -o naeem-gate-slave-node.out
 
 tools:
