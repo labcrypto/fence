@@ -29,7 +29,7 @@ namespace slave {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateTestServiceImpl::EnqueueAsIncomingMessage() is called." << std::endl;
     }
     // TODO

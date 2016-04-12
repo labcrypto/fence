@@ -28,74 +28,74 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
     if (!NAEEM_os__file_exists((NAEEM_path)execDir.c_str(), (NAEEM_string)"slave.conf")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: 'slave.conf' does not exist in " << execDir << " directory." << std::endl;
       exit(1);
     }
     ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/slave.conf");
     if (!::naeem::conf::ConfigManager::HasSection("slave")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration section 'slave' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasSection("master")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration section 'slave' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasSection("service")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration section 'service' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "id")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'slave.id' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "work_dir")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'slave.work_dir' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "ack_timeout")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'slave.ack_timeout' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("slave", "transfer_interval")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'slave.transfer_interval' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("service", "bind_ip")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'service.bind_ip' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("service", "bind_port")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'service.bind_port' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("master", "ip")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'master.ip' is not found." << std::endl;
       exit(1);
     }
     if (!::naeem::conf::ConfigManager::HasValue("master", "port")) {
       ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'master.port' is not found." << std::endl;
       exit(1);
     }
@@ -106,13 +106,13 @@ main(int argc, char **argv) {
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Proxy runtime is initialized." << std::endl;
     }
     ::naeem::hottentot::runtime::service::ServiceRuntime::Init(argc, argv);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Starting server ..." << std::endl;
     }
     ::ir::ntnaeem::gate::slave::Runtime::Init();
@@ -193,16 +193,16 @@ main(int argc, char **argv) {
     ::naeem::conf::ConfigManager::Clear();
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Service runtime is shutdown." << std::endl;
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "About to disable logging system ..." << std::endl;
     }
     ::naeem::hottentot::runtime::Logger::Shutdown();
   } catch (...) {
     ::naeem::hottentot::runtime::Logger::GetError() << 
-      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
         "Error." << std::endl;
     return 1;
   }

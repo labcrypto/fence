@@ -30,7 +30,7 @@ namespace slave {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "GateMonitorServiceImpl::GetCurrentStat() is called." << std::endl;
     }
     out = Runtime::GetCurrentStat();
