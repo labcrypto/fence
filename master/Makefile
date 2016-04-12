@@ -48,6 +48,7 @@ all: tools
 	    -lnaeem++-conf \
 	    -lnaeem++-string \
 	    -lnaeem++-os \
+	    -lnaeem++-date \
 	    -o naeem-gate-master-node.out
 
 tools:

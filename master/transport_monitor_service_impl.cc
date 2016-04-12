@@ -1,3 +1,5 @@
+#include <naeem++/date/helper.h>
+
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
@@ -28,7 +30,8 @@ namespace master {
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "TransportMonitorServiceImpl::GetCurrentStat() is called." << std::endl;
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "TransportMonitorServiceImpl::GetCurrentStat() is called." << std::endl;
     }
     out = Runtime::GetCurrentStat();
   }

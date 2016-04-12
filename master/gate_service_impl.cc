@@ -8,6 +8,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <gate/message.h>
 
@@ -26,7 +27,9 @@ namespace master {
   GateServiceImpl::OnInit() {
     workDir_ = ::naeem::conf::ConfigManager::GetValueAsString("master", "work_dir");
     ackTimeout_ = ::naeem::conf::ConfigManager::GetValueAsUInt32("master", "ack_timeout");
-    ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "Gate Service is initialized." << std::endl;
   }
   void
   GateServiceImpl::OnShutdown() {
@@ -38,7 +41,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::EnqueueMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::EnqueueMessage() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
@@ -83,11 +88,15 @@ namespace master {
       );
       Runtime::enqueued_.push_back(message.GetId().GetValue());
     } catch (std::exception &e) {
-      ::naeem::hottentot::runtime::Logger::GetError() << e.what() << std::endl;
-      throw std::runtime_error(e.what());
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          e.what() << std::endl;
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: " + e.what());
     } catch (...) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "Error in enqueuing message." << std::endl;
-      throw std::runtime_error("Enqueue error.");
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Error in enqueuing message." << std::endl;
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Enqueue error.");
     }
   }
   void
@@ -97,7 +106,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetMessageStatus() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::GetMessageStatus() is called." << std::endl;
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
@@ -116,7 +127,7 @@ namespace master {
         );
         Runtime::states_.insert(std::pair<uint64_t, uint16_t>(id.GetValue(), status));
       } else {
-        throw std::runtime_error("Message id is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message id is not found.");
       }
     }
     out.SetValue(Runtime::states_[id.GetValue()]);
@@ -127,7 +138,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Discard() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::Discard() is called." << std::endl;
     }
     // TODO
   }
@@ -138,7 +151,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMoreMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::HasMoreMessage() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -175,7 +190,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::NextMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::NextMessage() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -211,7 +228,7 @@ namespace master {
         Runtime::readyForPop_[label.ToStdString()]->pop_front();
       }
       if (messageId == 0) {
-        throw std::runtime_error("Internal server error.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Internal server error.");
       }
       std::stringstream ss;
       ss << messageId;
@@ -277,7 +294,9 @@ namespace master {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Ack() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::Ack() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -335,7 +354,7 @@ namespace master {
           (NAEEM_length)sizeof(Runtime::poppedAndAckedTotalCounter_)
         );
       } else {
-        throw std::runtime_error("Message is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message is not found.");
       }
     }
   }

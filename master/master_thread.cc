@@ -10,6 +10,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <gate/message.h>
 
@@ -42,7 +43,9 @@ namespace master {
         std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
         if (Runtime::termSignal_) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Master Thread: Received TERM SIGNAL ..." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Master Thread: Received TERM SIGNAL ..." << std::endl;
           }
           cont = false;
           break;
@@ -55,7 +58,9 @@ namespace master {
         std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
         if (Runtime::termSignal_) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Master Thread: Received TERM SIGNAL ..." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Master Thread: Received TERM SIGNAL ..." << std::endl;
           }
           cont = false;
           break;
@@ -69,17 +74,23 @@ namespace master {
         }
         if (proceed) {
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for main lock ..." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Waiting for main lock ..." << std::endl;
           }
           /*
            * Aquiring main lock by creating guard object
            */
           std::lock_guard<std::mutex> guard(Runtime::mainLock_);
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is acquired." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Main lock is acquired." << std::endl;
             ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
           }
           /*
@@ -88,7 +99,9 @@ namespace master {
           {
             std::vector<uint64_t> arrivedIds = std::move(Runtime::arrived_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Number of transport inbox messages: " << arrivedIds.size() << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "Number of transport inbox messages: " << arrivedIds.size() << std::endl;
             }
             for (uint64_t i = 0; i < arrivedIds.size(); i++) {
               std::stringstream ss;
@@ -114,12 +127,18 @@ namespace master {
                   fileIsRead = true;
                 } else {
                   // TODO: Message file is not found.
-                  ::naeem::hottentot::runtime::Logger::GetError() << "File does not exist." << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetError() << 
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "File does not exist." << std::endl;
                 }
               } catch (std::exception &e) {
-                std::cout << "ERROR: " << e.what() << std::endl;
+                ::naeem::hottentot::runtime::Logger::GetError() <<
+                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                     "ERROR: " << e.what() << std::endl;
               } catch (...) {
-                std::cout << "ERROR: Unknown." << std::endl;
+                ::naeem::hottentot::runtime::Logger::GetError() <<
+                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                     "ERROR: Unknown." << std::endl;
               }
               /*
                * Transport message deserialization
@@ -132,9 +151,13 @@ namespace master {
                   inboxTransportMessage.Deserialize(data, dataLength);
                   deserialized = true;
                 } catch (std::exception &e) {
-                  std::cout << "ERROR: " << e.what() << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetError() <<
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "ERROR: " << e.what() << std::endl;
                 } catch (...) {
-                  std::cout << "ERROR: Unknown." << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetError() << 
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "ERROR: Unknown." << std::endl;
                 }
                 free(data);
               }
@@ -213,7 +236,9 @@ namespace master {
             }
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Messages moved from transport inbox to gate inbox." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Messages moved from transport inbox to gate inbox." << std::endl;
           }
           /* 
            * Copying 'enqueued' messages to 'ready for retrieval' queue
@@ -221,7 +246,9 @@ namespace master {
           {
             std::vector<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Number of enqueued messages: " << enqueuedIds.size() << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "Number of enqueued messages: " << enqueuedIds.size() << std::endl;
             }
             for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
               std::stringstream ss;
@@ -255,12 +282,6 @@ namespace master {
                     (NAEEM_data)&slaveId,
                     0
                   );
-                  /* NAEEM_os__write_to_file (
-                    (NAEEM_path)(workDir + "/ss").c_str(), 
-                    (NAEEM_string)(ss.str() + ".slaveid").c_str(),
-                    (NAEEM_data)(&slaveId),
-                    sizeof(slaveId)
-                  ); */
                   if (NAEEM_os__file_exists (
                         (NAEEM_path)(workDir + "/ss").c_str(),
                         (NAEEM_string)(rss.str() + ".slavemid").c_str()
@@ -355,13 +376,17 @@ namespace master {
             }
           }
           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-            ::naeem::hottentot::runtime::Logger::GetOut() << "Main lock is released." << std::endl;
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "Main lock is released." << std::endl;
           }
         }
       }
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Master thread is exiting ..." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Master thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
     Runtime::masterThreadTerminated_ = true;

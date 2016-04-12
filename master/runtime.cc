@@ -1,5 +1,7 @@
 #include <sstream>
 
+#include <naeem++/date/helper.h>
+
 #include "runtime.h"
 
 
@@ -73,6 +75,7 @@ namespace master {
   Runtime::GetCurrentStat() {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
+    ss << "[" << ::naeem::date::helper::GetCurrentTime() << "]: ";
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
     ss << "# ARRIVED: " << Runtime::arrived_.size() << std::endl;
     ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
