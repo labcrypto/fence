@@ -47,7 +47,7 @@ namespace client {
           if (Runtime::termSignal_) {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
-                ::naeem::date::helper::GetCurrentTime() <<
+                ::naeem::date::helper::GetCurrentUTCTimeString() <<
                   "Slave Thread: Received TERM SIGNAL ..." << std::endl;
             }
             cont = false;
@@ -73,7 +73,7 @@ namespace client {
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(me->gateHost_, me->gatePort_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
-                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "Proxy object is created." << std::endl;
             }
             uint64_t readMessages = 0;
@@ -126,7 +126,7 @@ namespace client {
                   readMessages++;
                   proxy->HasMore(labelString, hasMore);
                 }
-                std::cout << "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                std::cout << "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "Number of read messages: " << readMessages << std::endl;
               } else {
                 throw std::runtime_error("Slave gate is not available. Reading messages failed.");
@@ -134,17 +134,17 @@ namespace client {
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             } catch (std::exception &e) {
               ::naeem::hottentot::runtime::Logger::GetError() << 
-                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "ERROR: " << e.what() << std::endl;
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             } catch (...) {
@@ -152,7 +152,7 @@ namespace client {
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             }
@@ -160,17 +160,17 @@ namespace client {
         }
       } catch(std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
-          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
             "ERROR: " << e.what() << std::endl;
       } catch(...) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
-          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
             "Unknown error." << std::endl;
       }
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Slave thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
