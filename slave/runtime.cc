@@ -1,5 +1,7 @@
 #include <sstream>
 
+#include <naeem++/date/helper.h>
+
 #include "runtime.h"
 
 
@@ -70,6 +72,7 @@ namespace slave {
   Runtime::GetCurrentStat() {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
+    ss << "[" << ::naeem::date::helper::GetCurrentTime() << "] ";
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
     uint64_t sumOfReadyForPop = 0;
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();

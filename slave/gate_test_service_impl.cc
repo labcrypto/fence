@@ -1,3 +1,5 @@
+#include <naeem++/date/helper.h>
+
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
 #include <naeem/hottentot/runtime/utils.h>
@@ -26,7 +28,9 @@ namespace slave {
       ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateTestServiceImpl::EnqueueAsIncomingMessage() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateTestServiceImpl::EnqueueAsIncomingMessage() is called." << std::endl;
     }
     // TODO
   }

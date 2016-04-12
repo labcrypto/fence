@@ -9,6 +9,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <gate/message.h>
 #include <transport/transport_message.h>
@@ -77,10 +78,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::messageIdCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
     }
     /*
      * Reading ready for pop total counter file
@@ -96,10 +101,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::readyForPopTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+            "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
     }
     /*
      * Reading enqueued total counter file
@@ -115,10 +124,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::enqueuedTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Enqueued Total Counter value is " << Runtime::enqueuedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Enqueued Total Counter value is " << Runtime::enqueuedTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Enqueued Total Counter is set to " << Runtime::enqueuedTotalCounter_ << std::endl;
     }
     /*
      * Reading transmitted total counter
@@ -134,10 +147,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::transmittedTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmitted Total Counter value is " << Runtime::transmittedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Transmitted Total Counter value is " << Runtime::transmittedTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmitted Total Counter is set to " << Runtime::transmittedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Transmitted Total Counter is set to " << Runtime::transmittedTotalCounter_ << std::endl;
     }
     /*
      * Reading transmission failure total counter
@@ -153,10 +170,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::transmissionFailureTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Transmission Failure Total Counter value is " << Runtime::transmissionFailureTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Transmission Failure Total Counter value is " << Runtime::transmissionFailureTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Transmission Failure Total Counter is set to " << Runtime::transmissionFailureTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Transmission Failure Total Counter is set to " << Runtime::transmissionFailureTotalCounter_ << std::endl;
     }
     /*
      * Reading ready for pop total counter file
@@ -172,10 +193,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::readyForPopTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Ready For Pop Total Counter value is " << Runtime::readyForPopTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Ready For Pop Total Counter is set to " << Runtime::readyForPopTotalCounter_ << std::endl;
     }
     /*
      * Reading popped and acked total counter file
@@ -191,10 +216,14 @@ namespace slave {
       for (uint32_t i = 0; i < sizeof(Runtime::poppedAndAckedTotalCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Popped And Acked Total Counter value is " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Last Popped And Acked Total Counter value is " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Popped And Acked Total Counter is set to " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Popped And Acked Total Counter is set to " << Runtime::poppedAndAckedTotalCounter_ << std::endl;
     }
     /*
      * Reading states
@@ -319,7 +348,9 @@ namespace slave {
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     Runtime::coreInitialized_ = true;
-    ::naeem::hottentot::runtime::Logger::GetOut() << "Gate Service is initialized." << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "Gate Service is initialized." << std::endl;
   }
   void
   GateServiceImpl::OnShutdown() {
@@ -327,11 +358,15 @@ namespace slave {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
-    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for slave thread to exit ..." << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+        "Waiting for slave thread to exit ..." << std::endl;
     while (true) {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       if (Runtime::slaveThreadTerminated_) {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "Slave thread exited." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetOut() << 
+          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+            "Slave thread exited." << std::endl;
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -344,7 +379,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Enqueue() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::Enqueue() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
@@ -392,11 +429,15 @@ namespace slave {
       Runtime::states_[message.GetId().GetValue()] = status;
       delete [] data;
     } catch (std::exception &e) {
-      ::naeem::hottentot::runtime::Logger::GetError() << e.what() << std::endl;
-      throw std::runtime_error(e.what());
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          e.what() << std::endl;
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: " + e.what());
     } catch (...) {
-      ::naeem::hottentot::runtime::Logger::GetError() << "Error in enqueuing message." << std::endl;
-      throw std::runtime_error("Enqueue error.");
+      ::naeem::hottentot::runtime::Logger::GetError() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Error in enqueuing message." << std::endl;
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Enqueue error.");
     }
   }
   void
@@ -406,7 +447,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::GetStatus() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::GetStatus() is called." << std::endl;
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
@@ -427,7 +470,7 @@ namespace slave {
           std::pair<uint64_t, ::ir::ntnaeem::gate::MessageStatus>(
             id.GetValue(), (::ir::ntnaeem::gate::MessageStatus)status));
       } else {
-        throw std::runtime_error("Message id is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message id is not found.");
       }
     }
     out.SetValue(Runtime::states_[id.GetValue()]);
@@ -438,7 +481,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Discard() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::Discard() is called." << std::endl;
     }
     std::lock_guard<std::mutex> guard2(Runtime::mainLock_);
     if (Runtime::states_.find(id.GetValue()) == Runtime::states_.end()) {
@@ -459,11 +504,11 @@ namespace slave {
           std::pair<uint64_t, ::ir::ntnaeem::gate::MessageStatus>(
             id.GetValue(), (::ir::ntnaeem::gate::MessageStatus)status));
       } else {
-        throw std::runtime_error("Message id is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message id is not found.");
       }
     }
     if (Runtime::states_[id.GetValue()] == kMessageStatus___Transmitted) {
-      throw std::runtime_error("Message is transmitted. Discarding is not possible.");
+      throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() +"]: Message is transmitted. Discarding is not possible.");
     } else {
       // TODO: Discard the message
     }
@@ -475,7 +520,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::HasMore() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::HasMore() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -512,7 +559,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::PopNext() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::PopNext() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -548,7 +597,7 @@ namespace slave {
         Runtime::readyForPop_[label.ToStdString()]->pop_front();
       }
       if (messageId == 0) {
-        throw std::runtime_error("Internal server error.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Internal server error.");
       }
       std::stringstream ss;
       ss << messageId;
@@ -614,7 +663,9 @@ namespace slave {
     ::naeem::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "GateServiceImpl::Ack() is called." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "GateServiceImpl::Ack() is called." << std::endl;
     }
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
@@ -672,7 +723,7 @@ namespace slave {
           (NAEEM_length)sizeof(Runtime::poppedAndAckedTotalCounter_)
         );
       } else {
-        throw std::runtime_error("Message is not found.");
+        throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Message is not found.");
       }
     }
   }

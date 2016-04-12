@@ -6,6 +6,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
@@ -50,7 +51,9 @@ namespace slave {
           std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
           if (Runtime::termSignal_) {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Slave Thread: Received TERM SIGNAL ..." << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "Slave Thread: Received TERM SIGNAL ..." << std::endl;
             }
             cont = false;
             break;
@@ -68,8 +71,12 @@ namespace slave {
              */
             std::lock_guard<std::mutex> guard(Runtime::mainLock_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
-              ::naeem::hottentot::runtime::Logger::GetOut() << Runtime::GetCurrentStat();
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  Runtime::GetCurrentStat();
             }
             // TODO: Disable LAN ethernet
             // TODO: Enable WAN ethernet
@@ -77,8 +84,12 @@ namespace slave {
              * Create a proxy to Master Gate
              */
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Connecting to master gate ..." << std::endl;
-              ::naeem::hottentot::runtime::Logger::GetOut() << "Making proxy object ..." << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "Connecting to master gate ..." << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                  "Making proxy object ..." << std::endl;
             }
             ::ir::ntnaeem::gate::transport::proxy::TransportService *transportProxy = 
               ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Create(
@@ -90,14 +101,18 @@ namespace slave {
                * If server is not alive, postbone the operation and release the lock.
                */
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << "Checking if server is available ..." << std::endl;
+                ::naeem::hottentot::runtime::Logger::GetOut() << 
+                  "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                    "Checking if server is available ..." << std::endl;
               }
               bool isServerAlive = 
                 dynamic_cast<::ir::ntnaeem::gate::transport::proxy::TransportServiceProxy*>
                   (transportProxy)->IsServerAlive();
               if (isServerAlive) {
                 if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  ::naeem::hottentot::runtime::Logger::GetOut() << "Server is up and running ..." << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetOut() << 
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "Server is up and running ..." << std::endl;
                 }
                 /*
                  * Make a list of transport messages
@@ -106,7 +121,9 @@ namespace slave {
                   if (Runtime::outbox_.size() > 0) {
                     std::vector<uint64_t> outboxIds = std::move(Runtime::outbox_);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                      ::naeem::hottentot::runtime::Logger::GetOut() << "Number of messages to send: " << outboxIds.size() << std::endl;
+                      ::naeem::hottentot::runtime::Logger::GetOut() << 
+                        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                          "Number of messages to send: " << outboxIds.size() << std::endl;
                     }
                     ::naeem::hottentot::runtime::types::List< 
                       ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
@@ -159,7 +176,9 @@ namespace slave {
                           transportMessage->SetContent(outboxMessage->GetContent());
                           ::naeem::hottentot::runtime::types::UInt64 masterId;
                           transportMessages.Add(transportMessage);
-                          map.insert(std::pair<uint64_t, ::ir::ntnaeem::gate::transport::TransportMessage*>(transportMessage->GetSlaveMId().GetValue(), transportMessage));
+                          map.insert(std::pair<uint64_t, 
+                              ::ir::ntnaeem::gate::transport::TransportMessage*>(
+                                  transportMessage->GetSlaveMId().GetValue(), transportMessage));
                           delete outboxMessage;
                         } else {
                           // TODO: Deserialization failed.
@@ -172,21 +191,30 @@ namespace slave {
                      * Send queued messages to Master Gate
                      */
                     bool enqueueDone = false;
-                    ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> enqueueReports;
+                    ::naeem::hottentot::runtime::types::List< 
+                      ::ir::ntnaeem::gate::transport::EnqueueReport> enqueueReports;
                     try {
                       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                        ::naeem::hottentot::runtime::Logger::GetOut() << "Sending messages ..." << std::endl;
+                        ::naeem::hottentot::runtime::Logger::GetOut() << 
+                          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                            "Sending messages ..." << std::endl;
                       }
                       transportProxy->Transmit(transportMessages, enqueueReports);
                       enqueueDone = true;
                       if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                        ::naeem::hottentot::runtime::Logger::GetOut() << "Message sent and added to sent queue." << std::endl;
+                        ::naeem::hottentot::runtime::Logger::GetOut() << 
+                          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                            "Message sent and added to sent queue." << std::endl;
                       }
                     } catch (std::exception &e) {
-                      ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: " << e.what() << std::endl;
+                      ::naeem::hottentot::runtime::Logger::GetError() << 
+                        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                          "ERROR: " << e.what() << std::endl;
                       // TODO: Enqueue failed.
                     } catch (...) {
-                      ::naeem::hottentot::runtime::Logger::GetError() << "Send error." << std::endl;
+                      ::naeem::hottentot::runtime::Logger::GetError() << 
+                        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                          "Send error." << std::endl;
                       // TODO: Enqueue failed.
                     }
                     /*
@@ -240,9 +268,11 @@ namespace slave {
                             (NAEEM_length)sizeof(Runtime::transmittedTotalCounter_)
                           );
                           if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                            ::naeem::hottentot::runtime::Logger::GetOut() << "Message is sent successfully: slaveId(" << 
-                              enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
-                                ")" << std::endl;
+                            ::naeem::hottentot::runtime::Logger::GetOut() << 
+                              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                                "Message is sent successfully: slaveId(" << 
+                                  enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
+                                    ")" << std::endl;
                           }
                         } else {
                           NAEEM_data data;
@@ -276,8 +306,9 @@ namespace slave {
                             );
                           } else {
                             ::naeem::hottentot::runtime::Logger::GetOut() << 
-                              "WARNING: Enqueud file did not exist for deletion, id was " << 
-                                ss.str() << std::endl;
+                              "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                                "WARNING: Enqueud file did not exist for deletion, id was " << 
+                                  ss.str() << std::endl;
                           }
                           Runtime::transmissionFailureTotalCounter_++;
                           NAEEM_os__write_to_file (
@@ -286,9 +317,11 @@ namespace slave {
                             (NAEEM_data)&(Runtime::transmissionFailureTotalCounter_), 
                             (NAEEM_length)sizeof(Runtime::transmissionFailureTotalCounter_)
                           );
-                          ::naeem::hottentot::runtime::Logger::GetError() << "Message is NOT enqueued: slaveId(" << 
-                            enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
-                              "), Reason: '" << enqueueReport->GetErrorMessage() << "'" << std::endl;
+                          ::naeem::hottentot::runtime::Logger::GetError() << 
+                            "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                              "Message is NOT enqueued: slaveId(" << 
+                                enqueueReport->GetSlaveMId().GetValue() << "), masterId(" << enqueueReport->GetMasterMId().GetValue() << 
+                                  "), Reason: '" << enqueueReport->GetErrorMessage() << "'" << std::endl;
                         }
                       }
                     } else {
@@ -305,18 +338,24 @@ namespace slave {
                  */
                 {
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving messages from master ..." << std::endl;
+                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                        "Retrieving messages from master ..." << std::endl;
                   }
                   ::naeem::hottentot::runtime::types::List< 
                     ::ir::ntnaeem::gate::transport::TransportMessage> transportMessages;
                   ::naeem::hottentot::runtime::types::List< 
                     ::naeem::hottentot::runtime::types::UInt64> acks;
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << "Retrieving slave messages ..." << std::endl;
+                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                        "Retrieving slave messages ..." << std::endl;
                   }
                   transportProxy->Retrieve(slaveId, transportMessages);
                   if (::naeem::hottentot::runtime::Configuration::Verbose() || transportMessages.Size() > 0) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << "Messages retrieved from master: " << 
+                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                        "Messages retrieved from master: " << 
                       transportMessages.Size() << " messages" << std::endl;
                   }
                   for (uint32_t i = 0; i < transportMessages.Size(); i++) {
@@ -382,11 +421,15 @@ namespace slave {
                     );
                   }
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << "Sending acks ..." << std::endl;
+                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                        "Sending acks ..." << std::endl;
                   }
                   transportProxy->Ack(acks);
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << "Messages are retrieved." << std::endl;
+                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                      "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                        "Messages are retrieved." << std::endl;
                   }
                   transportMessages.Purge();
                   acks.Purge();
@@ -401,31 +444,41 @@ namespace slave {
                  * Releasing main lock by leaving the scope
                  */
                 if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  ::naeem::hottentot::runtime::Logger::GetOut() << "Send is complete." << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetOut() << 
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "Send is complete." << std::endl;
                 }
               } else {
                 if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  ::naeem::hottentot::runtime::Logger::GetOut() << "Master is not available now. We postbone the send to next try." << std::endl;
+                  ::naeem::hottentot::runtime::Logger::GetOut() << 
+                    "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+                      "Master is not available now. We postbone the send to next try." << std::endl;
                 }
                 ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
               }
             } catch (std::exception &e) {
               ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
-              throw std::runtime_error(e.what());
+              throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: " + e.what());
             } catch (...) {
               ::ir::ntnaeem::gate::transport::proxy::TransportServiceProxyBuilder::Destroy(transportProxy);
-              throw std::runtime_error("Unknown error.");
+              throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentTime() + "]: Unknown error.");
             }
           }
         }
       } catch(std::exception &e) {
-        ::naeem::hottentot::runtime::Logger::GetError() << "ERROR: " << e.what() << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetError() << 
+          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+            "ERROR: " << e.what() << std::endl;
       } catch(...) {
-        ::naeem::hottentot::runtime::Logger::GetError() << "Unknown error." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetError() << 
+          "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+            "Unknown error." << std::endl;
       }
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Slave thread is exiting ..." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentTime() << "]: " << 
+          "Slave thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
     Runtime::slaveThreadTerminated_ = true;
