@@ -9,6 +9,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <gate/message.h>
 
@@ -85,10 +86,14 @@ namespace client {
       for (uint32_t i = 0; i < sizeof(Runtime::messageIdCounter_); i++) {
         ptr[i] = temp[i];
       }
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+          "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
       free(temp);
     } else {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+          "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
     }
     /*
      * Reading waiting messages
@@ -180,11 +185,15 @@ namespace client {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
-    ::naeem::hottentot::runtime::Logger::GetOut() << "Waiting for submitter thread to exit ..." << std::endl;
+    ::naeem::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+        "Waiting for submitter thread to exit ..." << std::endl;
     while (true) {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       if (Runtime::submitterThreadTerminated_) {
-        ::naeem::hottentot::runtime::Logger::GetOut() << "Submitter thread exited." << std::endl;
+        ::naeem::hottentot::runtime::Logger::GetOut() << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+            "Submitter thread exited." << std::endl;
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));

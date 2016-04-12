@@ -5,6 +5,7 @@
 #include <naeem/os.h>
 
 #include <naeem++/conf/config_manager.h>
+#include <naeem++/date/helper.h>
 
 #include <naeem/hottentot/runtime/configuration.h>
 #include <naeem/hottentot/runtime/logger.h>
@@ -29,7 +30,9 @@ namespace client {
     ::naeem::hottentot::runtime::Logger::Init();
     ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << "Proxy runtime is initialized." << std::endl;
+      ::naeem::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+          "Proxy runtime is initialized." << std::endl;
     }
     ::naeem::gate::client::Runtime::Init(workDirPath_, argc, argv);
     receiverThread_ = new ReceiverThread(gateHost_, gatePort_, popLabel_, workDirPath_);
@@ -41,11 +44,15 @@ namespace client {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
-    std::cout << "Waiting for receiver thread to exit ..." << std::endl;
+    std::cout << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+        "Waiting for receiver thread to exit ..." << std::endl;
     while (true) {
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       if (Runtime::receiverThreadTerminated_) {
-        std::cout << "Receiver thread exited." << std::endl;
+        std::cout << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+            "Receiver thread exited." << std::endl;
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
