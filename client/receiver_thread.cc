@@ -47,7 +47,7 @@ namespace client {
           if (Runtime::termSignal_) {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
-                ::naeem::date::helper::GetCurrentUTCTimeString() <<
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
                   "Slave Thread: Received TERM SIGNAL ..." << std::endl;
             }
             cont = false;
@@ -126,10 +126,13 @@ namespace client {
                   readMessages++;
                   proxy->HasMore(labelString, hasMore);
                 }
-                std::cout << "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "Number of read messages: " << readMessages << std::endl;
+                std::cout << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                    "[Gate-Client] Number of read messages: " << readMessages << std::endl;
               } else {
-                throw std::runtime_error("Slave gate is not available. Reading messages failed.");
+                throw std::runtime_error("[" + 
+                    ::naeem::date::helper::GetCurrentUTCTimeString() + 
+                      "]: [Gate-Client] Slave gate is not available. Reading messages failed.");
               }
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -148,7 +151,9 @@ namespace client {
                     "Proxy object is destroyed." << std::endl;
               }
             } catch (...) {
-              ::naeem::hottentot::runtime::Logger::GetError() << "Unknown error." << std::endl;
+              ::naeem::hottentot::runtime::Logger::GetError() << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                  "[Gate-Client] Unknown error." << std::endl;
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                 ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -161,17 +166,17 @@ namespace client {
       } catch(std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "ERROR: " << e.what() << std::endl;
+            "[Gate-Client] ERROR: " << e.what() << std::endl;
       } catch(...) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "Unknown error." << std::endl;
+            "[Gate-Client] Unknown error." << std::endl;
       }
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "Slave thread is exiting ..." << std::endl;
+          "[Gate-Client] Receiver thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
     Runtime::receiverThreadTerminated_ = true;

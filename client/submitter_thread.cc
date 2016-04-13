@@ -124,13 +124,15 @@ namespace client {
                     );
                     enqueuedCounter++;
                   } else {
-                    throw std::runtime_error("[" + ::naeem::date::helper::GetCurrentUTCTimeString() + "]: " + "Slave gate is not available. Send failed.");
+                    throw std::runtime_error("[" + 
+                        ::naeem::date::helper::GetCurrentUTCTimeString() + "]: " + 
+                          "[Gate-Client] Slave gate is not available. Send failed.");
                   }
                   ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                        "Proxy object is destroyed." << std::endl;
+                        "[Gate-Client] Proxy object is destroyed." << std::endl;
                   }
                 } catch (std::exception &e) {
                   ::naeem::hottentot::runtime::Logger::GetError() << 
@@ -146,7 +148,7 @@ namespace client {
                 } catch (...) {
                   ::naeem::hottentot::runtime::Logger::GetError() << 
                     "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                      "Unknown error." << std::endl;
+                      "[Gate-Client] Unknown error." << std::endl;
                   ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
                   if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                     ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -158,24 +160,24 @@ namespace client {
               }
               ::naeem::hottentot::runtime::Logger::GetOut() << 
                 "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "Number of enqeueud messages: " << enqueuedCounter << std::endl;
+                  "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter << std::endl;
             }
           }
         }
       } catch(std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "ERROR: " << e.what() << std::endl;
+            "[Gate-Client] ERROR: " << e.what() << std::endl;
       } catch(...) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "Unknown error." << std::endl;
+            "[Gate-Client] Unknown error." << std::endl;
       }
     }
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "Slave thread is exiting ..." << std::endl;
+          "[Gate-Client] Submitter thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
     Runtime::submitterThreadTerminated_ = true;
