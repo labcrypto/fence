@@ -91,6 +91,16 @@ namespace client {
                 ss << messageId;
                 NAEEM_data data;
                 NAEEM_length dataLength;
+                if (NAEEM_os__file_exists (
+                      (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
+                      (NAEEM_string)ss.str().c_str()
+                    ) 
+                ) {
+                  std::cout <<
+                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                      "WARNING: Message file does not exist for id: " << ss.str() << std::endl;
+                  continue;
+                }
                 NAEEM_os__read_file_with_path (
                   (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
                   (NAEEM_string)ss.str().c_str(),
@@ -180,7 +190,8 @@ namespace client {
               }
               ::naeem::hottentot::runtime::Logger::GetOut() << 
                 "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter << std::endl;
+                  "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
+                  ", Pending: " << Runtime::enqueued_.size() << std::endl;
             }
           }
         }
