@@ -132,10 +132,27 @@ namespace client {
     {
       std::lock_guard<std::mutex> guard(Runtime::mainLock_);
       ::ir::ntnaeem::gate::Message message;
+      std::stringstream rss;
+      rss << sourceMessageId;
       try {
         message.SetId(0);
         message.SetLabel(enqueueLabel_);
-        message.SetRelId(sourceMessageId);
+        if (
+          NAEEM_os__file_exists (
+            (NAEEM_path)(workDirPath_ + "/s").c_str(),
+            (NAEEM_string)(rss.str() + ".gid").c_str()
+          )
+        ) {
+          uint64_t relatedGateId;
+          NAEEM_os__read_file3 (
+            (NAEEM_path)(workDirPath_ + "/s/" + rss.str() + ".gid").c_str(),
+            (NAEEM_data)(&relatedGateId),
+            0
+          );
+          message.SetRelId(relatedGateId);
+        } else {
+          throw std::runtime_error("Reply failed. Source message is not found.");
+        }
         message.SetContent(::naeem::hottentot::runtime::types::ByteArray(data, length));
         NAEEM_length dataLength;
         NAEEM_data data = message.Serialize(&dataLength);
@@ -151,10 +168,12 @@ namespace client {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
             "ERROR: " << e.what() << std::endl;
+          throw std::runtime_error(e.what());
       } catch (...) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
             "ERROR: Unknown error." << std::endl;
+        throw std::runtime_error("Unknown error at submitting reply message.");
       }
     }
     return messageId;

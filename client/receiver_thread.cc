@@ -115,6 +115,13 @@ namespace client {
                     dataLength
                   );
                   delete [] data;
+                  uint64_t gateId = message.GetId().GetValue();
+                  NAEEM_os__write_to_file (
+                    (NAEEM_path)(me->workDirPath_ + "/s").c_str(),
+                    (NAEEM_string)(ss.str() + ".gid").c_str(),
+                    (NAEEM_data)(&gateId),
+                    sizeof(gateId)
+                  );
                   if (Runtime::received_.find(me->popLabel_) == Runtime::received_.end()) {
                     Runtime::received_.insert(
                       std::pair<std::string, std::deque<uint64_t>*>(
