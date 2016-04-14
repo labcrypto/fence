@@ -91,7 +91,7 @@ namespace client {
                 ss << messageId;
                 NAEEM_data data;
                 NAEEM_length dataLength;
-                if (NAEEM_os__file_exists (
+                if (!NAEEM_os__file_exists (
                       (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
                       (NAEEM_string)ss.str().c_str()
                     ) 
