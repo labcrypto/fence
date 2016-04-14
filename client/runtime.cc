@@ -21,11 +21,11 @@ namespace gate {
 namespace client {
 
   bool Runtime::initialized_ = false;
-  bool Runtime::termSignal_ = false;
-  bool Runtime::submitterThreadTerminated_ = false;
-  bool Runtime::receiverThreadTerminated_ = false;
+  // bool Runtime::termSignal_ = false;
+  // bool Runtime::submitterThreadTerminated_ = false;
+  // bool Runtime::receiverThreadTerminated_ = false;
 
-  std::mutex Runtime::termSignalLock_;
+  // std::mutex Runtime::termSignalLock_;
   std::mutex Runtime::messageIdCounterLock_;
   std::mutex Runtime::mainLock_;
 
@@ -181,7 +181,7 @@ namespace client {
     if (!initialized_) {
       return;
     }
-    {
+    /*{
       std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
       Runtime::termSignal_ = true;
     }
@@ -197,7 +197,7 @@ namespace client {
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    }*/
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::received_.begin();
          it != Runtime::received_.end();
         ) {

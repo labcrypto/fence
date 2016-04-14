@@ -31,6 +31,26 @@ namespace client {
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     pthread_create(&thread, &attr, SubmitterThread::ThreadBody, this);
   }
+  void
+  SubmitterThread::Shutdown() {
+    {
+      std::lock_guard<std::mutex> guard(terminationLock_);
+      terminated_ = true;
+    }
+    ::naeem::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+        "Waiting for submitter thread to exit ..." << std::endl;
+    while (true) {
+      std::lock_guard<std::mutex> guard(terminationLock_);
+      if (threadTerminated_) {
+        ::naeem::hottentot::runtime::Logger::GetOut() << 
+          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+            "Submitter thread exited." << std::endl;
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+  }
   void*
   SubmitterThread::ThreadBody(void *thisObject) {
     ::naeem::gate::client::SubmitterThread *me =
@@ -43,12 +63,12 @@ namespace client {
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         {
-          std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-          if (Runtime::termSignal_) {
+          std::lock_guard<std::mutex> guard(me->terminationLock_);
+          if (me->terminated_) {
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
                 "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "Slave Thread: Received TERM SIGNAL ..." << std::endl;
+                  "Submitter Thread: Received TERM SIGNAL ..." << std::endl;
             }
             cont = false;
             break;
@@ -179,8 +199,8 @@ namespace client {
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "[Gate-Client] Submitter thread is exiting ..." << std::endl;
     }
-    std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-    Runtime::submitterThreadTerminated_ = true;
+    std::lock_guard<std::mutex> guard(me->terminationLock_);
+    me->threadTerminated_ = true;
     pthread_exit(NULL);
   }
 }
