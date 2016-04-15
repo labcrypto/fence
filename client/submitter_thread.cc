@@ -82,47 +82,47 @@ namespace client {
           }
           if (proceed) {
             std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-            if (Runtime::enqueued_.size() > 0) {
-              std::deque<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
-              uint64_t enqueuedCounter = 0;
-              for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
-                uint64_t messageId = enqueuedIds[i];
-                std::stringstream ss;
-                ss << messageId;
-                NAEEM_data data;
-                NAEEM_length dataLength;
-                if (!NAEEM_os__file_exists (
-                      (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
-                      (NAEEM_string)ss.str().c_str()
-                    ) 
-                ) {
-                  std::cout <<
-                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                      "WARNING: Message file does not exist for id: " << ss.str() << std::endl;
-                  continue;
-                }
-                NAEEM_os__read_file_with_path (
-                  (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
-                  (NAEEM_string)ss.str().c_str(),
-                  &data,
-                  &dataLength
-                );
-                ::ir::ntnaeem::gate::Message message;
-                message.Deserialize(data, dataLength);
-                free(data);
-                ::ir::ntnaeem::gate::proxy::GateService *proxy = 
-                  ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(me->gateHost_, me->gatePort_);
-                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                  ::naeem::hottentot::runtime::Logger::GetOut() << 
-                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                    "Proxy object is created." << std::endl;
-                }
-                /* ----------------------------------------------------
-                 * Sending enqueued message
-                 * ----------------------------------------------------
-                 */
-                try {
-                  if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
+            ::ir::ntnaeem::gate::proxy::GateService *proxy = 
+              ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(me->gateHost_, me->gatePort_);
+            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                "Proxy object is created." << std::endl;
+            }
+            uint64_t enqueuedCounter = 0;
+            if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
+              if (Runtime::enqueued_.size() > 0) {
+                std::deque<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
+                for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
+                  uint64_t messageId = enqueuedIds[i];
+                  std::stringstream ss;
+                  ss << messageId;
+                  NAEEM_data data;
+                  NAEEM_length dataLength;
+                  if (!NAEEM_os__file_exists (
+                        (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
+                        (NAEEM_string)ss.str().c_str()
+                      ) 
+                  ) {
+                    std::cout <<
+                      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                        "WARNING: Message file does not exist for id: " << ss.str() << std::endl;
+                    continue;
+                  }
+                  NAEEM_os__read_file_with_path (
+                    (NAEEM_path)(me->workDirPath_ + "/e").c_str(),
+                    (NAEEM_string)ss.str().c_str(),
+                    &data,
+                    &dataLength
+                  );
+                  ::ir::ntnaeem::gate::Message message;
+                  message.Deserialize(data, dataLength);
+                  free(data);
+                  /* ----------------------------------------------------
+                   * Sending enqueued message
+                   * ----------------------------------------------------
+                   */
+                  try {
                     ::naeem::hottentot::runtime::types::UInt64 id;
                     proxy->Enqueue(message, id);
                     uint64_t assignedId = id.GetValue();
@@ -153,46 +153,44 @@ namespace client {
                       sizeof(messageId)
                     );
                     enqueuedCounter++;
-                  } else {
-                    throw std::runtime_error("[" + 
-                        ::naeem::date::helper::GetCurrentUTCTimeString() + "]: " + 
-                          "[Gate-Client] Slave gate is not available. Send failed.");
-                  }
-                  ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                  } catch (std::exception &e) {
+                    ::naeem::hottentot::runtime::Logger::GetError() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                        "[Gate-Client] Proxy object is destroyed." << std::endl;
-                  }
-                } catch (std::exception &e) {
-                  ::naeem::hottentot::runtime::Logger::GetError() << 
-                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                      "ERROR: " << e.what() << std::endl;
-                  ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << 
+                        "[Gate-Client] ERROR: " << e.what() << std::endl;
+                    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+                    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                      ::naeem::hottentot::runtime::Logger::GetOut() << 
+                        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                          "[Gate-Client] Proxy object is destroyed." << std::endl;
+                    }
+                    Runtime::enqueued_.push_back(messageId);
+                  } catch (...) {
+                    ::naeem::hottentot::runtime::Logger::GetError() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                        "Proxy object is destroyed." << std::endl;
+                        "[Gate-Client] Unknown error." << std::endl;
+                    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+                    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                      ::naeem::hottentot::runtime::Logger::GetOut() << 
+                        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                          "[Gate-Client] Proxy object is destroyed." << std::endl;
+                    }
+                    Runtime::enqueued_.push_back(messageId);
                   }
-                  Runtime::enqueued_.push_back(messageId);
-                } catch (...) {
-                  ::naeem::hottentot::runtime::Logger::GetError() << 
-                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                      "[Gate-Client] Unknown error." << std::endl;
-                  ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-                  if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                    ::naeem::hottentot::runtime::Logger::GetOut() << 
-                      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                        "Proxy object is destroyed." << std::endl;
-                  }
-                  Runtime::enqueued_.push_back(messageId);
                 }
-              }
+              } 
+            } else {
+              throw std::runtime_error("[Gate-Client] Slave gate is not available. Send failed.");
+            }
+            ::naeem::hottentot::runtime::Logger::GetOut() << 
+              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
+                ", Pending: " << Runtime::enqueued_.size() << std::endl;
+            ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
                 "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
-                  ", Pending: " << Runtime::enqueued_.size() << std::endl;
-            }
+                  "[Gate-Client] Proxy object is destroyed." << std::endl;
+            }  
           }
         }
       } catch(std::exception &e) {
