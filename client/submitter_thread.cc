@@ -179,7 +179,9 @@ namespace client {
                 }
               } 
             } else {
-              throw std::runtime_error("[Gate-Client] Slave gate is not available. Send failed.");
+              std::cout << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                  "[Gate-Client] Slave gate is not available. Send failed." << std::endl;
             }
             ::naeem::hottentot::runtime::Logger::GetOut() << 
               "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
