@@ -177,16 +177,21 @@ namespace client {
                     Runtime::enqueued_.push_back(messageId);
                   }
                 }
-              } 
+              }
             } else {
-              std::cout << 
-                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "[Gate-Client] Slave gate is not available. Send failed." << std::endl;
+              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                std::cout << 
+                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                    "[Gate-Client] Slave gate is not available. Send failed." << std::endl;
+              }
             }
-            ::naeem::hottentot::runtime::Logger::GetOut() << 
-              "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
-                ", Pending: " << Runtime::enqueued_.size() << std::endl;
+            if (::naeem::hottentot::runtime::Configuration::Verbose() || 
+                Runtime::enqueued_.size() > 0 || enqueuedCounter > 0) {
+              ::naeem::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                  "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
+                  ", Pending: " << Runtime::enqueued_.size() << std::endl;
+            }
             ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 

@@ -153,13 +153,18 @@ namespace client {
                   readMessages++;
                   proxy->HasMore(labelString, hasMore);
                 }
+              } else {
+                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                  std::cout << 
+                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                      "[Gate-Client] Slave gate is not available. Send failed." << std::endl;
+                }
+              }
+              if (::naeem::hottentot::runtime::Configuration::Verbose() || 
+                    readMessages > 0) {
                 std::cout << 
                   "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "[Gate-Client] Number of read messages: " << readMessages << std::endl;
-              } else {
-                throw std::runtime_error("[" + 
-                    ::naeem::date::helper::GetCurrentUTCTimeString() + 
-                      "]: [Gate-Client] Slave gate is not available. Reading messages failed.");
               }
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
               if (::naeem::hottentot::runtime::Configuration::Verbose()) {
