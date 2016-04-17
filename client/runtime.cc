@@ -20,26 +20,28 @@ namespace naeem {
 namespace gate {
 namespace client {
 
-  bool Runtime::initialized_ = false;
-  // bool Runtime::termSignal_ = false;
-  // bool Runtime::submitterThreadTerminated_ = false;
-  // bool Runtime::receiverThreadTerminated_ = false;
+  // bool initialized_ = false;
+  // bool termSignal_ = false;
+  // bool submitterThreadTerminated_ = false;
+  // bool receiverThreadTerminated_ = false;
 
-  // std::mutex Runtime::termSignalLock_;
-  std::mutex Runtime::messageIdCounterLock_;
-  std::mutex Runtime::mainLock_;
+  // std::mutex termSignalLock_;
+  // std::mutex messageIdCounterLock_;
+  // std::mutex mainLock_;
 
-  uint64_t Runtime::messageIdCounter_;
-  std::deque<uint64_t> Runtime::enqueued_;
-  std::map<std::string, std::deque<uint64_t>*> Runtime::received_;
-  std::map<std::string, std::map<uint64_t, uint64_t>*> Runtime::poppedButNotAcked_;
+  // uint64_t messageIdCounter_;
+  // std::deque<uint64_t> enqueued_;
+  // std::map<std::string, std::deque<uint64_t>*> received_;
+  // std::map<std::string, std::map<uint64_t, uint64_t>*> poppedButNotAcked_;
+
+  static std::map<std::string, Runtime*> Runtime::runtimes_;
 
   void
   Runtime::Init(std::string workDirPath, int agrc, char **argv) {
     if (initialized_) {
       return;
     }
-    Runtime::messageIdCounter_ = 10;
+    messageIdCounter_ = 10;
     /*
      * Make directories
      */
@@ -82,18 +84,18 @@ namespace client {
         &temp, 
         &tempLength
       );
-      NAEEM_data ptr = (NAEEM_data)&(Runtime::messageIdCounter_);
-      for (uint32_t i = 0; i < sizeof(Runtime::messageIdCounter_); i++) {
+      NAEEM_data ptr = (NAEEM_data)&(messageIdCounter_);
+      for (uint32_t i = 0; i < sizeof(messageIdCounter_); i++) {
         ptr[i] = temp[i];
       }
       ::naeem::hottentot::runtime::Logger::GetOut() << 
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
-          "Last Message Id Counter value is " << Runtime::messageIdCounter_ << std::endl;
+          "Last Message Id Counter value is " << messageIdCounter_ << std::endl;
       free(temp);
     } else {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
-          "Message Id Counter is set to " << Runtime::messageIdCounter_ << std::endl;
+          "Message Id Counter is set to " << messageIdCounter_ << std::endl;
     }
     /*
      * Reading waiting messages
@@ -107,7 +109,7 @@ namespace client {
     );
     for (uint32_t i = 0; i < filenamesLength; i++) {
       uint64_t messageId = atoll(filenames[i]);
-      Runtime::enqueued_.push_back(messageId);
+      enqueued_.push_back(messageId);
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     /*
@@ -131,12 +133,12 @@ namespace client {
       ::ir::ntnaeem::gate::Message message;
       message.Deserialize(data, dataLength);
       free(data);
-      if (Runtime::received_.find(message.GetLabel().ToStdString()) == 
-            Runtime::received_.end()) {
-        Runtime::received_.insert(std::pair<std::string, std::deque<uint64_t>*>
+      if (received_.find(message.GetLabel().ToStdString()) == 
+            received_.end()) {
+        received_.insert(std::pair<std::string, std::deque<uint64_t>*>
           (message.GetLabel().ToStdString(), new std::deque<uint64_t>()));
       }
-      Runtime::received_[message.GetLabel().ToStdString()]->push_back(messageId);
+      received_[message.GetLabel().ToStdString()]->push_back(messageId);
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     /*
@@ -166,12 +168,12 @@ namespace client {
       ::ir::ntnaeem::gate::Message message;
       message.Deserialize(data, dataLength);
       free(data);
-      if (Runtime::poppedButNotAcked_.find(message.GetLabel().ToStdString()) == 
-            Runtime::poppedButNotAcked_.end()) {
-        Runtime::poppedButNotAcked_.insert(std::pair<std::string, std::map<uint64_t, uint64_t>*>
+      if (poppedButNotAcked_.find(message.GetLabel().ToStdString()) == 
+            poppedButNotAcked_.end()) {
+        poppedButNotAcked_.insert(std::pair<std::string, std::map<uint64_t, uint64_t>*>
           (message.GetLabel().ToStdString(), new std::map<uint64_t, uint64_t>()));
       }
-      (*(Runtime::poppedButNotAcked_[message.GetLabel().ToStdString()]))[messageId] = popTime;
+      (*(poppedButNotAcked_[message.GetLabel().ToStdString()]))[messageId] = popTime;
     }
     NAEEM_os__free_file_names(filenames, filenamesLength);
     initialized_ = true;
@@ -182,15 +184,15 @@ namespace client {
       return;
     }
     /*{
-      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-      Runtime::termSignal_ = true;
+      std::lock_guard<std::mutex> guard(termSignalLock_);
+      termSignal_ = true;
     }
     ::naeem::hottentot::runtime::Logger::GetOut() << 
       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
         "Waiting for submitter thread to exit ..." << std::endl;
     while (true) {
-      std::lock_guard<std::mutex> guard(Runtime::termSignalLock_);
-      if (Runtime::submitterThreadTerminated_) {
+      std::lock_guard<std::mutex> guard(termSignalLock_);
+      if (submitterThreadTerminated_) {
         ::naeem::hottentot::runtime::Logger::GetOut() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
             "Submitter thread exited." << std::endl;
@@ -198,17 +200,17 @@ namespace client {
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }*/
-    for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::received_.begin();
-         it != Runtime::received_.end();
+    for (std::map<std::string, std::deque<uint64_t>*>::iterator it = received_.begin();
+         it != received_.end();
         ) {
       delete it->second;
-      Runtime::received_.erase(it++);
+      received_.erase(it++);
     }
-    for (std::map<std::string, std::map<uint64_t, uint64_t>*>::iterator it = Runtime::poppedButNotAcked_.begin();
-         it != Runtime::poppedButNotAcked_.end();
+    for (std::map<std::string, std::map<uint64_t, uint64_t>*>::iterator it = poppedButNotAcked_.begin();
+         it != poppedButNotAcked_.end();
         ) {
       delete it->second;
-      Runtime::poppedButNotAcked_.erase(it++);
+      poppedButNotAcked_.erase(it++);
     }
     initialized_ = false;
   }

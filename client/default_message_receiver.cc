@@ -34,7 +34,7 @@ namespace client {
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "Proxy runtime is initialized." << std::endl;
     }
-    ::naeem::gate::client::Runtime::Init(workDirPath_, argc, argv);
+    runtime_.Init(workDirPath_, argc, argv);
     receiverThread_ = new ReceiverThread(gateHost_, gatePort_, popLabel_, workDirPath_);
     receiverThread_->Start();
   }
@@ -42,7 +42,7 @@ namespace client {
   DefaultMessageReceiver::Shutdown() {
     receiverThread_->Shutdown();
     delete receiverThread_;
-    ::naeem::gate::client::Runtime::Shutdown();
+    runtime_.Shutdown();
     /* ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown(); */
   }
@@ -50,11 +50,11 @@ namespace client {
   DefaultMessageReceiver::GetMessages () {
     std::vector<Message*> messages;
     {
-      std::lock_guard<std::mutex> guard(Runtime::mainLock_);
-      if (Runtime::poppedButNotAcked_.find(popLabel_) != Runtime::poppedButNotAcked_.end()) {
-        if (Runtime::poppedButNotAcked_[popLabel_]->size() > 0) {
-          for (std::map<uint64_t, uint64_t>::iterator it = Runtime::poppedButNotAcked_[popLabel_]->begin();
-               it != Runtime::poppedButNotAcked_[popLabel_]->end();
+      std::lock_guard<std::mutex> guard(runtime_.mainLock_);
+      if (runtime_.poppedButNotAcked_.find(popLabel_) != runtime_.poppedButNotAcked_.end()) {
+        if (runtime_.poppedButNotAcked_[popLabel_]->size() > 0) {
+          for (std::map<uint64_t, uint64_t>::iterator it = runtime_.poppedButNotAcked_[popLabel_]->begin();
+               it != runtime_.poppedButNotAcked_[popLabel_]->end();
                it++) {
             uint64_t currentTime = time(NULL);
             if ((currentTime - it->second) > ackTimeout_) {
@@ -112,23 +112,23 @@ namespace client {
                 (NAEEM_data)&currentTime,
                 sizeof(currentTime)
               );
-              if (Runtime::poppedButNotAcked_.find(popLabel_) == Runtime::poppedButNotAcked_.end()) {
-                Runtime::poppedButNotAcked_.insert(
+              if (runtime_.poppedButNotAcked_.find(popLabel_) == runtime_.poppedButNotAcked_.end()) {
+                runtime_.poppedButNotAcked_.insert(
                   std::pair<std::string, std::map<uint64_t, uint64_t>*>(
                     popLabel_, new std::map<uint64_t, uint64_t>()));
               }
-              (*(Runtime::poppedButNotAcked_[popLabel_]))[it->first] = currentTime;
+              (*(runtime_.poppedButNotAcked_[popLabel_]))[it->first] = currentTime;
             }
           }
         }
       }
-      if (Runtime::received_.find(popLabel_) == Runtime::received_.end()) {
+      if (runtime_.received_.find(popLabel_) == runtime_.received_.end()) {
         return messages;
       }
-      if (Runtime::received_[popLabel_]->size() == 0) {
+      if (runtime_.received_[popLabel_]->size() == 0) {
         return messages;
       }
-      std::deque<uint64_t> receivedIds = std::move(*(Runtime::received_[popLabel_]));
+      std::deque<uint64_t> receivedIds = std::move(*(runtime_.received_[popLabel_]));
       for (uint64_t i = 0; i < receivedIds.size(); i++) {
         std::stringstream ss;
         ss << receivedIds[i];
@@ -196,12 +196,12 @@ namespace client {
           (NAEEM_data)&currentTime,
           sizeof(currentTime)
         );
-        if (Runtime::poppedButNotAcked_.find(popLabel_) == Runtime::poppedButNotAcked_.end()) {
-          Runtime::poppedButNotAcked_.insert(
+        if (runtime_.poppedButNotAcked_.find(popLabel_) == runtime_.poppedButNotAcked_.end()) {
+          runtime_.poppedButNotAcked_.insert(
             std::pair<std::string, std::map<uint64_t, uint64_t>*>(
               popLabel_, new std::map<uint64_t, uint64_t>()));
         }
-        (*(Runtime::poppedButNotAcked_[popLabel_]))[receivedIds[i]] = currentTime;
+        (*(runtime_.poppedButNotAcked_[popLabel_]))[receivedIds[i]] = currentTime;
       }
     }
     return messages;
@@ -211,7 +211,7 @@ namespace client {
     std::vector<uint64_t> ids
   ) {
     {
-      std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+      std::lock_guard<std::mutex> guard(runtime_.mainLock_);
       for (uint32_t i = 0; i < ids.size(); i++) {
         uint64_t messageId = ids[i];
         std::stringstream ss;
@@ -232,9 +232,9 @@ namespace client {
           ::ir::ntnaeem::gate::Message message;
           message.Deserialize(data, dataLength);
           free(data);
-          if (Runtime::poppedButNotAcked_.find(popLabel_) 
-                != Runtime::poppedButNotAcked_.end()) {
-            Runtime::poppedButNotAcked_[popLabel_]->erase(messageId);
+          if (runtime_.poppedButNotAcked_.find(popLabel_) 
+                != runtime_.poppedButNotAcked_.end()) {
+            runtime_.poppedButNotAcked_[popLabel_]->erase(messageId);
           }
           NAEEM_os__move_file (
             (NAEEM_path)(workDirPath_ + "/pna").c_str(),
