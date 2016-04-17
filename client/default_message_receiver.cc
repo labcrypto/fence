@@ -46,7 +46,7 @@ namespace client {
     receiverThread_->Shutdown();
     delete receiverThread_;
     runtime_->Shutdown();
-    delete runtime_;
+    // delete runtime_;
     /* ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown(); */
   }
