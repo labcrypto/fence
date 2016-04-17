@@ -34,7 +34,7 @@ namespace client {
   // std::map<std::string, std::deque<uint64_t>*> received_;
   // std::map<std::string, std::map<uint64_t, uint64_t>*> poppedButNotAcked_;
 
-  static std::map<std::string, Runtime*> Runtime::runtimes_;
+  std::map<std::string, Runtime*> Runtime::runtimes_;
 
   void
   Runtime::Init(std::string workDirPath, int agrc, char **argv) {

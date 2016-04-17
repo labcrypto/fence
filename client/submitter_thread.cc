@@ -81,7 +81,7 @@ namespace client {
             proceed = true;
           }
           if (proceed) {
-            std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+            std::lock_guard<std::mutex> guard(me->runtime_->mainLock_);
             ::ir::ntnaeem::gate::proxy::GateService *proxy = 
               ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(me->gateHost_, me->gatePort_);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {
@@ -91,8 +91,8 @@ namespace client {
             }
             uint64_t enqueuedCounter = 0;
             if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-              if (Runtime::enqueued_.size() > 0) {
-                std::deque<uint64_t> enqueuedIds = std::move(Runtime::enqueued_);
+              if (me->runtime_->enqueued_.size() > 0) {
+                std::deque<uint64_t> enqueuedIds = std::move(me->runtime_->enqueued_);
                 for (uint64_t i = 0; i < enqueuedIds.size(); i++) {
                   uint64_t messageId = enqueuedIds[i];
                   std::stringstream ss;
@@ -163,7 +163,7 @@ namespace client {
                         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                           "[Gate-Client] Proxy object is destroyed." << std::endl;
                     }
-                    Runtime::enqueued_.push_back(messageId);
+                    me->runtime_->enqueued_.push_back(messageId);
                   } catch (...) {
                     ::naeem::hottentot::runtime::Logger::GetError() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
@@ -174,7 +174,7 @@ namespace client {
                         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                           "[Gate-Client] Proxy object is destroyed." << std::endl;
                     }
-                    Runtime::enqueued_.push_back(messageId);
+                    me->runtime_->enqueued_.push_back(messageId);
                   }
                 }
               }
@@ -186,11 +186,11 @@ namespace client {
               }
             }
             if (::naeem::hottentot::runtime::Configuration::Verbose() || 
-                Runtime::enqueued_.size() > 0 || enqueuedCounter > 0) {
+                me->runtime_->enqueued_.size() > 0 || enqueuedCounter > 0) {
               ::naeem::hottentot::runtime::Logger::GetOut() << 
                 "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "[Gate-Client] Number of enqeueud messages: " << enqueuedCounter <<
-                  ", Pending: " << Runtime::enqueued_.size() << std::endl;
+                  ", Pending: " << me->runtime_->enqueued_.size() << std::endl;
             }
             ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
             if (::naeem::hottentot::runtime::Configuration::Verbose()) {

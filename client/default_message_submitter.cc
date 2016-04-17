@@ -34,15 +34,18 @@ namespace client {
         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "Proxy runtime is initialized." << std::endl;
     }
-    runtime_.Init(workDirPath_, argc, argv);
-    submitterThread_ = new SubmitterThread(gateHost_, gatePort_, enqueueLabel_, workDirPath_);
+    Runtime::RegisterWorkDirPath(workDirPath_);
+    runtime_ = Runtime::GetRuntime(workDirPath_);
+    runtime_->Init(workDirPath_, argc, argv);
+    submitterThread_ = new SubmitterThread(gateHost_, gatePort_, enqueueLabel_, workDirPath_,runtime_);
     submitterThread_->Start();
   }
   void 
   DefaultMessageSubmitter::Shutdown() {
     submitterThread_->Shutdown();
     delete submitterThread_;
-    runtime_.Shutdown();
+    runtime_->Shutdown();
+    delete runtime_;
     /* ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
     ::naeem::hottentot::runtime::Logger::Shutdown(); */
   }
@@ -53,20 +56,20 @@ namespace client {
   ) {
     uint64_t messageId;
     {
-      std::lock_guard<std::mutex> guard(runtime_.messageIdCounterLock_);
-      messageId = runtime_.messageIdCounter_;
-      runtime_.messageIdCounter_++;
+      std::lock_guard<std::mutex> guard(runtime_->messageIdCounterLock_);
+      messageId = runtime_->messageIdCounter_;
+      runtime_->messageIdCounter_++;
       NAEEM_os__write_to_file (
         (NAEEM_path)workDirPath_.c_str(), 
         (NAEEM_string)"mco", 
-        (NAEEM_data)&(runtime_.messageIdCounter_), 
-        (NAEEM_length)sizeof(runtime_.messageIdCounter_)
+        (NAEEM_data)&(runtime_->messageIdCounter_), 
+        (NAEEM_length)sizeof(runtime_->messageIdCounter_)
       );
     }
     std::stringstream ss;
     ss << messageId;
     {
-      std::lock_guard<std::mutex> guard(runtime_.mainLock_);
+      std::lock_guard<std::mutex> guard(runtime_->mainLock_);
       ::ir::ntnaeem::gate::Message message;
       try {
         message.SetId(0);
@@ -82,7 +85,7 @@ namespace client {
           dataLength
         );
         delete [] data;
-        runtime_.enqueued_.push_back(messageId);
+        runtime_->enqueued_.push_back(messageId);
       } catch (std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "ERROR: " << e.what() << std::endl;
@@ -101,20 +104,20 @@ namespace client {
   ) {
     uint64_t messageId;
     {
-      std::lock_guard<std::mutex> guard(runtime_.messageIdCounterLock_);
-      messageId = runtime_.messageIdCounter_;
-      runtime_.messageIdCounter_++;
+      std::lock_guard<std::mutex> guard(runtime_->messageIdCounterLock_);
+      messageId = runtime_->messageIdCounter_;
+      runtime_->messageIdCounter_++;
       NAEEM_os__write_to_file (
         (NAEEM_path)workDirPath_.c_str(), 
         (NAEEM_string)"mco", 
-        (NAEEM_data)&(runtime_.messageIdCounter_), 
-        (NAEEM_length)sizeof(runtime_.messageIdCounter_)
+        (NAEEM_data)&(runtime_->messageIdCounter_), 
+        (NAEEM_length)sizeof(runtime_->messageIdCounter_)
       );
     }
     std::stringstream ss;
     ss << messageId;
     {
-      std::lock_guard<std::mutex> guard(runtime_.mainLock_);
+      std::lock_guard<std::mutex> guard(runtime_->mainLock_);
       ::ir::ntnaeem::gate::Message message;
       std::stringstream rss;
       rss << sourceMessageId;
@@ -147,7 +150,7 @@ namespace client {
           dataLength
         );
         delete [] data;
-        runtime_.enqueued_.push_back(messageId);
+        runtime_->enqueued_.push_back(messageId);
       } catch (std::exception &e) {
         ::naeem::hottentot::runtime::Logger::GetError() << 
           "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<

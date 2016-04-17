@@ -84,7 +84,7 @@ namespace client {
             /*
              * Aquiring main lock by creating guard object
              */
-            std::lock_guard<std::mutex> guard(Runtime::mainLock_);
+            std::lock_guard<std::mutex> guard(me->runtime_->mainLock_);
             /* ----------------------------------------------------
              * Reading messages
              * ----------------------------------------------------
@@ -107,14 +107,14 @@ namespace client {
                   uint64_t messageId;
                   proxy->PopNext(labelString, message);
                   {
-                    std::lock_guard<std::mutex> guard(Runtime::messageIdCounterLock_);
-                    messageId = Runtime::messageIdCounter_;
-                    Runtime::messageIdCounter_++;
+                    std::lock_guard<std::mutex> guard(me->runtime_->messageIdCounterLock_);
+                    messageId = me->runtime_->messageIdCounter_;
+                    me->runtime_->messageIdCounter_++;
                     NAEEM_os__write_to_file (
                       (NAEEM_path)me->workDirPath_.c_str(), 
                       (NAEEM_string)"mco", 
-                      (NAEEM_data)&(Runtime::messageIdCounter_), 
-                      (NAEEM_length)sizeof(Runtime::messageIdCounter_)
+                      (NAEEM_data)&(me->runtime_->messageIdCounter_), 
+                      (NAEEM_length)sizeof(me->runtime_->messageIdCounter_)
                     );
                   }
                   std::stringstream ss;
@@ -142,12 +142,12 @@ namespace client {
                     (NAEEM_data)(&gateId),
                     sizeof(gateId)
                   );
-                  if (Runtime::received_.find(me->popLabel_) == Runtime::received_.end()) {
-                    Runtime::received_.insert(
+                  if (me->runtime_->received_.find(me->popLabel_) == me->runtime_->received_.end()) {
+                    me->runtime_->received_.insert(
                       std::pair<std::string, std::deque<uint64_t>*>(
                         me->popLabel_, new std::deque<uint64_t>));
                   }
-                  Runtime::received_[me->popLabel_]->push_back(messageId);
+                  me->runtime_->received_[me->popLabel_]->push_back(messageId);
                   ::naeem::hottentot::runtime::types::UInt64 messageIdVar(message.GetId().GetValue());
                   proxy->Ack(messageIdVar);
                   readMessages++;
