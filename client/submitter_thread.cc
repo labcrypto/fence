@@ -157,7 +157,7 @@ namespace client {
                     ::naeem::hottentot::runtime::Logger::GetError() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                         "[Gate-Client] ERROR: " << e.what() << std::endl;
-                    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+                    // ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                       ::naeem::hottentot::runtime::Logger::GetOut() << 
                         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
@@ -168,7 +168,7 @@ namespace client {
                     ::naeem::hottentot::runtime::Logger::GetError() << 
                       "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
                         "[Gate-Client] Unknown error." << std::endl;
-                    ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
+                    // ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
                     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
                       ::naeem::hottentot::runtime::Logger::GetOut() << 
                         "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
