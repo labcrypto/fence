@@ -1,5 +1,5 @@
-#ifndef _IR_NTNAEEM_GATE__GATE_MONITOR_SERVICE_IMPL_H_
-#define _IR_NTNAEEM_GATE__GATE_MONITOR_SERVICE_IMPL_H_
+#ifndef _ORG_LABCRYPTO__FENCE__GATE_MONITOR_SERVICE_IMPL_H_
+#define _ORG_LABCRYPTO__FENCE__GATE_MONITOR_SERVICE_IMPL_H_
 
 #ifdef _MSC_VER
 typedef __int8 int8_t;
@@ -19,9 +19,9 @@ typedef unsigned __int64 uint64_t;
 #include <gate/service/abstract_gate_monitor_service.h>
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   class GateMonitorServiceImpl : public ::ir::ntnaeem::gate::service::AbstractGateMonitorService {
   public:

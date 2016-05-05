@@ -1,5 +1,5 @@
-#ifndef _IR_NTNAEEM_GATE__RUNTIME_H_
-#define _IR_NTNAEEM_GATE__RUNTIME_H_
+#ifndef _ORG_LABCRYPTO__FENCE__RUNTIME_H_
+#define _ORG_LABCRYPTO__FENCE__RUNTIME_H_
 
 #include <vector>
 #include <map>
@@ -13,9 +13,9 @@
 // #include "bag.h"
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   class Runtime {
   public:

@@ -9,9 +9,9 @@
 #include "gate_test_service_impl.h"
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   void
   GateTestServiceImpl::OnInit() {

@@ -1,5 +1,5 @@
-#ifndef _IR_NTNAEEM_GATE__SLAVE__GATE_SERVICE_IMPL_H_
-#define _IR_NTNAEEM_GATE__SLAVE__GATE_SERVICE_IMPL_H_
+#ifndef _ORG_LABCRYPTO__FENCE__SLAVE__GATE_SERVICE_IMPL_H_
+#define _ORG_LABCRYPTO__FENCE__SLAVE__GATE_SERVICE_IMPL_H_
 
 #include <stdint.h>
 #include <string>
@@ -7,9 +7,9 @@
 #include <gate/service/abstract_gate_service.h>
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   template<class M> class Queue;
   class GateServiceImpl : public ::ir::ntnaeem::gate::service::AbstractGateService {

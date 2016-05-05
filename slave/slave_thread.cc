@@ -23,9 +23,9 @@
 #include "runtime.h"
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   void
   SlaveThread::Start() { 

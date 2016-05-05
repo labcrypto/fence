@@ -1,10 +1,10 @@
-#ifndef _IR_NTNAEEM_GATE__SLAVE__SLAVE_THREAD_H_
-#define _IR_NTNAEEM_GATE__SLAVE__SLAVE_THREAD_H_
+#ifndef _ORG_LABCRYPTO__FENCE__SLAVE__SLAVE_THREAD_H_
+#define _ORG_LABCRYPTO__FENCE__SLAVE__SLAVE_THREAD_H_
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace slave {
   class SlaveThread {
   public:
