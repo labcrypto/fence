@@ -11,8 +11,7 @@ namespace org {
 namespace labcrypto {
 namespace fence {
 namespace slave {
-  template<class M> class Queue;
-  class GateServiceImpl : public ::ir::ntnaeem::gate::service::AbstractGateService {
+  class GateServiceImpl : public ::org::labcrypto::fence::service::AbstractGateService {
   public:
     GateServiceImpl() {}
     virtual ~GateServiceImpl() {}
@@ -20,32 +19,32 @@ namespace slave {
     virtual void OnInit();
     virtual void OnShutdown();
     virtual void Enqueue(
-      ::ir::ntnaeem::gate::Message &message, 
-      ::naeem::hottentot::runtime::types::UInt64 &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::fence::Message &message, 
+      ::org::labcrypto::hottentot::UInt64 &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void GetStatus(
-      ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::naeem::hottentot::runtime::types::UInt16 &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::UInt64 &id, 
+      ::org::labcrypto::hottentot::UInt16 &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void Discard(
-      ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::UInt64 &id, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void HasMore(
-      ::naeem::hottentot::runtime::types::Utf8String &label, 
-      ::naeem::hottentot::runtime::types::Boolean &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::Utf8String &label, 
+      ::org::labcrypto::hottentot::Boolean &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void PopNext(
-      ::naeem::hottentot::runtime::types::Utf8String &label, 
-      ::ir::ntnaeem::gate::Message &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::Utf8String &label, 
+      ::org::labcrypto::fence::Message &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void Ack(
-      ::naeem::hottentot::runtime::types::UInt64 &id, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::UInt64 &id, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
   private:
     uint32_t ackTimeout_;

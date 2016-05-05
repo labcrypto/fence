@@ -374,9 +374,9 @@ namespace slave {
   }
   void
   GateServiceImpl::Enqueue(
-    ::ir::ntnaeem::gate::Message &message, 
-    ::naeem::hottentot::runtime::types::UInt64 &out, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::fence::Message &message, 
+    ::org::labcrypto::hottentot::UInt64 &out, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -442,9 +442,9 @@ namespace slave {
   }
   void
   GateServiceImpl::GetStatus(
-    ::naeem::hottentot::runtime::types::UInt64 &id, 
-    ::naeem::hottentot::runtime::types::UInt16 &out, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::hottentot::UInt64 &id, 
+    ::org::labcrypto::hottentot::UInt16 &out, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -477,8 +477,8 @@ namespace slave {
   }
   void
   GateServiceImpl::Discard(
-    ::naeem::hottentot::runtime::types::UInt64 &id, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::hottentot::UInt64 &id, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -515,9 +515,9 @@ namespace slave {
   }
   void
   GateServiceImpl::HasMore(
-    ::naeem::hottentot::runtime::types::Utf8String &label, 
-    ::naeem::hottentot::runtime::types::Boolean &out, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::hottentot::Utf8String &label, 
+    ::org::labcrypto::hottentot::Boolean &out, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -554,9 +554,9 @@ namespace slave {
   }
   void
   GateServiceImpl::PopNext(
-    ::naeem::hottentot::runtime::types::Utf8String &label, 
-    ::ir::ntnaeem::gate::Message &out, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::hottentot::Utf8String &label, 
+    ::org::labcrypto::fence::Message &out, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
@@ -659,8 +659,8 @@ namespace slave {
   }
   void
   GateServiceImpl::Ack(
-    ::naeem::hottentot::runtime::types::UInt64 &id, 
-    ::naeem::hottentot::runtime::service::HotContext &hotContext
+    ::org::labcrypto::hottentot::UInt64 &id, 
+    ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
   ) {
     if (::naeem::hottentot::runtime::Configuration::Verbose()) {
       ::naeem::hottentot::runtime::Logger::GetOut() << 
