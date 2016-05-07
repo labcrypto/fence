@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include <naeem++/date/helper.h>
+#include <org/labcrypto/abettor++/date/helper.h>
 
 #include "runtime.h"
 
@@ -72,7 +72,7 @@ namespace slave {
   Runtime::GetCurrentStat() {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
-    ss << "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "] " << std::endl;
+    ss << "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "] " << std::endl;
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
     uint64_t sumOfReadyForPop = 0;
     for (std::map<std::string, std::deque<uint64_t>*>::iterator it = Runtime::readyForPop_.begin();
@@ -108,7 +108,7 @@ namespace slave {
     ss << "------------------------------" << std::endl;
     return ss.str();
   }
-}
-}
-}
-}
+} // END NAMESPACE slave
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org

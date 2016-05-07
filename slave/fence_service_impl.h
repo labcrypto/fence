@@ -1,20 +1,20 @@
-#ifndef _ORG_LABCRYPTO__FENCE__SLAVE__GATE_SERVICE_IMPL_H_
-#define _ORG_LABCRYPTO__FENCE__SLAVE__GATE_SERVICE_IMPL_H_
+#ifndef _ORG_LABCRYPTO__FENCE__SLAVE__FENCE_SERVICE_IMPL_H_
+#define _ORG_LABCRYPTO__FENCE__SLAVE__FENCE_SERVICE_IMPL_H_
 
 #include <stdint.h>
 #include <string>
 
-#include <gate/service/abstract_gate_service.h>
+#include <fence/service/abstract_fence_service.h>
 
 
 namespace org {
 namespace labcrypto {
 namespace fence {
 namespace slave {
-  class GateServiceImpl : public ::org::labcrypto::fence::service::AbstractGateService {
+  class FenceServiceImpl : public ::org::labcrypto::fence::service::AbstractFenceService {
   public:
-    GateServiceImpl() {}
-    virtual ~GateServiceImpl() {}
+    FenceServiceImpl() {}
+    virtual ~FenceServiceImpl() {}
   public:
     virtual void OnInit();
     virtual void OnShutdown();
@@ -51,8 +51,8 @@ namespace slave {
     std::string workDir_;
   };
 } // END OF NAMESPACE slave
-} // END OF NAMESPACE gate
-} // END OF NAMESPACE ntnaeem
-} // END OF NAMESPACE ir
+} // END OF NAMESPACE fence
+} // END OF NAMESPACE labcrypto
+} // END OF NAMESPACE org
 
 #endif

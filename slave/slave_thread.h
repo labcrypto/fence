@@ -11,8 +11,8 @@ namespace slave {
     static void Start();
     static void* ThreadBody(void *);
   };
-}
-}
-}
-}
+} // END NAMESPACE slave
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
 #endif

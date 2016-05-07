@@ -1,16 +1,13 @@
-#ifndef _ORG_LABCRYPTO__FENCE__RUNTIME_H_
-#define _ORG_LABCRYPTO__FENCE__RUNTIME_H_
+#ifndef _ORG_LABCRYPTO__FENCE__SLAVE__RUNTIME_H_
+#define _ORG_LABCRYPTO__FENCE__SLAVE__RUNTIME_H_
 
 #include <vector>
 #include <map>
 #include <mutex>
 #include <deque>
 
-#include <gate/message.h>
+#include <fence/message.h>
 #include <transport/transport_message.h>
-
-// #include "label_queue_map.h"
-// #include "bag.h"
 
 
 namespace org {
@@ -48,9 +45,9 @@ namespace slave {
     static std::map<std::string, std::map<uint64_t, uint64_t>*> poppedButNotAcked_;
     static std::map<std::string, std::deque<uint64_t>*> readyForPop_;
   };
-}
-}
-}
-}
+} // END NAMESPACE slave
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
 
 #endif
