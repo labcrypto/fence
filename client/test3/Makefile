@@ -1,9 +1,32 @@
-apiDir = ../../../naeem-gate-api
+#  The MIT License (MIT)
+#
+#  Copyright (c) 2015 LabCrypto Org.
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#  
+#  The above copyright notice and this permission notice shall be included in all
+#  copies or substantial portions of the Software.
+#  
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#  SOFTWARE.
+#
+
+apiDir = ../../../LabCryptoOrg-fence-api
 cppflags = -Wall -g -c -std=c++11 \
            -I/usr/local/include/hot \
            -I$(apiDir)/client/include \
-           -I../../../corelibs-api/include \
-           -I../../../corelibs++-api/include
+           -I../../../LabCryptoOrg-abettor-c-api/include \
+           -I../../../LabCryptoOrg-abettor-cc-api/include
 
 all:
 	mkdir -p .lib
@@ -12,14 +35,15 @@ all:
 	g++ $(cppflags) main.cc -o .lib/main.o
 
 	g++ -L$(apiDir)/client/lib \
-	    -L../../../corelibs-api/lib \
-	    -L../../../corelibs++-api/lib \
+	    -L../../../LabCryptoOrg-abettor-c-api/lib/gcc-amd64 \
+	    -L../../../LabCryptoOrg-abettor-cc-api/lib/gcc-amd64 \
 	    .lib/main.o \
-	    -lnaeem-gate-client \
+	    -lfence-client \
 	    -lhotd \
 	    -lpthread \
-	    -lnaeem-os \
-	    -lnaeem++-conf \
-	    -lnaeem++-string \
-	    -lnaeem++-os \
+	    -labettor-fs \
+	    -labettor++-conf \
+	    -labettor++-date \
+	    -labettor++-string \
+	    -labettor++-os \
 	    -o test3.out
