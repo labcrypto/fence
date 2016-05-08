@@ -1,8 +1,0 @@
-module ir.ntnaeem.gate.examples.echoer {
-  struct EchoRequest {
-    string name ord(1);
-  };
-  struct EchoResponse {
-    string reply ord(1);
-  };
-};
