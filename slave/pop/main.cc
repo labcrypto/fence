@@ -27,9 +27,9 @@ int
 main(int argc, char **argv) {
   try {
     ::org::labcrypto::hottentot::runtime::Logger::Init();
-    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << "NTNAEEM CO." << std::endl;
+    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << "LABCRYPTO ORG." << std::endl;
     ::org::labcrypto::hottentot::runtime::Logger::GetOut() << "COPYRIGHT 2015-2016" << std::endl;
-    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << "NAEEM GATE SLAVE POP CLIENT" << std::endl;
+    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << "FENCE SLAVE POP CLIENT" << std::endl;
     ::org::labcrypto::hottentot::runtime::Logger::GetOut() << std::endl;
     ::org::labcrypto::hottentot::runtime::Configuration::Init(argc, argv);
     ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
