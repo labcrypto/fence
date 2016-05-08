@@ -1,6 +1,6 @@
-## GATE DURABLE QUEUE
-### About Gate
-Gate is a durable queue.
+## FENCE DURABLE QUEUE
+### About Fence
+Fence is a durable queue.
 
 ### Developers
 
