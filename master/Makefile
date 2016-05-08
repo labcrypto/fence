@@ -28,7 +28,7 @@ cppflags = -Wall -g -c -std=c++11 \
            -I../../LabCryptoOrg-abettor-c-api/include \
            -I../../LabCryptoOrg-abettor-cc-api/include
 
-all:
+all: tools
 	mkdir -p .lib
 	rm -rfv .lib/*
 
