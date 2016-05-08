@@ -14,7 +14,7 @@
 
 void PrintHelpMessage() {
   std::cout << "Usage: " << std::endl;
-  std::cout << "  ./naeem-fence-slave-pop [ARGUMENTS]" << std::endl;
+  std::cout << "  ./fence-slave-pop [ARGUMENTS]" << std::endl;
   std::cout << std::endl;
   std::cout << "  ARGUMENTS:" << std::endl;
   std::cout << "        -h | --host                Slave fence host address [Mandatory]" << std::endl;
