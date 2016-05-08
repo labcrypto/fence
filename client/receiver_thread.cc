@@ -3,25 +3,26 @@
 #include <iostream>
 #include <sstream>
 
-#include <naeem/os.h>
+#include <org/labcrypto/abettor/fs.h>
 
-#include <naeem++/date/helper.h>
+#include <org/labcrypto/abettor++/date/helper.h>
 
-#include <naeem/hottentot/runtime/configuration.h>
-#include <naeem/hottentot/runtime/logger.h>
-#include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
+#include <org/labcrypto/hottentot/runtime/configuration.h>
+#include <org/labcrypto/hottentot/runtime/logger.h>
+#include <org/labcrypto/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include <gate/message.h>
-#include <gate/proxy/gate_service_proxy.h>
-#include <gate/proxy/gate_service_proxy_builder.h>
-
-
-#include <naeem/gate/client/receiver_thread.h>
-#include <naeem/gate/client/runtime.h>
+#include <fence/message.h>
+#include <fence/proxy/fence_service_proxy.h>
+#include <fence/proxy/fence_service_proxy_builder.h>
 
 
-namespace naeem {
-namespace gate {
+#include <org/labcrypto/fence/client/receiver_thread.h>
+#include <org/labcrypto/fence/client/runtime.h>
+
+
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace client {
   void
   ReceiverThread::Start() { 
@@ -37,14 +38,14 @@ namespace client {
       std::lock_guard<std::mutex> guard(terminationLock_);
       terminated_ = true;
     }
-    ::naeem::hottentot::runtime::Logger::GetOut() << 
-      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
         "Waiting for submitter thread to exit ..." << std::endl;
     while (true) {
       std::lock_guard<std::mutex> guard(terminationLock_);
       if (threadTerminated_) {
-        ::naeem::hottentot::runtime::Logger::GetOut() << 
-          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+        ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+          "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
             "Receiver thread exited." << std::endl;
         break;
       }
@@ -53,8 +54,8 @@ namespace client {
   }
   void*
   ReceiverThread::ThreadBody(void *thisObject) {
-    ::naeem::gate::client::ReceiverThread *me =
-      (::naeem::gate::client::ReceiverThread*)(thisObject);
+    ::org::labcrypto::fence::client::ReceiverThread *me =
+      (::org::labcrypto::fence::client::ReceiverThread*)(thisObject);
     bool cont = true;
     time_t lastTime = time(NULL);
     while (cont) {
@@ -65,9 +66,9 @@ namespace client {
         {
           std::lock_guard<std::mutex> guard(me->terminationLock_);
           if (me->terminated_) {
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << 
-                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+            if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+              ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
                   "Receiver Thread: Received TERM SIGNAL ..." << std::endl;
             }
             cont = false;
@@ -89,58 +90,58 @@ namespace client {
              * Reading messages
              * ----------------------------------------------------
              */
-            ::ir::ntnaeem::gate::proxy::GateService *proxy = 
-              ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Create(me->gateHost_, me->gatePort_);
-            if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-              ::naeem::hottentot::runtime::Logger::GetOut() << 
-                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+            ::org::labcrypto::fence::proxy::FenceService *proxy = 
+              ::org::labcrypto::fence::proxy::FenceServiceProxyBuilder::Create(me->fenceHost_, me->fencePort_);
+            if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+              ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+                "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "Proxy object is created." << std::endl;
             }
             uint64_t readMessages = 0;
             try {
-              if (dynamic_cast< ::naeem::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
-                ::naeem::hottentot::runtime::types::Boolean hasMore;
-                ::naeem::hottentot::runtime::types::Utf8String labelString(me->popLabel_);
+              if (dynamic_cast< ::org::labcrypto::hottentot::runtime::proxy::Proxy*>(proxy)->IsServerAlive()) {
+                ::org::labcrypto::hottentot::Boolean hasMore;
+                ::org::labcrypto::hottentot::Utf8String labelString(me->popLabel_);
                 proxy->HasMore(labelString, hasMore);
                 while (hasMore.GetValue()) {
-                  ::ir::ntnaeem::gate::Message message;
+                  ::org::labcrypto::fence::Message message;
                   uint64_t messageId;
                   proxy->PopNext(labelString, message);
                   {
                     std::lock_guard<std::mutex> guard(me->runtime_->messageIdCounterLock_);
                     messageId = me->runtime_->messageIdCounter_;
                     me->runtime_->messageIdCounter_++;
-                    NAEEM_os__write_to_file (
-                      (NAEEM_path)me->workDirPath_.c_str(), 
-                      (NAEEM_string)"mco", 
-                      (NAEEM_data)&(me->runtime_->messageIdCounter_), 
-                      (NAEEM_length)sizeof(me->runtime_->messageIdCounter_)
+                    ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+                      (ORG_LABCRYPTO_ABETTOR_path)me->workDirPath_.c_str(), 
+                      (ORG_LABCRYPTO_ABETTOR_string)"mco", 
+                      (ORG_LABCRYPTO_ABETTOR_data)&(me->runtime_->messageIdCounter_), 
+                      (ORG_LABCRYPTO_ABETTOR_length)sizeof(me->runtime_->messageIdCounter_)
                     );
                   }
                   std::stringstream ss;
                   ss << messageId;
-                  NAEEM_data data;
-                  NAEEM_length dataLength;
+                  ORG_LABCRYPTO_ABETTOR_data data;
+                  ORG_LABCRYPTO_ABETTOR_length dataLength;
                   data = message.Serialize(&dataLength);
-                  NAEEM_os__write_to_file (
-                    (NAEEM_path)(me->workDirPath_ + "/r").c_str(),
-                    (NAEEM_string)ss.str().c_str(),
+                  ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+                    (ORG_LABCRYPTO_ABETTOR_path)(me->workDirPath_ + "/r").c_str(),
+                    (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
                     data,
                     dataLength
                   );
-                  NAEEM_os__write_to_file (
-                    (NAEEM_path)(me->workDirPath_ + "/ra").c_str(),
-                    (NAEEM_string)ss.str().c_str(),
+                  ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+                    (ORG_LABCRYPTO_ABETTOR_path)(me->workDirPath_ + "/ra").c_str(),
+                    (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
                     data,
                     dataLength
                   );
                   delete [] data;
-                  uint64_t gateId = message.GetId().GetValue();
-                  NAEEM_os__write_to_file (
-                    (NAEEM_path)(me->workDirPath_ + "/s").c_str(),
-                    (NAEEM_string)(ss.str() + ".gid").c_str(),
-                    (NAEEM_data)(&gateId),
-                    sizeof(gateId)
+                  uint64_t fenceId = message.GetId().GetValue();
+                  ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+                    (ORG_LABCRYPTO_ABETTOR_path)(me->workDirPath_ + "/s").c_str(),
+                    (ORG_LABCRYPTO_ABETTOR_string)(ss.str() + ".gid").c_str(),
+                    (ORG_LABCRYPTO_ABETTOR_data)(&fenceId),
+                    sizeof(fenceId)
                   );
                   if (me->runtime_->received_.find(me->popLabel_) == me->runtime_->received_.end()) {
                     me->runtime_->received_.insert(
@@ -148,72 +149,73 @@ namespace client {
                         me->popLabel_, new std::deque<uint64_t>));
                   }
                   me->runtime_->received_[me->popLabel_]->push_back(messageId);
-                  ::naeem::hottentot::runtime::types::UInt64 messageIdVar(message.GetId().GetValue());
+                  ::org::labcrypto::hottentot::UInt64 messageIdVar(message.GetId().GetValue());
                   proxy->Ack(messageIdVar);
                   readMessages++;
                   proxy->HasMore(labelString, hasMore);
                 }
               } else {
-                if (::naeem::hottentot::runtime::Configuration::Verbose()) {
+                if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
                   std::cout << 
-                    "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                      "[Gate-Client] Slave gate is not available. Send failed." << std::endl;
+                    "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                      "[Fence-Client] Slave fence is not available. Send failed." << std::endl;
                 }
               }
-              if (::naeem::hottentot::runtime::Configuration::Verbose() || 
+              if (::org::labcrypto::hottentot::runtime::Configuration::Verbose() || 
                     readMessages > 0) {
                 std::cout << 
-                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                    "[Gate-Client] Number of read messages: " << readMessages << std::endl;
+                  "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                    "[Fence-Client] Number of read messages: " << readMessages << std::endl;
               }
-              ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+              ::org::labcrypto::fence::proxy::FenceServiceProxyBuilder::Destroy(proxy);
+              if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+                ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+                  "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             } catch (std::exception &e) {
-              ::naeem::hottentot::runtime::Logger::GetError() << 
-                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+              ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+                "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
                   "ERROR: " << e.what() << std::endl;
-              ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+              ::org::labcrypto::fence::proxy::FenceServiceProxyBuilder::Destroy(proxy);
+              if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+                ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+                  "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             } catch (...) {
-              ::naeem::hottentot::runtime::Logger::GetError() << 
-                "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-                  "[Gate-Client] Unknown error." << std::endl;
-              ::ir::ntnaeem::gate::proxy::GateServiceProxyBuilder::Destroy(proxy);
-              if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-                ::naeem::hottentot::runtime::Logger::GetOut() << 
-                  "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+              ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+                "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+                  "[Fence-Client] Unknown error." << std::endl;
+              ::org::labcrypto::fence::proxy::FenceServiceProxyBuilder::Destroy(proxy);
+              if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+                ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+                  "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
                     "Proxy object is destroyed." << std::endl;
               }
             }
           }
         }
       } catch(std::exception &e) {
-        ::naeem::hottentot::runtime::Logger::GetError() << 
-          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "[Gate-Client] ERROR: " << e.what() << std::endl;
+        ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+          "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+            "[Fence-Client] ERROR: " << e.what() << std::endl;
       } catch(...) {
-        ::naeem::hottentot::runtime::Logger::GetError() << 
-          "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-            "[Gate-Client] Unknown error." << std::endl;
+        ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+          "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+            "[Fence-Client] Unknown error." << std::endl;
       }
     }
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "[Gate-Client] Receiver thread is exiting ..." << std::endl;
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+          "[Fence-Client] Receiver thread is exiting ..." << std::endl;
     }
     std::lock_guard<std::mutex> guard(me->terminationLock_);
     me->threadTerminated_ = true;
     pthread_exit(NULL);
   }
-}
-}
-}
+} // END NAMESAPCE client
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org

@@ -2,43 +2,44 @@
 #include <chrono>
 #include <thread>
 
-#include <naeem/os.h>
+#include <org/labcrypto/abettor/fs.h>
 
-#include <naeem++/conf/config_manager.h>
-#include <naeem++/date/helper.h>
+#include <org/labcrypto/abettor++/conf/config_manager.h>
+#include <org/labcrypto/abettor++/date/helper.h>
 
-#include <naeem/hottentot/runtime/configuration.h>
-#include <naeem/hottentot/runtime/logger.h>
-#include <naeem/hottentot/runtime/utils.h>
-#include <naeem/hottentot/runtime/proxy/proxy.h>
-#include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
+#include <org/labcrypto/hottentot/runtime/configuration.h>
+#include <org/labcrypto/hottentot/runtime/logger.h>
+#include <org/labcrypto/hottentot/runtime/utils.h>
+#include <org/labcrypto/hottentot/runtime/proxy/proxy.h>
+#include <org/labcrypto/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include <gate/message.h>
+#include <fence/message.h>
 
-#include <naeem/gate/client/default_message_receiver.h>
-#include <naeem/gate/client/runtime.h>
+#include <org/labcrypto/fence/client/default_message_receiver.h>
+#include <org/labcrypto/fence/client/runtime.h>
 
 
-namespace naeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace client {
   void 
   DefaultMessageReceiver::Init (
     int argc, 
     char **argv
   ) {
-    ::naeem::hottentot::runtime::Logger::Init();
-    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+    ::org::labcrypto::hottentot::runtime::Logger::Init();
+    ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "Proxy runtime is initialized." << std::endl;
     }
     Runtime::RegisterWorkDirPath(workDirPath_);
     runtime_ = Runtime::GetRuntime(workDirPath_);
     runtime_->Init(workDirPath_, argc, argv);
     runtime_->Init(workDirPath_, argc, argv);
-    receiverThread_ = new ReceiverThread(gateHost_, gatePort_, popLabel_, workDirPath_, runtime_);
+    receiverThread_ = new ReceiverThread(fenceHost_, fencePort_, popLabel_, workDirPath_, runtime_);
     receiverThread_->Start();
   }
   void 
@@ -46,9 +47,6 @@ namespace client {
     receiverThread_->Shutdown();
     delete receiverThread_;
     runtime_->Shutdown();
-    // delete runtime_;
-    /* ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
-    ::naeem::hottentot::runtime::Logger::Shutdown(); */
   }
   std::vector<Message*>
   DefaultMessageReceiver::GetMessages () {
@@ -64,33 +62,33 @@ namespace client {
             if ((currentTime - it->second) > ackTimeout_) {
               std::stringstream ss;
               ss << it->first;
-              NAEEM_data data;
-              NAEEM_length dataLength;
-              NAEEM_os__read_file_with_path (
-                (NAEEM_path)(workDirPath_ + "/pna").c_str(),
-                (NAEEM_string)ss.str().c_str(),
+              ORG_LABCRYPTO_ABETTOR_data data;
+              ORG_LABCRYPTO_ABETTOR_length dataLength;
+              ORG_LABCRYPTO_ABETTOR__fs__read_file_with_base_dir (
+                (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pna").c_str(),
+                (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
                 &data,
                 &dataLength
               );
-              ::ir::ntnaeem::gate::Message message;
+              ::org::labcrypto::fence::Message message;
               message.Deserialize(data, dataLength);
               free(data);
               /* ------------------------------------------ */
-              ::naeem::gate::client::Message *clientMessage = 
-                new ::naeem::gate::client::Message;
+              ::org::labcrypto::fence::client::Message *clientMessage = 
+                new ::org::labcrypto::fence::client::Message;
               clientMessage->SetId (it->first);
               if (message.GetRelId().GetValue() != 0) {
                 std::stringstream crss;
                 crss << message.GetRelId().GetValue();
                 uint64_t clientRelId;
-                if (NAEEM_os__file_exists (
-                      (NAEEM_path)(workDirPath_ + "/s").c_str(),
-                      (NAEEM_string)(crss.str() + ".cid").c_str()
+                if (ORG_LABCRYPTO_ABETTOR__fs__file_exists (
+                      (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/s").c_str(),
+                      (ORG_LABCRYPTO_ABETTOR_string)(crss.str() + ".cid").c_str()
                     )
                 ) {
-                  NAEEM_os__read_file3 (
-                    (NAEEM_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
-                    (NAEEM_data)&clientRelId,
+                  ORG_LABCRYPTO_ABETTOR__fs__read_file_into_buffer (
+                    (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
+                    (ORG_LABCRYPTO_ABETTOR_data)&clientRelId,
                     0
                   );
                   clientMessage->SetRelId (clientRelId);
@@ -110,10 +108,10 @@ namespace client {
               messages.push_back(clientMessage);
               /* ------------------------------------------ */
               uint64_t currentTime = time(NULL);
-              NAEEM_os__write_to_file (
-                (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
-                (NAEEM_string)ss.str().c_str(),
-                (NAEEM_data)&currentTime,
+              ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+                (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pnat").c_str(),
+                (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+                (ORG_LABCRYPTO_ABETTOR_data)&currentTime,
                 sizeof(currentTime)
               );
               if (runtime_->poppedButNotAcked_.find(popLabel_) == runtime_->poppedButNotAcked_.end()) {
@@ -136,33 +134,33 @@ namespace client {
       for (uint64_t i = 0; i < receivedIds.size(); i++) {
         std::stringstream ss;
         ss << receivedIds[i];
-        NAEEM_data data;
-        NAEEM_length dataLength;
-        NAEEM_os__read_file_with_path (
-          (NAEEM_path)(workDirPath_ + "/r").c_str(),
-          (NAEEM_string)ss.str().c_str(),
+        ORG_LABCRYPTO_ABETTOR_data data;
+        ORG_LABCRYPTO_ABETTOR_length dataLength;
+        ORG_LABCRYPTO_ABETTOR__fs__read_file_with_base_dir (
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/r").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
           &data,
           &dataLength
         );
-        ::ir::ntnaeem::gate::Message message;
+        ::org::labcrypto::fence::Message message;
         message.Deserialize(data, dataLength);
         free(data);
         /* ------------------------------------------ */
-        ::naeem::gate::client::Message *clientMessage = 
-          new ::naeem::gate::client::Message;
+        ::org::labcrypto::fence::client::Message *clientMessage = 
+          new ::org::labcrypto::fence::client::Message;
         clientMessage->SetId (receivedIds[i]);
         if (message.GetRelId().GetValue() != 0) {
           std::stringstream crss;
           crss << message.GetRelId().GetValue();
           uint64_t clientRelId;
-          if (NAEEM_os__file_exists (
-                (NAEEM_path)(workDirPath_ + "/s").c_str(),
-                (NAEEM_string)(crss.str() + ".cid").c_str()
+          if (ORG_LABCRYPTO_ABETTOR__fs__file_exists (
+                (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/s").c_str(),
+                (ORG_LABCRYPTO_ABETTOR_string)(crss.str() + ".cid").c_str()
               )
           ) {
-            NAEEM_os__read_file3 (
-              (NAEEM_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
-              (NAEEM_data)&clientRelId,
+            ORG_LABCRYPTO_ABETTOR__fs__read_file_into_buffer (
+              (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/s/" + crss.str() + ".cid").c_str(),
+              (ORG_LABCRYPTO_ABETTOR_data)&clientRelId,
               0
             );
             clientMessage->SetRelId (clientRelId);
@@ -181,23 +179,23 @@ namespace client {
         );
         messages.push_back(clientMessage);
         /* ------------------------------------------ */
-        NAEEM_os__copy_file (
-          (NAEEM_path)(workDirPath_ + "/r").c_str(),
-          (NAEEM_string)ss.str().c_str(),
-          (NAEEM_path)(workDirPath_ + "/a").c_str(),
-          (NAEEM_string)ss.str().c_str()
+        ORG_LABCRYPTO_ABETTOR__fs__copy_file (
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/r").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/a").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str()
         );
-        NAEEM_os__move_file (
-          (NAEEM_path)(workDirPath_ + "/r").c_str(),
-          (NAEEM_string)ss.str().c_str(),
-          (NAEEM_path)(workDirPath_ + "/pna").c_str(),
-          (NAEEM_string)ss.str().c_str()
+        ORG_LABCRYPTO_ABETTOR__fs__move_file (
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/r").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pna").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str()
         );
         uint64_t currentTime = time(NULL);
-        NAEEM_os__write_to_file (
-          (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
-          (NAEEM_string)ss.str().c_str(),
-          (NAEEM_data)&currentTime,
+        ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+          (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pnat").c_str(),
+          (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+          (ORG_LABCRYPTO_ABETTOR_data)&currentTime,
           sizeof(currentTime)
         );
         if (runtime_->poppedButNotAcked_.find(popLabel_) == runtime_->poppedButNotAcked_.end()) {
@@ -220,43 +218,44 @@ namespace client {
         uint64_t messageId = ids[i];
         std::stringstream ss;
         ss << messageId;
-        if (NAEEM_os__file_exists (
-              (NAEEM_path)(workDirPath_ + "/pna").c_str(), 
-              (NAEEM_string)ss.str().c_str()
+        if (ORG_LABCRYPTO_ABETTOR__fs__file_exists (
+              (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pna").c_str(), 
+              (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str()
             )
         ) {
-          NAEEM_data data;
-          NAEEM_length dataLength;
-          NAEEM_os__read_file_with_path (
-            (NAEEM_path)(workDirPath_ + "/pna").c_str(),
-            (NAEEM_string)ss.str().c_str(),
+          ORG_LABCRYPTO_ABETTOR_data data;
+          ORG_LABCRYPTO_ABETTOR_length dataLength;
+          ORG_LABCRYPTO_ABETTOR__fs__read_file_with_base_dir (
+            (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pna").c_str(),
+            (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
             &data,
             &dataLength
           );
-          ::ir::ntnaeem::gate::Message message;
+          ::org::labcrypto::fence::Message message;
           message.Deserialize(data, dataLength);
           free(data);
           if (runtime_->poppedButNotAcked_.find(popLabel_) 
                 != runtime_->poppedButNotAcked_.end()) {
             runtime_->poppedButNotAcked_[popLabel_]->erase(messageId);
           }
-          NAEEM_os__move_file (
-            (NAEEM_path)(workDirPath_ + "/pna").c_str(),
-            (NAEEM_string)ss.str().c_str(),
-            (NAEEM_path)(workDirPath_ + "/pa").c_str(),
-            (NAEEM_string)ss.str().c_str()
+          ORG_LABCRYPTO_ABETTOR__fs__move_file (
+            (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pna").c_str(),
+            (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+            (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pa").c_str(),
+            (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str()
           );
           uint64_t currentTime = time(NULL);
-          NAEEM_os__write_to_file (
-            (NAEEM_path)(workDirPath_ + "/pnat").c_str(),
-            (NAEEM_string)ss.str().c_str(),
-            (NAEEM_data)&currentTime,
+          ORG_LABCRYPTO_ABETTOR__fs__write_to_file (
+            (ORG_LABCRYPTO_ABETTOR_path)(workDirPath_ + "/pnat").c_str(),
+            (ORG_LABCRYPTO_ABETTOR_string)ss.str().c_str(),
+            (ORG_LABCRYPTO_ABETTOR_data)&currentTime,
             sizeof(currentTime)
           );
         }
       }
     }
   }
-}
-}
-}
+} // END NAMESAPCE client
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
