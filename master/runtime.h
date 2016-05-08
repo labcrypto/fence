@@ -1,5 +1,5 @@
-#ifndef _IR_NTNAEEM_GATE__MASTER__RUNTIME_H_
-#define _IR_NTNAEEM_GATE__MASTER__RUNTIME_H_
+#ifndef _ORG_LABCRYPTO__FENCE__MASTER__RUNTIME_H_
+#define _ORG_LABCRYPTO__FENCE__MASTER__RUNTIME_H_
 
 #include <deque>
 #include <map>
