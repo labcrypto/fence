@@ -5,15 +5,15 @@
 #include <chrono>
 #include <iostream>
 
-#include <naeem++/os/proc.h>
-#include <naeem++/conf/config_manager.h>
+#include <org/labcrypto/abettor++/os/proc.h>
+#include <org/labcrypto/abettor++/conf/config_manager.h>
 
-#include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/default_message_submitter.h>
+#include <org/labcrypto/fence/client/runtime.h>
+#include <org/labcrypto/fence/client/default_message_submitter.h>
 
 
 bool cont = true;
-::naeem::gate::client::MessageSubmitter *messageSubmitter = NULL;
+::org::labcrypto::fence::client::MessageSubmitter *messageSubmitter = NULL;
 
 void 
 SigTermHanlder(int flag) {
@@ -29,13 +29,13 @@ int main(int argc, char **argv) {
   sigaction(SIGINT, &sigIntHandler, NULL);
   signal(SIGPIPE, SIG_IGN);
 
-  std::string execDir = ::naeem::os::GetExecDir();
-  ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/test1.conf");
-  std::string gateHost = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
-  uint16_t gatePort = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
-  std::string workDirPath = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+  std::string execDir = ::org::labcrypto::abettor::os::GetExecDir();
+  ::org::labcrypto::abettor::conf::ConfigManager::LoadFromFile(execDir + "/test1.conf");
+  std::string gateHost = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("gate-client", "host");
+  uint16_t gatePort = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
+  std::string workDirPath = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
   messageSubmitter = 
-    new ::naeem::gate::client::DefaultMessageSubmitter (
+    new ::org::labcrypto::fence::client::DefaultMessageSubmitter (
       gateHost, 
       gatePort,
       "test1-request",
@@ -52,6 +52,6 @@ int main(int argc, char **argv) {
     messageSubmitter->Shutdown();
     delete messageSubmitter;
   }
-  ::naeem::conf::ConfigManager::Clear();
+  ::org::labcrypto::abettor::conf::ConfigManager::Clear();
   return 0;
 }
