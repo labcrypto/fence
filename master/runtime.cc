@@ -1,13 +1,13 @@
 #include <sstream>
 
-#include <naeem++/date/helper.h>
+#include <org/labcrypto/abettor++/date/helper.h>
 
 #include "runtime.h"
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace master {
   
   bool Runtime::termSignal_;
@@ -75,7 +75,7 @@ namespace master {
   Runtime::GetCurrentStat() {
     std::stringstream ss;
     ss << "------------------------------" << std::endl;
-    ss << "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << std::endl;
+    ss << "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << std::endl;
     ss << "MESSAGE ID COUNTER: " << messageIdCounter_ << std::endl;
     ss << "# ARRIVED: " << Runtime::arrived_.size() << std::endl;
     ss << "# ENQUEUED: " << Runtime::enqueued_.size() << std::endl;
@@ -138,7 +138,7 @@ namespace master {
     ss << "------------------------------" << std::endl;
     return ss.str();
   }
-}
-}
-}
-}
+} // END NAMESAPCE master
+} // END NAMESAPCE fence
+} // END NAMESPACE labcrypto
+} // END NAMESAPCE org

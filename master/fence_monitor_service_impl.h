@@ -16,28 +16,28 @@ typedef unsigned __int64 uint64_t;
 
 #include <string>
 
-#include <gate/service/abstract_gate_monitor_service.h>
+#include <fence/service/abstract_fence_monitor_service.h>
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace master {
-  class GateMonitorServiceImpl : public ::ir::ntnaeem::gate::service::AbstractGateMonitorService {
+  class FenceMonitorServiceImpl : public ::org::labcrypto::fence::service::AbstractFenceMonitorService {
   public:
-    GateMonitorServiceImpl() {}
-    virtual ~GateMonitorServiceImpl() {}
+    FenceMonitorServiceImpl() {}
+    virtual ~FenceMonitorServiceImpl() {}
   public:
     virtual void OnInit();
     virtual void OnShutdown();
     virtual void GetCurrentStat(
-      ::naeem::hottentot::runtime::types::Utf8String &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::Utf8String &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
   };
-} // END OF NAMESPACE slave
-} // END OF NAMESPACE gate
-} // END OF NAMESPACE ntnaeem
-} // END OF NAMESPACE ir
+} // END OF NAMESPACE master
+} // END OF NAMESPACE fence
+} // END OF NAMESPACE labcrypto
+} // END OF NAMESPACE org
 
 #endif

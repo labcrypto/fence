@@ -7,11 +7,11 @@
 #include <transport/service/abstract_transport_service.h>
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace master {
-  class TransportServiceImpl : public ::ir::ntnaeem::gate::transport::service::AbstractTransportService {
+  class TransportServiceImpl : public ::org::labcrypto::fence::transport::service::AbstractTransportService {
   public:
     TransportServiceImpl() {}
     virtual ~TransportServiceImpl() {}
@@ -19,31 +19,31 @@ namespace master {
     virtual void OnInit();
     virtual void OnShutdown();
     virtual void Transmit(
-      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &messages, 
-      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::EnqueueReport> &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::List< ::org::labcrypto::fence::transport::TransportMessage> &messages, 
+      ::org::labcrypto::hottentot::List< ::org::labcrypto::fence::transport::EnqueueReport> &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void Retrieve(
-      ::naeem::hottentot::runtime::types::UInt32 &slaveId, 
-      ::naeem::hottentot::runtime::types::List< ::ir::ntnaeem::gate::transport::TransportMessage> &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::UInt32 &slaveId, 
+      ::org::labcrypto::hottentot::List< ::org::labcrypto::fence::transport::TransportMessage> &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void Ack(
-      ::naeem::hottentot::runtime::types::List< ::naeem::hottentot::runtime::types::UInt64> &masterMIds, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::List< ::org::labcrypto::hottentot::UInt64> &masterMIds, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
     virtual void GetStatus(
-      ::naeem::hottentot::runtime::types::UInt64 &masterMId, 
-      ::naeem::hottentot::runtime::types::UInt16 &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::UInt64 &masterMId, 
+      ::org::labcrypto::hottentot::UInt16 &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
   private:
     uint32_t ackTimeout_;
     std::string workDir_;
   };
-} // END OF NAMESPACE master
-} // END OF NAMESPACE gate
-} // END OF NAMESPACE ntnaeem
-} // END OF NAMESPACE ir
+} // END NAMESPACE master
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
 
 #endif

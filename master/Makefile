@@ -67,7 +67,7 @@ all:
 	    .lib/main.o \
 	    -lhotd \
 	    -lpthread \
-	    -labettor-os \
+	    -labettor-fs \
 	    -labettor++-conf \
 	    -labettor++-string \
 	    -labettor++-os \

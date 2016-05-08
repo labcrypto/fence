@@ -19,11 +19,11 @@ typedef unsigned __int64 uint64_t;
 #include <transport/service/abstract_transport_monitor_service.h>
 
 
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace master {
-  class TransportMonitorServiceImpl : public ::ir::ntnaeem::gate::transport::service::AbstractTransportMonitorService {
+  class TransportMonitorServiceImpl : public ::org::labcrypto::fence::transport::service::AbstractTransportMonitorService {
   public:
     TransportMonitorServiceImpl() {}
     virtual ~TransportMonitorServiceImpl() {}
@@ -31,13 +31,13 @@ namespace master {
     virtual void OnInit();
     virtual void OnShutdown();
     virtual void GetCurrentStat(
-      ::naeem::hottentot::runtime::types::Utf8String &out, 
-      ::naeem::hottentot::runtime::service::HotContext &hotContext
+      ::org::labcrypto::hottentot::Utf8String &out, 
+      ::org::labcrypto::hottentot::runtime::service::HotContext &hotContext
     );
   };
-} // END OF NAMESPACE transport
-} // END OF NAMESPACE gate
-} // END OF NAMESPACE ntnaeem
-} // END OF NAMESPACE ir
+} // END NAMESPACE master
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
 
 #endif

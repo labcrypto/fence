@@ -5,19 +5,14 @@
 #include <map>
 #include <mutex>
 
-#include <gate/message.h>
+#include <fence/message.h>
 
 #include <transport/transport_message.h>
 
-#include "queue.h"
-#include "bag.h"
-#include "label_queue_map.h"
-#include "slave_bag_map.h"
 
-
-namespace ir {
-namespace ntnaeem {
-namespace gate {
+namespace org {
+namespace labcrypto {
+namespace fence {
 namespace master {
   class Runtime {
   public:
@@ -54,9 +49,9 @@ namespace master {
     static std::map<uint32_t, std::vector<uint64_t>*> readyForRetrieval_;
     static std::map<uint32_t, std::map<uint64_t, uint64_t>*> retrievedButNotAcked_;
   };
-}
-}
-}
-}
+} // END NAMESPACE master
+} // END NAMESPACE fence
+} // END NAMESPACE labcrypto
+} // END NAMESPACE org
 
 #endif

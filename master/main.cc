@@ -1,20 +1,20 @@
 #include <iostream>
 
-#include <naeem/os.h>
+#include <org/labcrypto/abettor/fs.h>
 
-#include <naeem++/os/proc.h>
-#include <naeem++/conf/config_manager.h>
-#include <naeem++/date/helper.h>
+#include <org/labcrypto/abettor++/os/proc.h>
+#include <org/labcrypto/abettor++/conf/config_manager.h>
+#include <org/labcrypto/abettor++/date/helper.h>
 
-#include <naeem/hottentot/runtime/configuration.h>
-#include <naeem/hottentot/runtime/logger.h>
-#include <naeem/hottentot/runtime/service/service_runtime.h>
-#include <naeem/hottentot/runtime/proxy/proxy_runtime.h>
+#include <org/labcrypto/hottentot/runtime/configuration.h>
+#include <org/labcrypto/hottentot/runtime/logger.h>
+#include <org/labcrypto/hottentot/runtime/service/service_runtime.h>
+#include <org/labcrypto/hottentot/runtime/proxy/proxy_runtime.h>
 
-#include <gate/message.h>
+#include <fence/message.h>
 
-#include "gate_service_impl.h"
-#include "gate_monitor_service_impl.h"
+#include "fence_service_impl.h"
+#include "fence_monitor_service_impl.h"
 #include "transport_service_impl.h"
 #include "transport_monitor_service_impl.h"
 #include "master_thread.h"
@@ -24,171 +24,171 @@
 int
 main(int argc, char **argv) {
   try {
-    std::string execDir = ::naeem::os::GetExecDir();
-    ::naeem::hottentot::runtime::Logger::Init();
-    ::naeem::hottentot::runtime::Configuration::Init(argc, argv);
-    if (!NAEEM_os__file_exists((NAEEM_path)execDir.c_str(), (NAEEM_string)"master.conf")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    std::string execDir = ::org::labcrypto::abettor::os::GetExecDir();
+    ::org::labcrypto::hottentot::runtime::Logger::Init();
+    ::org::labcrypto::hottentot::runtime::Configuration::Init(argc, argv);
+    if (!ORG_LABCRYPTO_ABETTOR__fs__file_exists((ORG_LABCRYPTO_ABETTOR_path)execDir.c_str(), (ORG_LABCRYPTO_ABETTOR_string)"master.conf")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: 'master.conf' does not exist in " << execDir << " directory." << std::endl;
       exit(1);
     }
-    ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/master.conf");
-    if (!::naeem::conf::ConfigManager::HasSection("master")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    ::org::labcrypto::abettor::conf::ConfigManager::LoadFromFile(execDir + "/master.conf");
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasSection("master")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration section 'master' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasSection("transport_service")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasSection("transport_service")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration section 'transport_service' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasSection("gate_service")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "ERROR: Configuration section 'gate_service' is not found." << std::endl;
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasSection("fence_service")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+          "ERROR: Configuration section 'fence_service' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("transport_service", "bind_ip")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("transport_service", "bind_ip")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'transport_service.bind_ip' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("transport_service", "bind_port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("transport_service", "bind_port")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'transport_service.bind_port' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("gate_service", "bind_ip")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "ERROR: Configuration value 'gate_service.bind_ip' is not found." << std::endl;
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("fence_service", "bind_ip")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+          "ERROR: Configuration value 'fence_service.bind_ip' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("gate_service", "bind_port")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
-          "ERROR: Configuration value 'gate_service.bind_port' is not found." << std::endl;
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("fence_service", "bind_port")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
+          "ERROR: Configuration value 'fence_service.bind_port' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("master", "work_dir")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("master", "work_dir")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'master.work_dir' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("master", "ack_timeout")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("master", "ack_timeout")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'master.ack_timeout' is not found." << std::endl;
       exit(1);
     }
-    if (!::naeem::conf::ConfigManager::HasValue("master", "transfer_interval")) {
-      ::naeem::hottentot::runtime::Logger::GetError() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    if (!::org::labcrypto::abettor::conf::ConfigManager::HasValue("master", "transfer_interval")) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "ERROR: Configuration value 'master.transfer_interval' is not found." << std::endl;
       exit(1);
     }
-    std::cout << "NTNAEEM CO." << std::endl;
+    std::cout << "LABCRYPTO ORG." << std::endl;
     std::cout << "COPYRIGHT 2015-2016" << std::endl;
-    std::cout << "NAEEM GATE MASTER SERVICE" << std::endl;
-    ::naeem::conf::ConfigManager::Print();
-    ::ir::ntnaeem::gate::master::Runtime::Init();
-    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    std::cout << "FENCE MASTER SERVICE" << std::endl;
+    ::org::labcrypto::abettor::conf::ConfigManager::Print();
+    ::org::labcrypto::fence::master::Runtime::Init();
+    ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Init(argc, argv);
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Proxy runtime is initialized." << std::endl;
     }
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Init(argc, argv);
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Init(argc, argv);
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Starting server ..." << std::endl;
     }
-    ::ir::ntnaeem::gate::master::TransportServiceImpl *transportService =
-      new ::ir::ntnaeem::gate::master::TransportServiceImpl;
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
+    ::org::labcrypto::fence::master::TransportServiceImpl *transportService =
+      new ::org::labcrypto::fence::master::TransportServiceImpl;
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Register(
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
       transportService
     );
-    ::ir::ntnaeem::gate::master::TransportMonitorServiceImpl *transportMonitorService =
-      new ::ir::ntnaeem::gate::master::TransportMonitorServiceImpl;
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
+    ::org::labcrypto::fence::master::TransportMonitorServiceImpl *transportMonitorService =
+      new ::org::labcrypto::fence::master::TransportMonitorServiceImpl;
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Register(
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("transport_service", "bind_ip"), 
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("transport_service", "bind_port"), 
       transportMonitorService
     );
-    ::ir::ntnaeem::gate::master::GateServiceImpl *gateService =
-      new ::ir::ntnaeem::gate::master::GateServiceImpl;
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("gate_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
-      gateService
+    ::org::labcrypto::fence::master::FenceServiceImpl *fenceService =
+      new ::org::labcrypto::fence::master::FenceServiceImpl;
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Register(
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("fence_service", "bind_ip"), 
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("fence_service", "bind_port"), 
+      fenceService
     );
-    ::ir::ntnaeem::gate::master::GateMonitorServiceImpl *gateMonitorService =
-      new ::ir::ntnaeem::gate::master::GateMonitorServiceImpl;
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Register(
-      ::naeem::conf::ConfigManager::GetValueAsString("gate_service", "bind_ip"), 
-      ::naeem::conf::ConfigManager::GetValueAsUInt32("gate_service", "bind_port"), 
-      gateMonitorService
+    ::org::labcrypto::fence::master::FenceMonitorServiceImpl *fenceMonitorService =
+      new ::org::labcrypto::fence::master::FenceMonitorServiceImpl;
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Register(
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("fence_service", "bind_ip"), 
+      ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("fence_service", "bind_port"), 
+      fenceMonitorService
     );
-    ::ir::ntnaeem::gate::master::MasterThread::Start();
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Start();
-    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
-    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    ::org::labcrypto::fence::master::MasterThread::Start();
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Start();
+    ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::org::labcrypto::fence::master::Runtime::Shutdown();
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Service runtime is shutdown." << std::endl;
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "About to disable logging system ..." << std::endl;
     }
-    ::naeem::conf::ConfigManager::Clear();
-    ::naeem::hottentot::runtime::Logger::Shutdown();
+    ::org::labcrypto::abettor::conf::ConfigManager::Clear();
+    ::org::labcrypto::hottentot::runtime::Logger::Shutdown();
   } catch (std::exception &e) {
-    ::naeem::hottentot::runtime::Logger::GetOut() << 
-      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+      "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
         "ERROR: " << e.what() << std::endl;
-    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
-    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " << 
+    ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::org::labcrypto::fence::master::Runtime::Shutdown();
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
           "Service runtime is shutdown." << std::endl;
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "About to disable logging system ..." << std::endl;
     }
-    ::naeem::conf::ConfigManager::Clear();
-    ::naeem::hottentot::runtime::Logger::Shutdown();
+    ::org::labcrypto::abettor::conf::ConfigManager::Clear();
+    ::org::labcrypto::hottentot::runtime::Logger::Shutdown();
     return 1;
   } catch (...) {
-    ::naeem::hottentot::runtime::Logger::GetOut() <<  
-      "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+    ::org::labcrypto::hottentot::runtime::Logger::GetOut() <<  
+      "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
         "UNKNOWN ERROR!" << std::endl;
-    ::naeem::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
-    ::naeem::hottentot::runtime::service::ServiceRuntime::Shutdown();
-    ::ir::ntnaeem::gate::master::Runtime::Shutdown();
-    if (::naeem::hottentot::runtime::Configuration::Verbose()) {
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+    ::org::labcrypto::hottentot::runtime::proxy::ProxyRuntime::Shutdown();
+    ::org::labcrypto::hottentot::runtime::service::ServiceRuntime::Shutdown();
+    ::org::labcrypto::fence::master::Runtime::Shutdown();
+    if (::org::labcrypto::hottentot::runtime::Configuration::Verbose()) {
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "Service runtime is shutdown." << std::endl;
-      ::naeem::hottentot::runtime::Logger::GetOut() << 
-        "[" << ::naeem::date::helper::GetCurrentUTCTimeString() << "]: " <<
+      ::org::labcrypto::hottentot::runtime::Logger::GetOut() << 
+        "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " <<
           "About to disable logging system ..." << std::endl;
     }
-    ::naeem::conf::ConfigManager::Clear();
-    ::naeem::hottentot::runtime::Logger::Shutdown();
+    ::org::labcrypto::abettor::conf::ConfigManager::Clear();
+    ::org::labcrypto::hottentot::runtime::Logger::Shutdown();
     return 1;
   }
   return 0;
