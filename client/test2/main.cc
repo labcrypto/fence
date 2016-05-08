@@ -5,15 +5,15 @@
 #include <chrono>
 #include <iostream>
 
-#include <naeem++/os/proc.h>
-#include <naeem++/conf/config_manager.h>
+#include <org/labcrypto/abettor++/os/proc.h>
+#include <org/labcrypto/abettor++/conf/config_manager.h>
 
-#include <naeem/gate/client/runtime.h>
-#include <naeem/gate/client/default_message_receiver.h>
+#include <org/labcrypto/fence/client/runtime.h>
+#include <org/labcrypto/fence/client/default_message_receiver.h>
 
 
 bool cont = true;
-::naeem::gate::client::MessageReceiver *messageReceiver = NULL;
+::org::labcrypto::fence::client::MessageReceiver *messageReceiver = NULL;
 
 void 
 SigTermHanlder(int flag) {
@@ -29,14 +29,14 @@ int main(int argc, char **argv) {
   sigaction(SIGINT, &sigIntHandler, NULL);
   signal(SIGPIPE, SIG_IGN);
 
-  std::string execDir = ::naeem::os::GetExecDir();
-  ::naeem::conf::ConfigManager::LoadFromFile(execDir + "/test2.conf");
-  std::string gateHost = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "host");
-  uint16_t gatePort = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
-  std::string workDirPath = ::naeem::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
-  uint32_t ackTimeout = ::naeem::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout");
+  std::string execDir = ::org::labcrypto::abettor::os::GetExecDir();
+  ::org::labcrypto::abettor::conf::ConfigManager::LoadFromFile(execDir + "/test2.conf");
+  std::string gateHost = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("gate-client", "host");
+  uint16_t gatePort = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("gate-client", "port");
+  std::string workDirPath = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsString("gate-client", "work_dir");
+  uint32_t ackTimeout = ::org::labcrypto::abettor::conf::ConfigManager::GetValueAsUInt32("gate-client", "ack_timeout");
   messageReceiver = 
-    new ::naeem::gate::client::DefaultMessageReceiver (
+    new ::org::labcrypto::fence::client::DefaultMessageReceiver (
       gateHost, 
       gatePort,
       "test2-response",
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
       ackTimeout
     );
   messageReceiver->Init();
-  std::vector<::naeem::gate::client::Message*> messages;
+  std::vector<::org::labcrypto::fence::client::Message*> messages;
   messages = messageReceiver->GetMessages();
   std::vector<uint64_t> ids;
   while (cont) {
@@ -65,6 +65,6 @@ int main(int argc, char **argv) {
     messageReceiver->Shutdown();
     delete messageReceiver;
   }
-  ::naeem::conf::ConfigManager::Clear();
+  ::org::labcrypto::abettor::conf::ConfigManager::Clear();
   return 0;
 }
