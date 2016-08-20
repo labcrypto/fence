@@ -1,4 +1,4 @@
-# Abettor - Helper libraries written in C
+# Fence - A durable queue
 
 ### Installation
 #### Linux (Debian-based distributions)
