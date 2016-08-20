@@ -30,6 +30,9 @@ Compile and install sources.
  $ sudo make install
 ```
 
+Copy `master.conf` to /usr/bin for master node configuration.
+Copy `slave.conf` to /usr/bin for slave node configuration.
+
 ### Developers
 
 Kamran Amini  (kam.cpp@gmail.com)
