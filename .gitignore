@@ -1,5 +1,6 @@
 work
-out
+*.out
 master-bin
 slave-bin
 .lib
+build
