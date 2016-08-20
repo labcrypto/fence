@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8) 
 
-project(LabCryptoOrg-fence-slave-ack)
+project(LabCryptoOrg-fence-slave-enq)
 
 if (APPLE)
   set(CMAKE_MACOSX_RPATH 1)
@@ -30,17 +30,19 @@ elseif (UNIX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-write-strings -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function")
 endif()
 
-add_library(fence-slave-ack-lib SHARED 
+add_library(fence-slave-enq-lib SHARED 
+  ${HOT_GENERATED_DIR}/fence/message.cc
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy.cc
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy_builder.cc
 )
 
-add_executable(fence-slave-ack
+add_executable(fence-slave-enq
   ${PROJECT_SOURCE_DIR}/main.cc
 )
 
-target_link_libraries(fence-slave-ack
-  fence-slave-ack-lib
+target_link_libraries(fence-slave-enq
+  fence-slave-enq-lib
   hotd
   pthread
+  abettor-c-fs
 )

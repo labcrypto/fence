@@ -4,3 +4,4 @@ master-bin
 slave-bin
 .lib
 build
+*.swp
