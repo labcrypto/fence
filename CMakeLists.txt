@@ -15,5 +15,10 @@ if (APPLE)
   link_directories("/opt/local/lib/")
 endif()
 
-add_subdirectory(src/master)
-add_subdirectory(src/slave)
+execute_process(COMMAND ./gen.sh
+  COMMAND rm -rf ./generated
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/hot
+)
+
+add_subdirectory(src/master fence-master-bin)
+add_subdirectory(src/slave fence-slave-bin)

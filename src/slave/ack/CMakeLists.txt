@@ -44,3 +44,6 @@ target_link_libraries(fence-slave-ack
   hotd
   pthread
 )
+
+install(TARGETS fence-slave-ack-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-ack DESTINATION ${BIN_INSTALL_DIR})
