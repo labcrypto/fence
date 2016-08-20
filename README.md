@@ -33,13 +33,15 @@ Compile and install sources.
 Copy `master.conf` to `/usr/bin` for master node configuration.
 
 ```shell
- $ cp fence/src/master/master.conf /usr/bin
+ $ cd fence
+ $ sudo cp src/master/master.conf /usr/bin
 ```
 
 Copy `slave.conf` to `/usr/bin` for slave node configuration.
 
 ```shell
- $ cp fence/src/slave/slave.conf /usr/bin
+ $ cd fence
+ $ sudo cp src/slave/slave.conf /usr/bin
 ```
 
 ### Developers
