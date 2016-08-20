@@ -9,7 +9,7 @@ endif()
 set(BIN_INSTALL_DIR "/usr/bin/" CACHE PATH "")
 set(HEADERS_INSTALL_DIR "/usr/include")
 set(LIB_INSTALL_DIR "/usr/lib")
-set(HOT_GENERATED_DIR ${PROJECT_SOURCE_DIR}/../../../hot/generated)
+set(HOT_GENERATED_DIR ${PROJECT_SOURCE_DIR}/../../hot/generated)
 
 link_directories("/usr/local/lib")
 if (APPLE)
@@ -36,17 +36,41 @@ add_subdirectory(stat)
 add_subdirectory(mstat)
 add_subdirectory(enq)
 
-#add_library(fence-slave-ack-lib SHARED 
-#  ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy.cc
-#  ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy_builder.cc
-#)
+add_library(fence-slave-fence-lib SHARED
+  ${HOT_GENERATED_DIR}/fence/message.cc
+  ${HOT_GENERATED_DIR}/fence/service/fence_service_request_handler.cc
+  ${HOT_GENERATED_DIR}/fence/service/fence_monitor_service_request_handler.cc
+  ${HOT_GENERATED_DIR}/fence/service/fence_test_service_request_handler.cc
+)
 
-#add_executable(fence-slave-ack
-#  ${PROJECT_SOURCE_DIR}/main.cc
-#)
+add_library(fence-slave-transport-lib SHARED
+  ${HOT_GENERATED_DIR}/transport/enqueue_report.cc
+  ${HOT_GENERATED_DIR}/transport/transport_message.cc
+  ${HOT_GENERATED_DIR}/transport/proxy/transport_service_proxy.cc
+  ${HOT_GENERATED_DIR}/transport/proxy/transport_service_proxy_builder.cc
+)
 
-#target_link_libraries(fence-slave-ack
-#  fence-slave-ack-lib
-#  hotd
-#  pthread
-#)
+add_library(fence-slave-lib SHARED
+  ${PROJECT_SOURCE_DIR}/runtime.cc
+  ${PROJECT_SOURCE_DIR}/fence_service_impl.cc
+  ${PROJECT_SOURCE_DIR}/fence_monitor_service_impl.cc
+  ${PROJECT_SOURCE_DIR}/fence_test_service_impl.cc
+  ${PROJECT_SOURCE_DIR}/slave_thread.cc
+)
+
+add_executable(fence-slave
+  ${PROJECT_SOURCE_DIR}/main.cc
+)
+
+target_link_libraries(fence-slave
+  fence-slave-lib
+  fence-slave-fence-lib
+  fence-slave-transport-lib
+  hotd
+  pthread
+  abettor-c-fs
+  abettor-cc-conf
+  abettor-cc-string
+  abettor-cc-os
+  abettor-cc-date
+)
