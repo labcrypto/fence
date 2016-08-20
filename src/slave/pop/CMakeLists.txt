@@ -45,3 +45,6 @@ target_link_libraries(fence-slave-pop
   hotd
   pthread
 )
+
+install(TARGETS fence-slave-pop-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-pop DESTINATION ${BIN_INSTALL_DIR})

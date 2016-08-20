@@ -74,3 +74,8 @@ target_link_libraries(fence-slave
   abettor-cc-os
   abettor-cc-date
 )
+
+install(TARGETS fence-slave-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-fence-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-transport-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave DESTINATION ${BIN_INSTALL_DIR})

@@ -44,3 +44,6 @@ target_link_libraries(fence-master-ack
   hotd
   pthread
 )
+
+install(TARGETS fence-master-ack-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-ack DESTINATION ${BIN_INSTALL_DIR})

@@ -44,3 +44,6 @@ target_link_libraries(fence-slave-stat
   hotd
   pthread
 )
+
+install(TARGETS fence-slave-stat-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-stat DESTINATION ${BIN_INSTALL_DIR})

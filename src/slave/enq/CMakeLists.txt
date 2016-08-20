@@ -46,3 +46,6 @@ target_link_libraries(fence-slave-enq
   pthread
   abettor-c-fs
 )
+
+install(TARGETS fence-slave-enq-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-slave-enq DESTINATION ${BIN_INSTALL_DIR})

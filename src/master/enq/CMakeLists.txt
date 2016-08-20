@@ -47,3 +47,6 @@ target_link_libraries(fence-master-enq
   abettor-c-fs
   abettor-cc-os
 )
+
+install(TARGETS fence-master-enq-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-enq DESTINATION ${BIN_INSTALL_DIR})

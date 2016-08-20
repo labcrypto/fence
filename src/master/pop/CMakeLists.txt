@@ -45,3 +45,6 @@ target_link_libraries(fence-master-pop
   hotd
   pthread
 )
+
+install(TARGETS fence-master-pop-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-pop DESTINATION ${BIN_INSTALL_DIR})

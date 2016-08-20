@@ -75,3 +75,8 @@ target_link_libraries(fence-master
   abettor-cc-os
   abettor-cc-date
 )
+
+install(TARGETS fence-master-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-fence-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-transport-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master DESTINATION ${BIN_INSTALL_DIR})

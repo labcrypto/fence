@@ -44,3 +44,6 @@ target_link_libraries(fence-master-stat
   hotd
   pthread
 )
+
+install(TARGETS fence-master-stat-lib DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS fence-master-stat DESTINATION ${BIN_INSTALL_DIR})
