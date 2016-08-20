@@ -44,6 +44,20 @@ Copy `slave.conf` to `/usr/bin` for slave node configuration.
  $ sudo cp src/slave/slave.conf /usr/bin
 ```
 
+Make workig directories.
+
+```shell
+ $ sudo mkdir -p /opt/org/labcrypto/fence/master/work
+ $ sudo mkdir -p /opt/org/labcrypto/fence/slave/work
+```
+
+Start master and slave nodes.
+
+```shell
+ $ sudo fence-master
+ $ sudo fence-slave
+```
+
 ### Developers
 
 Kamran Amini  (kam.cpp@gmail.com)
