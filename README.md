@@ -2,7 +2,7 @@
 
 ### Installation
 #### Linux (Debian-based distributions)
-First, install abettor-c, abettor-cc and hottentot from following links:
+Install `abettor-c`, `abettor-cc` and `hottentot` from following links:
 
 [LabCryptoOrg/abettor-c](https://github.com/LabCryptoOrg/abettor-c)
 
