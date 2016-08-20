@@ -30,8 +30,17 @@ Compile and install sources.
  $ sudo make install
 ```
 
-Copy `master.conf` to /usr/bin for master node configuration.
-Copy `slave.conf` to /usr/bin for slave node configuration.
+Copy `master.conf` to `/usr/bin` for master node configuration.
+
+```shell
+ $ cp fence/src/master/master.conf /usr/bin
+```
+
+Copy `slave.conf` to `/usr/bin` for slave node configuration.
+
+```shell
+ $ cp fence/src/slave/slave.conf /usr/bin
+```
 
 ### Developers
 
