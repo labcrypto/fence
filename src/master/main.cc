@@ -27,7 +27,6 @@ main(int argc, char **argv) {
     std::string execDir = ::org::labcrypto::abettor::os::GetExecDir();
     ::org::labcrypto::hottentot::runtime::Logger::Init();
     ::org::labcrypto::hottentot::runtime::Configuration::Init(argc, argv);
-    ::org::labcrypto::hottentot::runtime::Configuration::VerboseOn();
     if (!ORG_LABCRYPTO_ABETTOR__fs__file_exists((ORG_LABCRYPTO_ABETTOR_path)execDir.c_str(), (ORG_LABCRYPTO_ABETTOR_string)"master.conf")) {
       ::org::labcrypto::hottentot::runtime::Logger::GetError() << 
         "[" << ::org::labcrypto::abettor::date::helper::GetCurrentUTCTimeString() << "]: " << 
