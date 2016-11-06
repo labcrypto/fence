@@ -56,5 +56,5 @@ target_link_libraries(fence-master-sack
   pthread
 )
 
-install(TARGETS fence-master-sack-lib DESTINATION ${LIB_INSTALL_DIR})
+# install(TARGETS fence-master-sack-lib DESTINATION ${LIB_INSTALL_DIR})
 install(TARGETS fence-master-sack DESTINATION ${BIN_INSTALL_DIR})
