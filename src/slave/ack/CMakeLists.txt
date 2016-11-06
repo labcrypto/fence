@@ -1,20 +1,35 @@
 cmake_minimum_required(VERSION 2.8) 
 
-project(LabCryptoOrg-fence-slave-ack)
+project(fence-slave-ack)
 
-if (APPLE)
-  set(CMAKE_MACOSX_RPATH 1)
+if (UNIX)
+  add_definitions(-D__UNIX__)
+  add_definitions(-D__CPPXX__)
+  set(BIN_INSTALL_DIR "/usr/bin/" CACHE PATH "")
+  set(HEADERS_INSTALL_DIR "/usr/local/include")
+  set(LIB_INSTALL_DIR "/usr/local/lib")
+  if (APPLE)
+    set(CMAKE_MACOSX_RPATH 1)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-writable-strings -Wno-deprecated-register -Wno-unused-function")
+    add_definitions(-D__MACOS__)
+    link_directories("/opt/local/lib/")
+  else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-write-strings -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function")
+    add_definitions(-D__LINUX__)
+    link_directories("/usr/local/lib")
+  endif()
 endif()
 
-set(BIN_INSTALL_DIR "/usr/bin/" CACHE PATH "")
-set(HEADERS_INSTALL_DIR "/usr/include")
-set(LIB_INSTALL_DIR "/usr/lib")
-set(HOT_GENERATED_DIR ${PROJECT_SOURCE_DIR}/../../../hot/generated)
-
-link_directories("/usr/local/lib")
-if (APPLE)
-  link_directories("/opt/local/lib/")
+if (WIN32)
+  add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+  add_definitions(-DUNICODE -D_UNICODE)
+  add_definitions(-D__WIN32__)
 endif()
+
+set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/slave/ack)
+
+set(HOT_GENERATED_DIR ${CMAKE_SOURCE_DIR}/hot/generated)
 
 include_directories(${HOT_GENERATED_DIR})
 
@@ -24,13 +39,7 @@ else()
   set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
 endif()
 
-if (APPLE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-writable-strings -Wno-deprecated-register -Wno-unused-function")
-elseif (UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-write-strings -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function")
-endif()
-
-add_library(fence-slave-ack-lib SHARED 
+add_library(fence-slave-ack-lib STATIC
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy.cc
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy_builder.cc
 )
@@ -41,9 +50,9 @@ add_executable(fence-slave-ack
 
 target_link_libraries(fence-slave-ack
   fence-slave-ack-lib
-  hotd
+  hottentot-runtime-debug
   pthread
 )
 
-install(TARGETS fence-slave-ack-lib DESTINATION ${LIB_INSTALL_DIR})
+# install(TARGETS fence-slave-ack-lib DESTINATION ${LIB_INSTALL_DIR})
 install(TARGETS fence-slave-ack DESTINATION ${BIN_INSTALL_DIR})

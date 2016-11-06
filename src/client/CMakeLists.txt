@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8) 
 
-project(fence-master-pop)
+project(fence-client)
 
 if (UNIX)
   add_definitions(-D__UNIX__)
@@ -27,11 +27,12 @@ if (WIN32)
 endif()
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/master/pop)
+set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/client)
 
 set(HOT_GENERATED_DIR ${CMAKE_SOURCE_DIR}/hot/generated)
 
 include_directories(${HOT_GENERATED_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include/client)
 
 if (DEBUG)
   set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -g")
@@ -39,21 +40,23 @@ else()
   set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
 endif()
 
-add_library(fence-master-pop-lib STATIC
+add_library(fence-client-lib STATIC
   ${HOT_GENERATED_DIR}/fence/message.cc
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy.cc
   ${HOT_GENERATED_DIR}/fence/proxy/fence_service_proxy_builder.cc
+  ${PROJECT_SOURCE_DIR}/runtime.cc
+  ${PROJECT_SOURCE_DIR}/default_message_receiver.cc
+  ${PROJECT_SOURCE_DIR}/default_message_submitter.cc
+  ${PROJECT_SOURCE_DIR}/submitter_thread.cc
+  ${PROJECT_SOURCE_DIR}/receiver_thread.cc
 )
 
-add_executable(fence-master-pop
-  ${PROJECT_SOURCE_DIR}/main.cc
+install(DIRECTORY
+  ${CMAKE_SOURCE_DIR}/include/client/org
+  DESTINATION
+  ${HEADERS_INSTALL_DIR}
+  FILES_MATCHING
+  PATTERN "*.h"
 )
 
-target_link_libraries(fence-master-pop
-  fence-master-pop-lib
-  hottentot-runtime-debug
-  pthread
-)
-
-# install(TARGETS fence-master-pop-lib DESTINATION ${LIB_INSTALL_DIR})
-install(TARGETS fence-master-pop DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS fence-client-lib DESTINATION ${LIB_INSTALL_DIR})

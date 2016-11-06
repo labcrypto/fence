@@ -22,3 +22,4 @@ execute_process(COMMAND ./gen.sh
 
 add_subdirectory(src/master fence-master-bin)
 add_subdirectory(src/slave fence-slave-bin)
+add_subdirectory(src/client fence-client-lib)

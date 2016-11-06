@@ -27,9 +27,9 @@ if (WIN32)
 endif()
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/enq)
+set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/master/enq)
 
-set(HOT_GENERATED_DIR ${PROJECT_SOURCE_DIR}/../../../hot/generated)
+set(HOT_GENERATED_DIR ${CMAKE_SOURCE_DIR}/hot/generated)
 
 include_directories(${HOT_GENERATED_DIR})
 
